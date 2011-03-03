@@ -1,0 +1,54 @@
+#                                               -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
+
+AC_PREREQ([2.59])
+AC_INIT([kytea], [0.2.1], [kytea@phontron.com])
+AC_CONFIG_SRCDIR([src/lib/kytea.cpp])
+AC_CONFIG_HEADERS([src/include/kytea/config.h])
+AC_CONFIG_FILES([
+    Makefile
+    src/Makefile
+    src/include/Makefile
+    src/lib/Makefile
+    src/lib/liblinear/Makefile
+    src/lib/liblinear/blas/Makefile
+    src/bin/Makefile
+    data/Makefile
+])
+
+# disable shared libraries
+# AM_DISABLE_SHARED
+AC_PROG_LIBTOOL
+
+# Intialize automake
+AM_INIT_AUTOMAKE([-Wall])
+
+# Checks for programs.
+AC_PROG_CXX
+AC_PROG_CC
+
+CFLAGS="-O3 -Wall -g"
+CXXFLAGS="-O3 -Wall -g"
+
+# Checks for features.
+AC_ARG_ENABLE(quantize,
+  [  --enable-quantize       Quantize the model, resulting in smaller but possibly less accurate models)],
+  [enable_quantize=yes], [])
+if test "$enable_quantize" != yes; then
+    AC_DEFINE([DISABLE_QUANTIZE], [1], [Disable quantizing])
+else
+    AC_DEFINE([DISABLE_QUANTIZE], [0], [Enable quantizing])
+fi
+
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_HEADER_STDBOOL
+AC_C_INLINE
+AC_TYPE_SIZE_T
+
+# Check to make sure that we have unordered_map
+AC_LANG([C++])
+AC_CHECK_HEADERS([tr1/unordered_map])
+AC_CHECK_HEADERS([ext/hash_map])
+
+AC_OUTPUT

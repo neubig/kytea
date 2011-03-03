@@ -1,0 +1,9 @@
+Version 0.0.2 (11/16/2009)
+
+    * Support for Shift-JIS (in addition to the previous EUC-JP and UTF8).
+    * Build system change to Autotools
+
+
+KyTea - Version 0.0.1 (11/05/2009)
+
+    * Initial release of KyWs and KyPe.
