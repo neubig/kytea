@@ -22,7 +22,7 @@
 using namespace std;
 using namespace kytea;
 
-// trains a pronunciation estimation model using a corpus and a dictionary
+// trains a KyTea model
 int main(int argv, char **argc) {
 
     try {

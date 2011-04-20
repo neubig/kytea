@@ -38,7 +38,7 @@ KyteaChar StringUtilUtf8::mapChar(const string & str, bool add) {
 string StringUtilUtf8::showChar(KyteaChar c) {
 #ifdef STRING_UTIL_SAFE
     if(c >= charNames_.size())
-        throw runtime_error("FATAL: Index out of bounds in showChar");
+        THROW_ERROR("FATAL: Index out of bounds in showChar");
 #endif 
     return charNames_[c];
 }
@@ -54,23 +54,24 @@ KyteaString StringUtilUtf8::mapString(const string & str) {
         // single character unicode values
         if(!(maskl1 & str[pos]))
             ret.push_back(mapChar(str.substr(pos++, 1)));
-        else if((maskl5 & str[pos]) == maskl5)
-            throw runtime_error("Bad unicode character (five leading 1s)");
+        else if((maskl5 & str[pos]) == maskl5) {
+            THROW_ERROR("Bad unicode character (five leading 1s)");
+        }
         else if((maskl4 & str[pos]) == maskl4) {
             if(pos + 3 >= len || badu(str[pos+1]) || badu(str[pos+2]) || badu(str[pos+3]))
-                throw runtime_error("Bad unicode character (poorly formed length-4)");
+                THROW_ERROR("Bad unicode character (poorly formed length-4)");
             ret.push_back(mapChar(str.substr(pos, 4)));
             pos += 4;
         }
         else if((maskl3 & str[pos]) == maskl3) {
             if(pos + 2 >= len || badu(str[pos+1]) || badu(str[pos+2]))
-                throw runtime_error("Bad unicode character (poorly formed length-3)");
+                THROW_ERROR("Bad unicode character (poorly formed length-3)");
             ret.push_back(mapChar(str.substr(pos, 3)));
             pos += 3;
         }
         else {
             if(pos + 1 >= len || badu(str[pos+1]))
-                throw runtime_error("Bad unicode character (poorly formed length-2)");
+                THROW_ERROR("Bad unicode character (poorly formed length-2)");
             ret.push_back(mapChar(str.substr(pos, 2)));
             pos += 2;
         }
@@ -87,7 +88,7 @@ StringUtil::CharType StringUtilUtf8::findType(const string & str) {
     if(str.length() == 0)
         return OTHER;
     if(str.length()>4)
-        throw runtime_error("Malformed utf8 character in findType");
+        THROW_ERROR("Malformed utf8 character in findType");
     // parse into unicode integer values
     unsigned val = 0;
     if(str.length() == 1) val = str[0];
@@ -153,19 +154,19 @@ KyteaChar StringUtilEuc::mapChar(const string & str, bool add) {
     if(len == 1) {
 #ifdef STRING_UTIL_SAFE
         if(str[0] & maskl1)
-            throw runtime_error("Poorly formed EUC character (illegal length 1 char)");
+            THROW_ERROR("Poorly formed EUC character (illegal length 1 char)");
 #endif
         ret = eucm(0,str[0]);
     }
     else if(len == 2) {
 #ifdef STRING_UTIL_SAFE
         if(!(maskl1 & str[0] & str[1]))
-            throw runtime_error("Poorly formed EUC character (illegal length 2 char)");
+            THROW_ERROR("Poorly formed EUC character (illegal length 2 char)");
 #endif
         ret = eucm(str[0],str[1]);
     } 
     else
-        throw runtime_error("Poorly formed EUC character (too small or large)");
+        THROW_ERROR("Poorly formed EUC character (too small or large)");
     return ret;
 }
 
@@ -262,19 +263,19 @@ KyteaChar StringUtilSjis::mapChar(const string & str, bool add) {
     if(len == 1) {
 #ifdef STRING_UTIL_SAFE
         if((first & maskl1) && !(first >= 0xA0 && first <= 0xDF))
-            throw runtime_error("Poorly formed SJIS character (illegal length 1 char)");
+            THROW_ERROR("Poorly formed SJIS character (illegal length 1 char)");
 #endif
         ret = sjism(0,str[0]);
     }
     else if(len == 2) {
 #ifdef STRING_UTIL_SAFE
         if(!(first & maskl1) || (first >= 0xA0 && first <= 0xDF))
-            throw runtime_error("Poorly formed SJIS character (illegal length 2 char)");
+            THROW_ERROR("Poorly formed SJIS character (illegal length 2 char)");
 #endif
         ret = sjism(str[0],str[1]);
     } 
     else
-        throw runtime_error("Poorly formed SJIS character (too small or large)");
+        THROW_ERROR("Poorly formed SJIS character (too small or large)");
     return ret;
 }
 

@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.59])
-AC_INIT([kytea], [0.2.1], [kytea@phontron.com])
+AC_INIT([kytea], [0.3.0], [kytea@phontron.com])
 AC_CONFIG_SRCDIR([src/lib/kytea.cpp])
 AC_CONFIG_HEADERS([src/include/kytea/config.h])
 AC_CONFIG_FILES([

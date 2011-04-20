@@ -42,6 +42,9 @@ private:
     KyteaModel* wsModel_;
     KyteaLM * subwordModel_;
 
+    std::vector<KyteaModel*> globalMods_;
+    std::vector< std::vector<KyteaString> > globalTags_;
+
     std::vector<unsigned> dictFeats_;
     std::vector<KyteaString> charPrefixes_, typePrefixes_;
 
@@ -63,11 +66,11 @@ public:
     // Calculate the word segmentation for a sentence
     void calculateWS(KyteaSentence & sent);
     
-    // Calculate the pronunciations for a sentence
-    void calculatePE(KyteaSentence & sent);
+    // Calculate the tagss for a sentence
+    void calculateTags(KyteaSentence & sent, int lev);
 
-    // Calculate the pronunciation for a single unknown word
-    void calculateUnknownPE(KyteaWord & str);
+    // Calculate the unknown pronunciation for a single unknown word
+    void calculateUnknownTag(KyteaWord & str, int lev);
 
     // Get the string utility class that allows you to map to/from
     //  Kyteas internal string representation (using 
@@ -124,16 +127,19 @@ private:
     unsigned wsDictionaryFeatures(const KyteaString & sent, SentenceFeatures & feat);
     unsigned wsNgramFeatures(const KyteaString & sent, SentenceFeatures & feat, const std::vector<KyteaString> & prefixes, int n);
 
-    // functions for pronunciation estimation
-    void trainPE();
-    unsigned peCharFeatures(const KyteaString & chars, std::vector<unsigned> & feat, const std::vector<KyteaString> & prefixes, KyteaModel * model, int n, int sc, int ec);
+    // functions for tagging
+    void trainLocalTags(int lev);
+    void trainGlobalTags(int lev);
+    unsigned tagCharFeatures(const KyteaString & chars, std::vector<unsigned> & feat, const std::vector<KyteaString> & prefixes, KyteaModel * model, int n, int sc, int ec);
+    unsigned tagSelfFeatures(const KyteaString & self, std::vector<unsigned> & feat, const KyteaString & pref, KyteaModel * model);
+    unsigned tagDictFeatures(const KyteaString & surf, int lev, std::vector<unsigned> & myFeats, KyteaModel * model);
 
     // functions for unknown word PE
-    void trainUnk();
+    void trainUnk(int lev);
 
     void analyzeInput();
     
-    std::vector<KyteaPronunciation> generatePronCandidates(const KyteaString & str);
+    std::vector<KyteaTag> generateTagCandidates(const KyteaString & str, int lev);
 
 };
 

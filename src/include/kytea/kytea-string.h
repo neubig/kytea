@@ -23,7 +23,7 @@
 #include <sstream>
 
 // will boundary check when defined
-#define KYTEA_STRING_SAFE
+// #define KYTEA_STRING_SAFE
 
 namespace kytea {
 
@@ -129,11 +129,8 @@ public:
 
     KyteaString substr(unsigned s, unsigned l) const {
 #ifdef KYTEA_STRING_SAFE
-        if(s+l > length()) {
-            std::ostringstream buff;
-            buff << "substr out of bounds (length="<<length()<<", s="<<s<<", l="<<l<<")";
-            throw std::runtime_error(buff.str());
-        }
+        if(s+l > length())
+            throw std::runtime_error("substr out of bounds");
 #endif
         KyteaString ret(l);
         memcpy(ret.getImpl()->chars_, impl_->chars_+s, sizeof(KyteaChar)*l);

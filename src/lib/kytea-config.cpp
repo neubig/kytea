@@ -27,11 +27,8 @@ void KyteaConfig::setIOFormat(const char* str, CorpForm & cf) {
     else if(!strcmp(str, "conf")) { cf = CORP_FORMAT_PROB; }
     else if(!strcmp(str, "prob")) { cf = CORP_FORMAT_PROB; }
     else if(!strcmp(str, "raw"))  { cf = CORP_FORMAT_RAW;  }
-    else {
-        ostringstream buff;
-        buff << "Unsupported corpus IO format '" << str << "'";
-        throw runtime_error(buff.str());
-    }
+    else
+        THROW_ERROR("Unsupported corpus IO format '" << str << "'");
 }
 
 
@@ -74,7 +71,8 @@ void KyteaConfig::printUsage() {
 "  -modtext Print a text model (instead of the default binary)" << endl <<
 "Model Training Options (basic)" << endl <<
 "  -nows    Don't train a word segmentation model" << endl <<
-"  -nope    Don't train a pronunciation estimation model" << endl <<
+"  -notags  Skip the training of tagging, do only word segmentation" << endl <<
+"  -global  Train the nth tag with a global model (good for POS, bad for PE)" << endl <<
 "  -debug   The debugging level during training (0=silent, 1=normal, 2=detailed)" << endl <<
 "Model Training Options (for advanced users): " << endl <<
 "  -charw   The character window to use for WS (3)" << endl <<
@@ -106,7 +104,8 @@ void KyteaConfig::printUsage() {
 "Analysis Options: " << endl <<
 "  -model   The model file to use when analyzing text" << endl <<
 "  -nows    Don't do word segmentation (raw input cannot be accepted)" << endl <<
-"  -nope    Don't do pronunciation estimation (full input cannot be accepted)" << endl <<
+"  -notags  Do only word segmentation, no tagging" << endl <<
+"  -notag   Skip the tag of the nth tag (n starts at 1)" << endl <<
 "  -nounk   Don't estimate the pronunciation of unkown words" << endl <<
 "  -unkbeam The width of the beam to use in beam search for unknown words " <<endl<<
 "           (default 50, 0 for full search)" << endl <<
@@ -161,10 +160,12 @@ unsigned KyteaConfig::parseTrainArg(const char * n, const char * v) {
     else if(!strcmp(n, "-conf"))     { ch(n,v); addCorpus(v, CORP_FORMAT_PROB); }
     else if(!strcmp(n, "-dict"))     { ch(n,v); addDictionary(v); }
     else if(!strcmp(n, "-subword"))  { ch(n,v); addSubwordDict(v); }
+    else if(!strcmp(n, "-global"))    { ch(n,v); setGlobal(util_->parseInt(v)-1); }
 
     // output option for training
     else if(!strcmp(n, "-model"))    { ch(n,v); setModelFile(v); }
     else if(!strcmp(n, "-modtext"))  { setModelFormat('T'); r=0; }
+    else if(!strcmp(n, "-numtags"))  { ch(n,v); setNumTags(util_->parseInt(v)); }
 
     // liblinear options
     else if(!strcmp(n, "-eps"))      { ch(n,v); setEpsilon(util_->parseFloat(v)); }
@@ -177,7 +178,7 @@ unsigned KyteaConfig::parseTrainArg(const char * n, const char * v) {
     else if(!strcmp(n, "-typew"))    { ch(n,v); setTypeWindow(util_->parseInt(v)); }
     else if(!strcmp(n, "-typen"))    { ch(n,v); setTypeN(util_->parseInt(v)); }
     else if(!strcmp(n, "-dictn"))    { ch(n,v); setDictionaryN(util_->parseInt(v)); }
-    else if(!strcmp(n, "-unkn"))    { ch(n,v); setUnkN(util_->parseInt(v)); }
+    else if(!strcmp(n, "-unkn"))     { ch(n,v); setUnkN(util_->parseInt(v)); }
 
     // formatting options
     else if(!strcmp(n, "-wordbound"))     { ch(n,v); setWordBound(v); }
@@ -187,9 +188,10 @@ unsigned KyteaConfig::parseTrainArg(const char * n, const char * v) {
     else if(!strcmp(n, "-nobound"))       { ch(n,v); setNoBound(v); }
     else if(!strcmp(n, "-hasbound"))      { ch(n,v); setHasBound(v); }
     else if(!strcmp(n, "-skipbound"))     { ch(n,v); setSkipBound(v); }
+
     // whether or not to perform word segmentation, pronunciation estimation
     else if(!strcmp(n, "-nows"))     { setDoWS(false); r=0; }
-    else if(!strcmp(n, "-nope"))     { setDoPE(false); setDoUnk(false); r=0; }
+    else if(!strcmp(n, "-notags"))   { setDoTags(false); r=0; }
     else if(!strcmp(n, "-nobias"))   { setBias(false); r=0; }
 
     // --- DEPRECATED ---
@@ -221,8 +223,9 @@ unsigned KyteaConfig::parseRunArg(const char * n, const char * v) {
 
     // whether or not to perform word segmentation, pronunciation estimation
     else if(!strcmp(n, "-nows"))     { setDoWS(false); r=0; }
-    else if(!strcmp(n, "-nope"))     { setDoPE(false); r=0; }
-    else if(!strcmp(n, "-nounk"))    { setDoUnk(false); r=0; }
+    else if(!strcmp(n, "-notags"))   { setDoTags(false); r=0; }
+    else if(!strcmp(n, "-notag"))    { ch(n,v); setDoTag(util_->parseInt(v)-1,false); }
+    else if(!strcmp(n, "-numtags"))  { ch(n,v); setNumTags(util_->parseInt(v)); }
 
     // the limit on the number of unknown words to output
     else if(!strcmp(n, "-unkcount")) { ch(n,v); setUnkCount(util_->parseInt(v)); }

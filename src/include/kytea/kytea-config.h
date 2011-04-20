@@ -58,9 +58,8 @@ private:
     std::string input_, output_;     // the file to input/output
     CorpForm inputForm_, outputForm_; // the format/file to input/output to (default: stdout, full)
 
-    bool doWS_;
-    bool doPE_;
-    bool doUnk_;
+    bool doWS_, doTags_;
+    std::vector<bool> doTag_;
 
     // feature options
     bool addFeat_;              // whether or not to add newly found features
@@ -100,6 +99,10 @@ private:
     // formatting tags
     std::string wordBound_, tagBound_, elemBound_, unkBound_, noBound_, hasBound_, skipBound_, escape_;
 
+    // the number of tag levels
+    int numTags_;
+    std::vector<bool> global_;
+
     // check argument legality
     void ch(const char * n, const char* v);
 
@@ -107,14 +110,15 @@ public:
 
     KyteaConfig() : onTraining_(true), debug_(0), util_(0), dicts_(), 
                     modelForm_('B'), inputForm_(CORP_FORMAT_DEFAULT),
-                    outputForm_(CORP_FORMAT_FULL), doWS_(true), doPE_(true), doUnk_(true),
+                    outputForm_(CORP_FORMAT_FULL), doWS_(true), doTags_(true),
                     addFeat_(false), confidence_(0.0), charW_(3), charN_(3), 
                     typeW_(3), typeN_(3), dictN_(4), 
                     unkN_(3), unkCount_(5), unkBeam_(50), defTag_("UNK"), unkTag_(),
                     bias_(1.0f), eps_(HUGE_VAL), cost_(1.0),
                     solverType_(1/*SVM*/),
                     wordBound_(" "), tagBound_("/"), elemBound_("&"), unkBound_(" "), 
-                    noBound_("-"), hasBound_("|"), skipBound_("?"), escape_("\\") {
+                    noBound_("-"), hasBound_("|"), skipBound_("?"), escape_("\\"), 
+                    numTags_(0) {
         setEncoding("utf8");
     }
     ~KyteaConfig() {
@@ -179,8 +183,8 @@ public:
     const double getCost() const { return cost_; }
     const int getSolverType() const { return solverType_; }
     const bool getDoWS() const { return doWS_; }
-    const bool getDoPE() const { return doPE_; }
-    const bool getDoUnk() const { return doUnk_; }
+    const bool getDoTags() const { return doTags_; }
+    const bool getDoTag(int i) const { return (i >= (int)doTag_.size() || doTag_[i]); }
     const char* getWordBound() const { return wordBound_.c_str(); } 
     const char* getTagBound() const { return tagBound_.c_str(); } 
     const char* getElemBound() const { return elemBound_.c_str(); } 
@@ -193,6 +197,8 @@ public:
     const double getConfidence() const { return confidence_; }
     const char getEncoding() const { return util_->getEncoding(); }
     const char* getEncodingString() const { return util_->getEncodingString(); }
+    int getNumTags() const { return numTags_; }
+    bool getGlobal(int i) const { return i < (int)global_.size() && global_[i]; }
 
     const std::vector<std::string> & getArguments() const { return args_; }
     
@@ -218,8 +224,8 @@ public:
     void setDefaultTag(const char* v) { defTag_ = v; }
     void setOnTraining(bool v) { onTraining_ = v; }
     void setDoWS(bool v) { doWS_ = v; }
-    void setDoPE(bool v) { doPE_ = v; }
-    void setDoUnk(bool v) { doUnk_ = v; }
+    void setDoTags(bool v) { doTags_ = v; } 
+    void setDoTag(int i, bool v)  { if(i >= (int)doTag_.size()) doTag_.resize(i+1,true); doTag_[i] = v; } 
     void setInputFormat(CorpForm v) { inputForm_ = v; }
     void setWordBound(const char* v) { wordBound_ = v; } 
     void setTagBound(const char* v) { tagBound_ = v; } 
@@ -229,6 +235,9 @@ public:
     void setHasBound(const char* v) { hasBound_ = v; } 
     void setSkipBound(const char* v) { skipBound_ = v; } 
     void setEscape(const char* v) { escape_ = v; } 
+    void setNumTags(int v) { numTags_ = v; } 
+    void setGlobal(int v) { if((int)global_.size() <= v) global_.resize(v+1,false); global_[v] = true; } 
+
 
     // set the encoding of the StringUtil class and reset all the IOs
     void setEncoding(const char* str) {
@@ -237,11 +246,8 @@ public:
         if(!strcmp(str,"utf8")) util_ = new StringUtilUtf8();
         else if(!strcmp(str,"euc")) util_ = new StringUtilEuc();
         else if(!strcmp(str,"sjis")) util_ = new StringUtilSjis();
-        else {
-            std::ostringstream buff;
-            buff << "Unsupported encoding format '" << str << "'";
-            throw std::runtime_error(buff.str());
-        }
+        else
+            THROW_ERROR("Unsupported encoding format '" << str << "'");
     }
 
 };

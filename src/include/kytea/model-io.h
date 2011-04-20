@@ -45,6 +45,8 @@ public:
     const static Format FORMAT_TEXT = 'T';
     const static Format FORMAT_UNKNOWN = 'U';
 
+    int numTags_;
+
 public:
 
     ModelIO(StringUtil* util) : GeneralIO(util) { }
@@ -58,12 +60,14 @@ public:
 
     virtual void writeConfig(const KyteaConfig & conf) = 0;
     virtual void writeModel(const KyteaModel * mod) = 0;
+    virtual void writeWordList(const std::vector<KyteaString> & list) = 0;
     virtual void writeModelDictionary(const Dictionary * dict) = 0;
     virtual void writeProbDictionary(const Dictionary * dict) = 0;
     virtual void writeLM(const KyteaLM * mod) = 0;
 
     virtual void readConfig(KyteaConfig & conf) = 0;
     virtual KyteaModel * readModel() = 0;
+    virtual std::vector<KyteaString> readWordList() = 0;
     virtual Dictionary * readModelDictionary() = 0;
     virtual Dictionary * readProbDictionary() = 0;
     virtual KyteaLM * readLM() = 0;
@@ -82,8 +86,9 @@ public:
 
     void writeConfig(const KyteaConfig & conf);
     void writeModel(const KyteaModel * mod);
-    void writeModelDictionary(const Dictionary * dict) { writeDictionary<ModelPronEntry>(dict); }
-    void writeProbDictionary(const Dictionary * dict) { writeDictionary<ProbPronEntry>(dict); }
+    void writeWordList(const std::vector<KyteaString> & list);
+    void writeModelDictionary(const Dictionary * dict) { writeDictionary<ModelTagEntry>(dict); }
+    void writeProbDictionary(const Dictionary * dict) { writeDictionary<ProbTagEntry>(dict); }
     void writeLM(const KyteaLM * mod);
 
     template <class Entry>
@@ -114,7 +119,7 @@ public:
             *str_ << (states[i]->isBranch?'b':'n') << std::endl;
         }
         // write the entries
-        const std::vector<PronEntry*> & entries = dict->getEntries();
+        const std::vector<TagEntry*> & entries = dict->getEntries();
         *str_ << entries.size() << std::endl;
         for(unsigned i = 0; i < entries.size(); i++)
             writeEntry((Entry*)entries[i]);
@@ -126,8 +131,9 @@ public:
 
     void readConfig(KyteaConfig & conf);
     KyteaModel * readModel();
-    Dictionary * readModelDictionary() { return readDictionary<ModelPronEntry>(); }
-    Dictionary * readProbDictionary()  { return readDictionary<ProbPronEntry>(); }
+    std::vector<KyteaString> readWordList();
+    Dictionary * readModelDictionary() { return readDictionary<ModelTagEntry>(); }
+    Dictionary * readProbDictionary()  { return readDictionary<ProbTagEntry>(); }
     KyteaLM * readLM();
 
     template <class Entry>
@@ -158,7 +164,7 @@ public:
                 std::pair<KyteaChar,unsigned> p;
                 p.first = util_->mapChar(buff.c_str());
                 if(!(iss >> buff))
-                    throw std::runtime_error("Badly formed model (goto character without a destination)");
+                    THROW_ERROR("Badly formed model (goto character without a destination)");
                 p.second = util_->parseInt(buff.c_str());
                 state->gotos.push_back(p);
             }
@@ -169,12 +175,12 @@ public:
                 state->output.push_back(util_->parseInt(buff.c_str()));
             getline(*str_, line);
             if(line.length() != 1)
-                throw std::runtime_error("Badly formed model (branch indicator not found)");
+                THROW_ERROR("Badly formed model (branch indicator not found)");
             state->isBranch = (line[0] == 'b');
             states[i] = state;
         }
         // get the entries
-        std::vector<PronEntry*> & entries = dict->getEntries();
+        std::vector<TagEntry*> & entries = dict->getEntries();
         getline(*str_, line);
         entries.resize(util_->parseInt(line.c_str()));
         for(unsigned i = 0; i < entries.size(); i++) {
@@ -197,8 +203,9 @@ public:
 
     void writeConfig(const KyteaConfig & conf);
     void writeModel(const KyteaModel * mod);
-    void writeModelDictionary(const Dictionary * dict) { writeDictionary<ModelPronEntry>(dict); }
-    void writeProbDictionary(const Dictionary * dict) { writeDictionary<ProbPronEntry>(dict); }
+    void writeWordList(const std::vector<KyteaString> & list);
+    void writeModelDictionary(const Dictionary * dict) { writeDictionary<ModelTagEntry>(dict); }
+    void writeProbDictionary(const Dictionary * dict) { writeDictionary<ProbTagEntry>(dict); }
     void writeLM(const KyteaLM * mod);
 
     template <class Entry>
@@ -213,7 +220,7 @@ public:
             return;
         }
         if(dict->getNumDicts() > 8)
-            throw std::runtime_error("Only 8 dictionaries may be stored in a binary file.");
+            THROW_ERROR("Only 8 dictionaries may be stored in a binary file.");
         writeBinary(dict->getNumDicts());
         // write the states
         const std::vector<DictionaryState*> & states = dict->getStates();
@@ -232,7 +239,7 @@ public:
             writeBinary(state->isBranch);
         }
         // write the entries
-        const std::vector<PronEntry*> & entries = dict->getEntries();
+        const std::vector<TagEntry*> & entries = dict->getEntries();
         writeBinary((uint32_t)entries.size());
         for(unsigned i = 0; i < entries.size(); i++)
             writeEntry((Entry*)entries[i]);
@@ -243,8 +250,9 @@ public:
     // input functions
     void readConfig(KyteaConfig & conf);
     KyteaModel * readModel();
-    Dictionary * readModelDictionary() { return readDictionary<ModelPronEntry>(); }
-    Dictionary * readProbDictionary()  { return readDictionary<ProbPronEntry>(); }
+    std::vector<KyteaString> readWordList();
+    Dictionary * readModelDictionary() { return readDictionary<ModelTagEntry>(); }
+    Dictionary * readProbDictionary()  { return readDictionary<ProbTagEntry>(); }
     KyteaLM * readLM();
 
     template <class Entry>
@@ -279,7 +287,7 @@ public:
             states[i] = state;
         }
         // get the entries
-        std::vector<PronEntry*> & entries = dict->getEntries();
+        std::vector<TagEntry*> & entries = dict->getEntries();
         entries.resize(readBinary<uint32_t>());
         for(unsigned i = 0; i < entries.size(); i++) 
             entries[i] = readEntry<Entry>();

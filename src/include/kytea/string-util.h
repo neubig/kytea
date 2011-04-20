@@ -25,7 +25,7 @@
 #include <cstdlib>
 
 // enforces boundary checking
-#define STRING_UTIL_SAFE
+// #define STRING_UTIL_SAFE
 
 namespace kytea {
 
@@ -85,21 +85,15 @@ public:
     int parseInt(const char* str) {
         char* endP;
         int ret = strtol(str, &endP, 10);
-        if(endP == str) {
-            std::ostringstream buff;
-            buff << "Bad integer value '" << str << "'";
-            throw std::runtime_error(buff.str());
-        }
+        if(endP == str)
+            THROW_ERROR("Bad integer value '" << str << "'");
         return ret;
     }
     double parseFloat(const char* str) {
         char* endP;
         double ret = strtod(str, &endP);
-        if(endP == str) {
-            std::ostringstream buff;
-            buff << "Bad floating-point value '" << str << "'";
-            throw std::runtime_error(buff.str());
-        }
+        if(endP == str)
+            THROW_ERROR("Bad floating-point value '" << str << "'");
         return ret;
     }
 

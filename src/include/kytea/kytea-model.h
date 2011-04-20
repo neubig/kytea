@@ -40,6 +40,10 @@ public:
 #endif
     typedef std::vector<KyteaString> FeatVec;
 
+    static inline bool isProbabilistic(int solver) {
+        return solver == 0 || solver == 6 || solver == 7;
+    }
+
 private:
 
     KyteaUnsignedMap ids_;
@@ -75,7 +79,7 @@ public:
     inline KyteaString showFeat(unsigned val) {
 #ifdef MODEL_SAFE
         if(val >= names_.size())
-            throw std::runtime_error("FATAL: Array index out of bounds in showFeat");
+            THROW_ERROR("FATAL: Array index out of bounds in showFeat ("<<val<<" >= "<<names_.size()<<")");
 #endif
         return names_[val];
     }
@@ -106,8 +110,8 @@ public:
     inline void setLabel(unsigned i, int lab) { labels_[i] = lab; }
     inline void setSolver(int i) { solver_ = i; }
     inline void setNumFeatures(unsigned i) {
-        if(i != getNumFeatures())
-            throw std::runtime_error("setting the number of features to a different value is not allowed");
+        if(i != getNumFeatures()) 
+            THROW_ERROR("setting the number of features to a different value is not allowed ("<<i<<" != "<<getNumFeatures()<<")");
     }
     void setNumClasses(unsigned i);
 
