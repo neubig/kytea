@@ -37,14 +37,18 @@ class CorpusIO : public GeneralIO {
 protected:
 
     std::string unkTag_;
+    int numTags_;
 
 public:
 
     typedef char Format;
 
-    CorpusIO(StringUtil * util) : GeneralIO(util), unkTag_() { }
-    CorpusIO(StringUtil * util, const char* file, bool out) : GeneralIO(util,file,out,false) { } 
-    CorpusIO(StringUtil * util, std::iostream & str, bool out) : GeneralIO(util,str,out,false) { }
+    CorpusIO(StringUtil * util) : GeneralIO(util), unkTag_(), numTags_(0) { }
+    CorpusIO(StringUtil * util, const char* file, bool out) : GeneralIO(util,file,out,false), numTags_(0) { } 
+    CorpusIO(StringUtil * util, std::iostream & str, bool out) : GeneralIO(util,str,out,false), numTags_(0) { }
+
+    int getNumTags() { return numTags_; }
+    void setNumTags(int numTags) { numTags_ = numTags; }
 
     virtual ~CorpusIO() { }
 
@@ -63,29 +67,29 @@ class FullCorpusIO : public CorpusIO {
 
 protected:
 
-    bool allProns_;
+    bool allTags_;
     KyteaString bounds_;
 
 public:
-    FullCorpusIO(StringUtil * util, const char* wordBound = " ", const char* tagBound = "/", const char* elemBound = "&", const char* escape = "\\") : CorpusIO(util), allProns_(false), bounds_(4) { 
+    FullCorpusIO(StringUtil * util, const char* wordBound = " ", const char* tagBound = "/", const char* elemBound = "&", const char* escape = "\\") : CorpusIO(util), allTags_(false), bounds_(4) { 
         bounds_[0] = util_->mapChar(wordBound);
         bounds_[1] = util_->mapChar(tagBound);
         bounds_[2] = util_->mapChar(elemBound);
         bounds_[3] = util_->mapChar(escape);
     }
-    FullCorpusIO(const CorpusIO & c, const char* wordBound = " ", const char* tagBound = "/", const char* elemBound = "&", const char* escape = "\\") : CorpusIO(c), allProns_(false), bounds_(4) { 
+    FullCorpusIO(const CorpusIO & c, const char* wordBound = " ", const char* tagBound = "/", const char* elemBound = "&", const char* escape = "\\") : CorpusIO(c), allTags_(false), bounds_(4) { 
         bounds_[0] = util_->mapChar(wordBound);
         bounds_[1] = util_->mapChar(tagBound);
         bounds_[2] = util_->mapChar(elemBound);
         bounds_[3] = util_->mapChar(escape);
     }
-    FullCorpusIO(StringUtil * util, const char* file, bool out, const char* wordBound = " ", const char* tagBound = "/", const char* elemBound = "&", const char* escape = "\\") : CorpusIO(util,file,out), allProns_(false), bounds_(4) { 
+    FullCorpusIO(StringUtil * util, const char* file, bool out, const char* wordBound = " ", const char* tagBound = "/", const char* elemBound = "&", const char* escape = "\\") : CorpusIO(util,file,out), allTags_(false), bounds_(4) { 
         bounds_[0] = util_->mapChar(wordBound);
         bounds_[1] = util_->mapChar(tagBound);
         bounds_[2] = util_->mapChar(elemBound);
         bounds_[3] = util_->mapChar(escape);
     } 
-    FullCorpusIO(StringUtil * util, std::iostream & str, bool out, const char* wordBound = " ", const char* tagBound = "/", const char* elemBound = "&", const char* escape = "\\") : CorpusIO(util,str,out), allProns_(false), bounds_(4) { 
+    FullCorpusIO(StringUtil * util, std::iostream & str, bool out, const char* wordBound = " ", const char* tagBound = "/", const char* elemBound = "&", const char* escape = "\\") : CorpusIO(util,str,out), allTags_(false), bounds_(4) { 
         bounds_[0] = util_->mapChar(wordBound);
         bounds_[1] = util_->mapChar(tagBound);
         bounds_[2] = util_->mapChar(elemBound);
@@ -158,10 +162,10 @@ public:
 class ProbCorpusIO : public FullCorpusIO {
 
 public:
-    ProbCorpusIO(StringUtil * util, const char* wordBound = " ", const char* tagBound = "/", const char* elemBound = "&", const char* escape = "\\") : FullCorpusIO(util,wordBound,tagBound,elemBound,escape) { allProns_ = true; }
-    ProbCorpusIO(const CorpusIO & c, const char* wordBound = " ", const char* tagBound = "/", const char* elemBound = "&", const char* escape = "\\") : FullCorpusIO(c,wordBound,tagBound,elemBound,escape) { allProns_ = true; }
-    ProbCorpusIO(StringUtil * util, const char* file, bool out, const char* wordBound = " ", const char* tagBound = "/", const char* elemBound = "&", const char* escape = "\\") : FullCorpusIO(util,file,out,wordBound,tagBound,elemBound,escape) { allProns_ = true; } 
-    ProbCorpusIO(StringUtil * util, std::iostream & str, bool out, const char* wordBound = " ", const char* tagBound = "/", const char* elemBound = "&", const char* escape = "\\") : FullCorpusIO(util,str,out,wordBound,tagBound,elemBound,escape) { allProns_ = true; }
+    ProbCorpusIO(StringUtil * util, const char* wordBound = " ", const char* tagBound = "/", const char* elemBound = "&", const char* escape = "\\") : FullCorpusIO(util,wordBound,tagBound,elemBound,escape) { allTags_ = true; }
+    ProbCorpusIO(const CorpusIO & c, const char* wordBound = " ", const char* tagBound = "/", const char* elemBound = "&", const char* escape = "\\") : FullCorpusIO(c,wordBound,tagBound,elemBound,escape) { allTags_ = true; }
+    ProbCorpusIO(StringUtil * util, const char* file, bool out, const char* wordBound = " ", const char* tagBound = "/", const char* elemBound = "&", const char* escape = "\\") : FullCorpusIO(util,file,out,wordBound,tagBound,elemBound,escape) { allTags_ = true; } 
+    ProbCorpusIO(StringUtil * util, std::iostream & str, bool out, const char* wordBound = " ", const char* tagBound = "/", const char* elemBound = "&", const char* escape = "\\") : FullCorpusIO(util,str,out,wordBound,tagBound,elemBound,escape) { allTags_ = true; }
 
     KyteaSentence * readSentence();
     void writeSentence(const KyteaSentence * sent, double conf = 0.0);

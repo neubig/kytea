@@ -107,12 +107,8 @@ public:
         std::fstream::openmode mode = (out?std::fstream::out:std::fstream::in);
         if(bin) out = out | std::fstream::binary;
         std::fstream * str = new std::fstream(file, mode);
-        if(str->fail()) {
-            delete str;
-            std::ostringstream buff;
-            buff << "Couldn't open file '"<<file<<"' for "<<(out?"output":"input");
-            throw std::runtime_error(buff.str());
-        }
+        if(str->fail()) 
+            THROW_ERROR("Couldn't open file '"<<file<<"' for "<<(out?"output":"input"));
         setStream(*str, out, bin);
         owns_ = true;
     }

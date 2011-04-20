@@ -20,10 +20,6 @@ public:
     }
 };
 
-inline bool isProbabilistic(int solver) {
-    return solver == 0 || solver == 6 || solver == 7;
-}
-
 // note: this is not safe, all features must be within the appropriate range
 vector< pair<int,double> > KyteaModel::runClassifier(const vector<unsigned> & feat) {
     int i, j, featSize = feat.size();
@@ -254,7 +250,7 @@ void KyteaModel::trainModel(const vector< vector<unsigned> > & xs, vector<int> &
 
 void KyteaModel::setNumClasses(unsigned v) {
     if(v == 1) 
-        throw runtime_error("Trying to set the number of classes to 1");
+        THROW_ERROR("Trying to set the number of classes to 1");
     labels_.resize(v);
     numW_ = (v==2 && solver_ != MCSVM_CS?1:v);
 }

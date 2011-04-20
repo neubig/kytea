@@ -32,23 +32,20 @@ static const char *solver_type_table[]=
 };
 
 ModelIO * ModelIO::createIO(const char* file, Format form, bool output, KyteaConfig & config) {
-    if(output && form == ModelIO::FORMAT_UNKNOWN)
-        throw runtime_error("A format must be specified for model output");
-    else if(!output) {
+    if(output && form == ModelIO::FORMAT_UNKNOWN) {
+        THROW_ERROR("A format must be specified for model output");
+    } else if(!output) {
         ifstream ifs(file);
         if(!ifs.good()) 
-            throw runtime_error("Could not open model file");
+            THROW_ERROR("Could not open model file "<<file);
         string line,buff1,buff2,buff3,buff4;
         getline(ifs, line);
         istringstream iss(line);
         if(!(iss >> buff1) || !(iss >> buff2) || !(iss >> buff3) || !(iss >> buff4) || 
                                   buff1 != "KyTea" || buff3.length() != 1)
-            throw runtime_error("Badly formed model (header incorrect)");
-        if(buff2 != MODEL_IO_VERSION) {
-            ostringstream buff;
-            buff << "Incompatible model version. Expected " << MODEL_IO_VERSION << ", but found " << buff2 << ".";
-            throw runtime_error(buff.str());
-        }
+            THROW_ERROR("Badly formed model (header incorrect)");
+        if(buff2 != MODEL_IO_VERSION)
+            THROW_ERROR("Incompatible model version. Expected " << MODEL_IO_VERSION << ", but found " << buff2 << ".");
         form = buff3[0];
         config.setEncoding(buff4.c_str());
         ifs.close();
@@ -57,7 +54,7 @@ ModelIO * ModelIO::createIO(const char* file, Format form, bool output, KyteaCon
     if(form == ModelIO::FORMAT_TEXT)      { return new TextModelIO(util,file,output); }
     else if(form == ModelIO::FORMAT_BINARY) { return new BinaryModelIO(util,file,output); }
     else {
-        throw runtime_error("Illegal model format");
+        THROW_ERROR("Illegal model format");
     }
 }
 
@@ -66,7 +63,7 @@ ModelIO * ModelIO::createIO(iostream & file, Format form, bool output, KyteaConf
     if(form == ModelIO::FORMAT_TEXT)      { return new TextModelIO(util,file,output); }
     else if(form == ModelIO::FORMAT_BINARY) { return new BinaryModelIO(util,file,output); }
     else {
-        throw runtime_error("Illegal model format");
+        THROW_ERROR("Illegal model format");
     }
 }
 
@@ -74,8 +71,10 @@ void TextModelIO::writeConfig(const KyteaConfig & config) {
 
     *str_ << "KyTea " << MODEL_IO_VERSION << " T " << config.getEncodingString() << endl;
 
+    numTags_ = (int)config.getNumTags();
     if(!config.getDoWS()) *str_ << "-nows" << endl;
-    if(!config.getDoPE()) *str_ << "-nope" << endl;
+    if(!config.getDoTags()) *str_ << "-notags" << endl;
+    *str_ << "-numtags " << numTags_ << endl;
     if(config.getBias()<0) *str_ << "-nobias" << endl;
     *str_ << "-charw " << (int)config.getCharWindow() << endl;
     *str_ << "-charn " << (int)config.getCharN() << endl;
@@ -98,12 +97,13 @@ void TextModelIO::readConfig(KyteaConfig & config) {
         iss >> s2;
         config.parseTrainArg(s1.c_str(), (s2.length()==0?0:s2.c_str()));
     }
+    numTags_ = config.getNumTags();
 }
 
 void TextModelIO::writeModel(const KyteaModel * mod) {
 
     // print a single endl for empty models
-    if(mod == 0) {
+    if(mod == 0 || mod->getNumClasses() < 2) {
         *str_ << endl;
         return;
     }
@@ -226,7 +226,7 @@ KyteaModel * TextModelIO::readModel() {
 			}
 			if(solver_type_table[i] == NULL) {
                 delete mod;
-				throw runtime_error("unknown solver type.");
+				THROW_ERROR("unknown solver type.");
 			}
 		}
 		else if(strcmp(str.c_str(),"nr_class")==0) {
@@ -259,9 +259,7 @@ KyteaModel * TextModelIO::readModel() {
 		}
 		else {
             delete mod;
-            ostringstream err;
-            err << "Unknown text in model file '" << str << "'";
-			throw runtime_error(err.str());
+			THROW_ERROR("Unknown text in model file '" << str << "'");
 		}
 	}
 
@@ -290,11 +288,8 @@ KyteaModel * TextModelIO::readModel() {
     mod->setNumFeatures(nr_feature);
     
     getline(*str_, str);
-    if(str.length() != 0 && str != " ") {
-        ostringstream err;
-        err << "Bad line when expecting end of file: '" << str << "'" << endl;
-        throw runtime_error(err.str());
-    }
+    if(str.length() != 0 && str != " ")
+        THROW_ERROR("Bad line when expecting end of file: '" << str << "'");
 
     // read models shouldn't add any additional features
     mod->setAddFeatures(false);
@@ -316,7 +311,7 @@ KyteaLM * TextModelIO::readLM() {
     linestream1 >> str;
     if(str != "lmn") {
         cerr << str << endl;
-        throw runtime_error("Badly formatted first line in LM");
+        THROW_ERROR("Badly formatted first line in LM");
     }
     linestream1 >> str;
     KyteaLM* lm = new KyteaLM(util_->parseInt(str.c_str()));
@@ -325,7 +320,7 @@ KyteaLM * TextModelIO::readLM() {
     getline(*str_, line);
     istringstream linestream2(line);
     linestream2 >> str;
-    if(str != "lmvocab") throw runtime_error("Badly formatted second line in LM");
+    if(str != "lmvocab") THROW_ERROR("Badly formatted second line in LM");
     linestream2 >> str;
     lm->vocabSize_ = util_->parseInt(str.c_str());
     KyteaChar spaceChar = util_->mapChar(" ");
@@ -361,13 +356,21 @@ KyteaLM * TextModelIO::readLM() {
 }
 
 template <>
-void TextModelIO::writeEntry(const ModelPronEntry * entry) {
+void TextModelIO::writeEntry(const ModelTagEntry * entry) {
     *str_ << util_->showString(entry->word) << endl;
-    for(unsigned j = 0; j < entry->prons.size(); j++) {
-        if(j!=0) *str_ << " ";
-        *str_ << util_->showString(entry->prons[j]);
+    for(int i = 0; i < numTags_; i++) {
+        int mySize = (int)entry->tags.size() > i ? entry->tags[i].size() : 0;
+        for(int j = 0; j < mySize; j++) {
+            if(j!=0) *str_ << " ";
+            *str_ << util_->showString(entry->tags[i][j]);
+        }
+        *str_ << endl;
+        for(int j = 0; j < mySize; j++) {
+            if(j!=0) *str_ << " ";
+            *str_ << (int)entry->tagInDicts[i][j];
+        }
+        *str_ << endl;
     }
-    *str_ << endl;
     bool has = false;
     for(unsigned j = 0; j < 8; j++) {
         if(entry->isInDict(j)) {
@@ -377,78 +380,96 @@ void TextModelIO::writeEntry(const ModelPronEntry * entry) {
         }
     }
     *str_ << endl;
-    writeModel(entry->pronMod);
+    for(int i = 0; i < numTags_; i++)
+        writeModel((int)entry->tagMods.size() > i?entry->tagMods[i]:0);
 }
 
 template <>
-void BinaryModelIO::writeEntry(const ModelPronEntry * entry) {
-    writeString(entry->word);
-    writeBinary((uint32_t)entry->prons.size());
-    for(unsigned j = 0; j < entry->prons.size(); j++)
-        writeString(entry->prons[j]);
-    writeBinary((unsigned char)entry->inDict);
-    writeModel(entry->pronMod);
-}
-
-template <>
-void TextModelIO::writeEntry(const ProbPronEntry * entry) {
+void TextModelIO::writeEntry(const ProbTagEntry * entry) {
     *str_ << util_->showString(entry->word) << endl;
-    for(unsigned j = 0; j < entry->prons.size(); j++) {
-        if(j!=0) *str_ << " ";
-        *str_ << util_->showString(entry->prons[j]);
+    for(int i = 0; i < numTags_; i++) {
+        int mySize = (int)entry->tags.size() > i ? entry->tags[i].size() : 0;
+        for(int j = 0; j < mySize; j++) {
+            if(j!=0) *str_ << " ";
+            *str_ << util_->showString(entry->tags[i][j]);
+        }
+        *str_ << endl;
     }
-    *str_ << endl;
-    for(unsigned j = 0; j < entry->probs.size(); j++) {
-        if(j!=0) *str_ << " ";
-        *str_ << entry->probs[j];
+    for(int i = 0; i < numTags_; i++) {
+        int mySize = (int)entry->probs.size() > i ? entry->probs[i].size() : 0;
+        for(int j = 0; j < mySize; j++) {
+            if(j!=0) *str_ << " ";
+            *str_ << entry->probs[i][j];
+        }
     }
     *str_ << endl;
 }
 
 template <>
-void BinaryModelIO::writeEntry(const ProbPronEntry * entry) {
+void BinaryModelIO::writeEntry(const ProbTagEntry * entry) {
     writeString(entry->word);
-    writeBinary((uint32_t)entry->prons.size());
-    for(unsigned j = 0; j < entry->prons.size(); j++) {
-        writeString(entry->prons[j]);
-        writeBinary((double)entry->probs[j]);
+    writeBinary((uint32_t)entry->tags.size());
+    for(int i = 0; i < (int)entry->tags.size(); i++) {
+        int mySize = (int)entry->tags.size() > i ? entry->tags[i].size() : 0;
+        writeBinary((uint32_t)mySize);
+        for(int j = 0; j < mySize; j++) {
+            writeString(entry->tags[i][j]);
+            writeBinary((double)entry->probs[i][j]);
+        }
     }
 }
 
 
 template <>
-ModelPronEntry* TextModelIO::readEntry<ModelPronEntry>() {
+ModelTagEntry* TextModelIO::readEntry<ModelTagEntry>() {
     string line, buff;
     getline(*str_, line);
-    ModelPronEntry* entry = new ModelPronEntry(util_->mapString(line));
-    getline(*str_, line);
-    istringstream iss(line);
-    while(iss >> buff)
-        entry->prons.push_back(util_->mapString(buff.c_str()));
+    ModelTagEntry* entry = new ModelTagEntry(util_->mapString(line));
+    entry->setNumTags(numTags_);
+    for(int i = 0; i < numTags_; i++) {
+        // get the tags
+        getline(*str_, line);
+        istringstream iss(line);
+        while(iss >> buff)
+            entry->tags[i].push_back(util_->mapString(buff.c_str()));
+        // get which dictionaries each tag is in
+        getline(*str_, line);
+        istringstream iss2(line);
+        while(iss2 >> buff)
+            entry->tagInDicts[i].push_back(util_->parseInt(buff.c_str()));
+    }
     getline(*str_, line);
     istringstream iss2(line);
-    while(iss2 >> buff) {
+    while(iss2 >> buff)
         entry->setInDict(util_->parseInt(buff.c_str()));
+    for(int i = 0; i < numTags_; i++) {
+        entry->tagMods[i] = readModel();
+        if(entry->tagMods[i] && entry->tagMods[i]->getNumClasses() > entry->tags[i].size())
+            THROW_ERROR("Model classes > tag classes ("<<entry->tagMods[i]->getNumClasses()<<", "<<entry->tags[i].size()<<") @ "<<util_->showString(entry->word));
     }
-    entry->pronMod = readModel();
     return entry;
 }
 
 template <>
-ProbPronEntry* TextModelIO::readEntry<ProbPronEntry>() {
+ProbTagEntry* TextModelIO::readEntry<ProbTagEntry>() {
     string line, buff;
     getline(*str_, line);
-    ProbPronEntry* entry = new ProbPronEntry(util_->mapString(line));
-    getline(*str_, line);
-    istringstream iss(line);
-    while(iss >> buff)
-        entry->prons.push_back(util_->mapString(buff.c_str()));
-    getline(*str_, line);
-    istringstream iss2(line);
-    while(iss2 >> buff)
-        entry->probs.push_back(util_->parseFloat(buff.c_str()));
-    if(entry->probs.size() != entry->prons.size())
-        throw runtime_error("Non-matching probability and pronunciation values");
+    ProbTagEntry* entry = new ProbTagEntry(util_->mapString(line));
+    entry->setNumTags(numTags_);
+    for(int i = 0; i < numTags_; i++) {
+        getline(*str_, line);
+        istringstream iss(line);
+        while(iss >> buff)
+            entry->tags[i].push_back(util_->mapString(buff.c_str()));
+    }
+    for(int i = 0; i < numTags_; i++) {
+        getline(*str_, line);
+        istringstream iss2(line);
+        while(iss2 >> buff)
+            entry->probs[i].push_back(util_->parseFloat(buff.c_str()));
+        if(entry->probs[i].size() != entry->tags[i].size())
+            THROW_ERROR("Non-matching probability and tag values");
+    }
     return entry;
 }
 
@@ -457,7 +478,9 @@ void BinaryModelIO::writeConfig(const KyteaConfig & config) {
     *str_ << "KyTea " << MODEL_IO_VERSION << " B " << config.getEncodingString() << endl;
 
     writeBinary(config.getDoWS());
-    writeBinary(config.getDoPE());
+    writeBinary(config.getDoTags());
+    numTags_ = config.getNumTags();
+    writeBinary((uint32_t)numTags_);
     writeBinary(config.getCharWindow());
     writeBinary(config.getCharN());
     writeBinary(config.getTypeWindow());
@@ -478,7 +501,9 @@ void BinaryModelIO::readConfig(KyteaConfig & config) {
     getline(*str_,line); // ignore the header
 
     config.setDoWS(readBinary<bool>() && config.getDoWS());
-    config.setDoPE(readBinary<bool>() && config.getDoPE());
+    config.setDoTags(readBinary<bool>() && config.getDoTags());
+    numTags_ = readBinary<uint32_t>();
+    config.setNumTags(numTags_);
     config.setCharWindow(readBinary<char>());
     config.setCharN(readBinary<char>());
     config.setTypeWindow(readBinary<char>());
@@ -495,7 +520,7 @@ void BinaryModelIO::readConfig(KyteaConfig & config) {
 void BinaryModelIO::writeModel(const KyteaModel * mod) {
     
     // print the number of features+1, zero for empty models
-    if(mod == 0) { 
+    if(mod == 0 || mod->getNumClasses() < 2) { 
         writeBinary((uint32_t)0);
         return;
     }
@@ -644,27 +669,85 @@ KyteaLM* BinaryModelIO::readLM() {
 }
 
 template <>
-ModelPronEntry* BinaryModelIO::readEntry<ModelPronEntry>() {
-    ModelPronEntry* entry = new ModelPronEntry(readKyteaString());
-    entry->prons.resize(readBinary<uint32_t>());
-    for(unsigned j = 0; j < entry->prons.size(); j++)
-        entry->prons[j] = readKyteaString();
+void BinaryModelIO::writeEntry(const ModelTagEntry * entry) {
+    writeString(entry->word);
+    for(int i = 0; i < numTags_; i++) {
+        int mySize = (int)entry->tags.size() > i ? entry->tags[i].size() : 0;
+        writeBinary((uint32_t)mySize);
+        for(int j = 0; j < mySize; j++) {
+            writeString(entry->tags[i][j]);
+            writeBinary((unsigned char)entry->tagInDicts[i][j]);
+        }
+    }
+    writeBinary((unsigned char)entry->inDict);
+    for(int i = 0; i < numTags_; i++)
+        writeModel((int)entry->tagMods.size() > i ? entry->tagMods[i] : 0);
+}
+
+template <>
+ModelTagEntry* BinaryModelIO::readEntry<ModelTagEntry>() {
+    ModelTagEntry* entry = new ModelTagEntry(readKyteaString());
+    entry->setNumTags(numTags_);
+    for(int i = 0; i < numTags_; i++) {
+        int mySize = readBinary<uint32_t>();
+        entry->tags[i].resize(mySize);
+        entry->tagInDicts[i].resize(mySize);
+        for(int j = 0; j < mySize; j++) {
+            entry->tags[i][j] = readKyteaString();
+            entry->tagInDicts[i][j] = readBinary<unsigned char>();
+        }
+    }
     entry->inDict = readBinary<unsigned char>();
-    entry->pronMod = readModel();
+    for(int i = 0; i < numTags_; i++)
+        entry->tagMods[i] = readModel();
     return entry;
 }
 
 template <>
-ProbPronEntry* BinaryModelIO::readEntry<ProbPronEntry>() {
-    ProbPronEntry* entry = new ProbPronEntry(readKyteaString());
-    unsigned mySize = readBinary<uint32_t>();
-    entry->prons.resize(mySize);
-    entry->probs.resize(mySize);
-    for(unsigned j = 0; j < entry->prons.size(); j++) {
-        entry->prons[j] = readKyteaString();
-        entry->probs[j] = readBinary<double>();
+ProbTagEntry* BinaryModelIO::readEntry<ProbTagEntry>() {
+    ProbTagEntry* entry = new ProbTagEntry(readKyteaString());
+    entry->setNumTags(numTags_);
+    for(int i = 0; i < numTags_; i++) {
+        unsigned mySize = readBinary<uint32_t>();
+        entry->tags[i].resize(mySize);
+        entry->probs[i].resize(mySize);
+        for(unsigned j = 0; j < entry->tags.size(); j++) {
+            entry->tags[i][j] = readKyteaString();
+            entry->probs[i][j] = readBinary<double>();
+        }
     }
     return entry;
+}
+
+void TextModelIO::writeWordList(const std::vector<KyteaString> & list) {
+    for(unsigned i = 0; i < list.size(); i++) {
+        if(i != 0) *str_ << " ";
+        *str_ << util_->showString(list[i]);
+    }
+    *str_ << endl;
+}
+
+void BinaryModelIO::writeWordList(const std::vector<KyteaString> & list) {
+    writeBinary((uint32_t)list.size());
+    for(unsigned i = 0; i < list.size(); i++)
+        writeString(list[i]);
+}
+
+vector<KyteaString> TextModelIO::readWordList() {
+    string line,s;
+    getline(*str_,line); // ignore the header
+    istringstream iss(line);
+    vector<KyteaString> ret;
+    while(iss >> s)
+        ret.push_back(util_->mapString(s));
+    return ret;
+}
+
+vector<KyteaString> BinaryModelIO::readWordList() {
+    vector<KyteaString> list(readBinary<uint32_t>());
+    for(unsigned i = 0; i < list.size(); i++)
+        list[i] = readKyteaString();
+    return list;
 }
 
 

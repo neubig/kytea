@@ -17,6 +17,15 @@
 #ifndef KYTEA_STRUCT_H__
 #define KYTEA_STRUCT_H__
 
+#include <stdexcept>
+#include <iostream>
+
+#define THROW_ERROR(msg) do {                   \
+    std::ostringstream oss;                     \
+    oss << msg;                                 \
+    throw std::runtime_error(oss.str()); }       \
+  while (0);
+
 #include <vector>
 #include <algorithm>
 #include "kytea-string.h"
@@ -24,46 +33,50 @@
 
 namespace kytea  {
 
-// KyteaPronunciation
-//  a single scored pronunciation candidate
-typedef std::pair<KyteaString,double> KyteaPronunciation;
-inline bool operator<(const KyteaPronunciation & a, const KyteaPronunciation & b) {
+// KyteaTag
+//  a single scored tag candidate
+typedef std::pair<KyteaString,double> KyteaTag;
+inline bool operator<(const KyteaTag & a, const KyteaTag & b) {
     if(a.second < b.second) return false;
     if(b.second < a.second) return true;
     return a.first < b.first;
 }
 
 // KyteaWord
-//  a single word, possibly with several pronunciation candidates
+//  a single word, with multiple lists of candidates for each tag
 class KyteaWord {
 public:
     KyteaWord(const KyteaString & s) : surf(s), isCertain(true), unknown(false) { }
 
     // The surface form of the word
     KyteaString surf;
-    // Each of its pronunciations
-    std::vector< KyteaPronunciation > prons;
+    // Each of its tags
+    std::vector< std::vector< KyteaTag > > tags;
     // Whether the word boundaries are certain
     bool isCertain;
     // Whether this is an unknown word
     bool unknown;
 
-    const KyteaPronunciation * getPron() const { return (prons.size()>0?&prons[0]:0); }
-    const std::vector< KyteaPronunciation > & getProns() const { return prons; }
-    const KyteaString & getPronSurf() const { return prons[0].first; }
-    double getPronConf() const { return prons[0].second; }
-    void setPron(const KyteaPronunciation & pron) { 
-        prons.resize(1);
-        prons[0] = pron;
+    // get a tag for a certain level
+    const int getNumTags() const { return tags.size(); }
+    const KyteaTag * getTag(int lev) const { return (lev<(int)tags.size()&&tags[lev].size()>0) ? &tags[lev][0] : 0; }
+    const std::vector< KyteaTag > & getTags(int lev) const { return tags[lev]; }
+    const KyteaString & getTagSurf(int lev) const { return tags[lev][0].first; }
+    double getTagConf(int lev) const { return tags[lev][0].second; }
+    void setTag(int lev, const KyteaTag & tag) { 
+        if(lev >= (int)tags.size()) tags.resize(lev+1);
+        tags[lev].resize(1);
+        tags[lev][0] = tag;
     }
-    void setPronConf(double conf) { prons[0].second = conf; }
-    void clearProns() { prons.clear(); }
-    void addPron(const KyteaPronunciation & pron) {
-        prons.push_back(pron);
+    void setTagConf(int lev, double conf) { tags[lev][0].second = conf; }
+    void clearTags(int lev) { if((int)tags.size() > lev) tags[lev].clear(); }
+    void addTag(int lev, const KyteaTag & tag) { 
+        if(lev >= (int)tags.size()) tags.resize(lev+1);
+        tags[lev].push_back(tag);
     }
     void setUnknown(bool val) { unknown = val; }
     bool getUnknown() const { return unknown; }
-    bool hasPron() const { return prons.size() > 0; }
+    bool hasTag(int lev) const { return (int)tags.size() > lev && tags[lev].size() > 0; }
 
 };
 

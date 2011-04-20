@@ -17,7 +17,7 @@
 #ifndef KYTEA_DICTIONARY_H_
 #define KYTEA_DICTIONARY_H_
 
-#define DICTIONARY_SAFE
+// #define DICTIONARY_SAFE
 
 #include "kytea-string.h"
 #include "kytea-model.h"
@@ -26,50 +26,78 @@
 
 namespace kytea  {
 
-class PronEntry {
+class TagEntry {
 public:
-    PronEntry(const KyteaString & str) : word(str), prons(), inDict(0) { }
-    virtual ~PronEntry() { }
-    
-    KyteaString word;
-    std::vector<KyteaString> prons;
-    unsigned char inDict;
+    TagEntry(const KyteaString & str) : word(str), tags(), inDict(0) { }
+    virtual ~TagEntry() { }
 
-    inline bool isInDict(char test) const {
-        return (1 << test) & inDict;
+    KyteaString word;
+    std::vector< std::vector<KyteaString> > tags;
+    std::vector< std::vector<unsigned char> > tagInDicts;
+    unsigned char inDict;
+    
+    virtual void setNumTags(int i) {
+        tags.resize(i);
+        tagInDicts.resize(i);
+    }
+    
+    // check if this is in the dictionary
+    inline static bool isInDict(unsigned char in, unsigned char test) {
+        return (1 << test) & in;
+    }
+    inline bool isInDict(unsigned char test) const {
+        return isInDict(inDict,test);
+    }
+
+    // add this to the dictionary
+    inline static void setInDict(unsigned char & in, unsigned char test) {
+        in |= (1 << test);
     }
     inline void setInDict(char test) {
-        inDict |= (1 << test);
+        setInDict(inDict,test);
     }
 };
 
-class ModelPronEntry : public PronEntry {
+class ModelTagEntry : public TagEntry {
 public:
-    ModelPronEntry(const KyteaString & str) : PronEntry(str), pronMod(0) { }
-    ~ModelPronEntry() {
-        if(pronMod) 
-            delete pronMod;
+    ModelTagEntry(const KyteaString & str) : TagEntry(str) { }
+    ~ModelTagEntry() {
+        for(int i = 0; i < (int)tagMods.size(); i++)
+            if(tagMods[i]) 
+                delete tagMods[i];
+    }
+
+    void setNumTags(int i) {
+        TagEntry::setNumTags(i);
+        tagMods.resize(i,0);
     }
     
-    KyteaModel * pronMod;
+    std::vector<KyteaModel *> tagMods;
 
 };
 
-class ProbPronEntry : public PronEntry {
+class ProbTagEntry : public TagEntry {
 public:
-    ProbPronEntry(const KyteaString & str) : PronEntry(str), probs() { }
-    ~ProbPronEntry() { }
+    ProbTagEntry(const KyteaString & str) : TagEntry(str), probs() { }
+    ~ProbTagEntry() { }
     
-    double incrementProb(const KyteaString & str) {
-        if(probs.size() != prons.size())
-            probs.resize(prons.size(), 0.0);
-        for(unsigned i = 0; i < prons.size(); i++)
-            if(prons[i] == str) 
-                return ++probs[i];
-        throw std::runtime_error("Attempt to increment a non-existant pronunciation string");
+    double incrementProb(const KyteaString & str, int lev) {
+        if(probs.size() != tags.size())
+            probs.resize(tags.size());
+        if(probs[lev].size() != tags[lev].size())
+            probs[lev].resize(tags[lev].size(), 0.0);
+        for(unsigned i = 0; i < tags[lev].size(); i++)
+            if(tags[lev][i] == str) 
+                return ++probs[lev][i];
+        THROW_ERROR("Attempt to increment a non-existent tag string");
     }
 
-    std::vector< double > probs;
+    void setNumTags(int i) {
+        TagEntry::setNumTags(i);
+        probs.resize(i);
+    }
+
+    std::vector< std::vector< double > > probs;
 
 };
 
@@ -109,14 +137,14 @@ class Dictionary {
 
 public:
 
-    typedef std::map<KyteaString, PronEntry*> WordMap;
+    typedef std::map<KyteaString, TagEntry*> WordMap;
     typedef WordMap::const_iterator wm_const_iterator;
 
 private:
 
     StringUtil * util_;
     std::vector<DictionaryState*> states_;
-    std::vector<PronEntry*> entries_;
+    std::vector<TagEntry*> entries_;
     unsigned char numDicts_;
 
     std::string space(unsigned lev) {
@@ -129,7 +157,7 @@ private:
 #ifdef DICTIONARY_SAFE
         if(start == end) return;
         if(nid >= states_.size())
-            throw std::runtime_error("out of bounds node in buildGoto");
+            THROW_ERROR("Out of bounds node in buildGoto ("<<nid<<" >= "<<states_.size()<<")");
 #endif
         wm_const_iterator startCopy = start;
         DictionaryState & node = *states_[nid];
@@ -237,7 +265,7 @@ public:
         }
     }
 
-    const PronEntry * findEntry(KyteaString str) {
+    const TagEntry * findEntry(KyteaString str) {
         if(str.length() == 0) return 0;
         unsigned state = 0, lev = 0;
         do {
@@ -248,16 +276,16 @@ public:
         return entries_[states_[state]->output[0]];
     }
 
-    unsigned getPronunciationID(KyteaString str, KyteaString pron) {
-        const PronEntry * ent = findEntry(str);
+    unsigned getTagID(KyteaString str, KyteaString tag, int lev) {
+        const TagEntry * ent = findEntry(str);
         if(ent == 0) return 0;
-        for(unsigned i = 0; i < ent->prons.size(); i++)
-            if(ent->prons[i] == pron)
+        for(unsigned i = 0; i < ent->tags[lev].size(); i++)
+            if(ent->tags[lev][i] == tag)
                 return i+1;
         return 0;
     }
     
-    typedef std::vector< std::pair<unsigned,PronEntry*> > MatchResult;
+    typedef std::vector< std::pair<unsigned,TagEntry*> > MatchResult;
     MatchResult match( const KyteaString & chars ) {
         const unsigned len = chars.length();
         unsigned currState = 0, nextState;
@@ -269,14 +297,14 @@ public:
             currState = nextState;
             std::vector<unsigned> & output = states_[currState]->output;
             for(unsigned j = 0; j < output.size(); j++) 
-                ret.push_back( std::pair<unsigned, PronEntry*>(i, entries_[output[j]]) );
+                ret.push_back( std::pair<unsigned, TagEntry*>(i, entries_[output[j]]) );
         }
         return ret;
     }
 
-    std::vector<PronEntry*> & getEntries() { return entries_; }
+    std::vector<TagEntry*> & getEntries() { return entries_; }
     std::vector<DictionaryState*> & getStates() { return states_; }
-    const std::vector<PronEntry*> & getEntries() const { return entries_; }
+    const std::vector<TagEntry*> & getEntries() const { return entries_; }
     const std::vector<DictionaryState*> & getStates() const { return states_; }
     unsigned char getNumDicts() const { return numDicts_; }
     void setNumDicts(unsigned char numDicts) { numDicts_ = numDicts; }
