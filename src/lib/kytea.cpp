@@ -121,6 +121,8 @@ void scanDictionaries(const vector<string> & dict, Dictionary::WordMap & wordMap
             word = next->words[0].surf;
             for(int i = 0; i < next->words[0].getNumTags(); i++)
                 addTag<Entry>(wordMap, word, i, &next->words[0].getTagSurf(i), (saveIds?numDicts:-1));
+            if(next->words[0].getNumTags() == 0)
+                addTag<ModelTagEntry>(wordMap, word, 0, 0, (saveIds?numDicts:-1));
             delete next;
         }
         delete io;
@@ -160,6 +162,9 @@ void Kytea::buildVocabulary() {
                     maxTag = max(next->words[i].getNumTags(),maxTag);
                     for(int j = 0; j < next->words[i].getNumTags(); j++)
                         addTag<ModelTagEntry>(allWords, next->words[i].surf, j, &next->words[i].getTagSurf(j), -1);
+                    if(next->words[i].getNumTags() == 0)
+                        addTag<ModelTagEntry>(allWords, next->words[i].surf, 0, 0, -1);
+                    
                     toAdd = true;
                 }
             }
