@@ -401,15 +401,14 @@ void TextModelIO::writeEntry(const ProbTagEntry * entry) {
             if(j!=0) *str_ << " ";
             *str_ << entry->probs[i][j];
         }
+        *str_<<endl;
     }
-    *str_ << endl;
 }
 
 template <>
 void BinaryModelIO::writeEntry(const ProbTagEntry * entry) {
     writeString(entry->word);
-    writeBinary((uint32_t)entry->tags.size());
-    for(int i = 0; i < (int)entry->tags.size(); i++) {
+    for(int i = 0; i < numTags_; i++) {
         int mySize = (int)entry->tags.size() > i ? entry->tags[i].size() : 0;
         writeBinary((uint32_t)mySize);
         for(int j = 0; j < mySize; j++) {
@@ -418,7 +417,6 @@ void BinaryModelIO::writeEntry(const ProbTagEntry * entry) {
         }
     }
 }
-
 
 template <>
 ModelTagEntry* TextModelIO::readEntry<ModelTagEntry>() {
@@ -465,10 +463,10 @@ ProbTagEntry* TextModelIO::readEntry<ProbTagEntry>() {
     for(int i = 0; i < numTags_; i++) {
         getline(*str_, line);
         istringstream iss2(line);
-        while(iss2 >> buff)
+        while(iss2 >> buff) 
             entry->probs[i].push_back(util_->parseFloat(buff.c_str()));
         if(entry->probs[i].size() != entry->tags[i].size())
-            THROW_ERROR("Non-matching probability and tag values");
+            THROW_ERROR("Non-matching probability and tag values "<<entry->probs[i].size() << " != " << entry->tags[i].size());
     }
     return entry;
 }
@@ -711,7 +709,7 @@ ProbTagEntry* BinaryModelIO::readEntry<ProbTagEntry>() {
         unsigned mySize = readBinary<uint32_t>();
         entry->tags[i].resize(mySize);
         entry->probs[i].resize(mySize);
-        for(unsigned j = 0; j < entry->tags.size(); j++) {
+        for(unsigned j = 0; j < mySize; j++) {
             entry->tags[i][j] = readKyteaString();
             entry->probs[i][j] = readBinary<double>();
         }
