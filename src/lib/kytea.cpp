@@ -120,9 +120,10 @@ void scanDictionaries(const vector<string> & dict, Dictionary::WordMap & wordMap
             }
             word = next->words[0].surf;
             for(int i = 0; i < next->words[0].getNumTags(); i++)
-                addTag<Entry>(wordMap, word, i, &next->words[0].getTagSurf(i), (saveIds?numDicts:-1));
+                if(next->words[0].hasTag(i))
+                    addTag<Entry>(wordMap, word, i, &next->words[0].getTagSurf(i), (saveIds?numDicts:-1));
             if(next->words[0].getNumTags() == 0)
-                addTag<ModelTagEntry>(wordMap, word, 0, 0, (saveIds?numDicts:-1));
+                addTag<Entry>(wordMap, word, 0, 0, (saveIds?numDicts:-1));
             delete next;
         }
         delete io;
@@ -161,7 +162,8 @@ void Kytea::buildVocabulary() {
                 if(next->words[i].isCertain) {
                     maxTag = max(next->words[i].getNumTags(),maxTag);
                     for(int j = 0; j < next->words[i].getNumTags(); j++)
-                        addTag<ModelTagEntry>(allWords, next->words[i].surf, j, &next->words[i].getTagSurf(j), -1);
+                        if(next->words[i].hasTag(j))
+                            addTag<ModelTagEntry>(allWords, next->words[i].surf, j, &next->words[i].getTagSurf(j), -1);
                     if(next->words[i].getNumTags() == 0)
                         addTag<ModelTagEntry>(allWords, next->words[i].surf, 0, 0, -1);
                     
@@ -615,6 +617,7 @@ void Kytea::trainUnk(int lev) {
                         const KyteaString & pstr = mySubEntry->tags[lev][k];
                         const unsigned pend = pstart+pstr.length();
                         if(pend <= tag.length() && tag.substr(pstart,pend-pstart) == pstr) {
+                            // cerr << "adding p="<<p<<", i="<<i<<", j="<<j<<", k="<<k<<", pstr="<<util_->showString(pstr)<<", cend="<<cend<<", pend="<<pend<<endl;
                             AlignHyp nextHyp = myHyp;
                             nextHyp.push_back( pair<unsigned,unsigned>(cend,pend) );
                             stacks[cend].push_back(nextHyp);
@@ -631,6 +634,7 @@ void Kytea::trainUnk(int lev) {
                         KyteaString subChar = word.substr(myHyp[j-1].first,myHyp[j].first-myHyp[j-1].first);
                         KyteaString subTag = tag.substr(myHyp[j-1].second,myHyp[j].second-myHyp[j-1].second);
                         ProbTagEntry* mySubEntry = (ProbTagEntry*)subwordDict_->findEntry(subChar);
+                        // cerr << "incrementing i="<<i<<", j="<<j<<", subChar="<<util_->showString(subChar)<<", subTag="<<util_->showString(subTag)<<endl;
                         mySubEntry->incrementProb(subTag,lev);
                         addTag<ProbTagEntry>(tagMap,subTag,lev,&subTag,0);
                     }
