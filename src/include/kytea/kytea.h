@@ -36,11 +36,12 @@ private:
     StringUtil* util_;
     KyteaConfig* config_;
     Dictionary * dict_;
-    Dictionary * subwordDict_;
     Sentences sentences_;
 
     KyteaModel* wsModel_;
-    KyteaLM * subwordModel_;
+
+    Dictionary* subwordDict_;
+    std::vector<KyteaLM*> subwordModels_;
 
     std::vector<KyteaModel*> globalMods_;
     std::vector< std::vector<KyteaString> > globalTags_;
@@ -92,8 +93,7 @@ public:
     void init() { 
         util_ = config_->getStringUtil();
         dict_ = new Dictionary(util_);
-        subwordDict_ = new Dictionary(util_);
-        dict_ = 0; subwordDict_ = 0; wsModel_ = 0; subwordModel_ = 0;
+        dict_ = 0; wsModel_ = 0; subwordDict_ = 0;
     }
 
     Kytea() : config_(new KyteaConfig()) { init(); }
@@ -103,7 +103,9 @@ public:
         if(dict_) delete dict_;
         if(subwordDict_) delete subwordDict_;
         if(wsModel_) delete wsModel_;
-        if(subwordModel_) delete subwordModel_;
+        for(int i = 0; i < (int)subwordModels_.size(); i++) {
+            if(subwordModels_[i] != 0) delete subwordModels_[i];
+        }
         for(Sentences::iterator it = sentences_.begin(); it != sentences_.end(); it++)
             delete *it;
     }

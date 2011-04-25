@@ -576,11 +576,12 @@ inline void collectCounts(vector<unsigned> & vec, unsigned pos) {
 void Kytea::trainUnk(int lev) {
     
     // 1. load the subword dictionaries
-    WordMap subwordMap;
-    scanDictionaries<ProbTagEntry>(config_->getSubwordDictFiles(), subwordMap, config_, util_, false);
-    if(subwordDict_) delete subwordDict_;
-    subwordDict_ = new Dictionary(util_);
-    subwordDict_->buildIndex(subwordMap);
+    if(!subwordDict_) {
+        WordMap subwordMap;
+        scanDictionaries<ProbTagEntry>(config_->getSubwordDictFiles(), subwordMap, config_, util_, false);
+        subwordDict_ = new Dictionary(util_);
+        subwordDict_->buildIndex(subwordMap);
+    }
 
     // 2. align the pronunciation strings, count subword/tag pairs,
     //     create dictionary of pronunciations to count, collect counts
@@ -593,7 +594,8 @@ void Kytea::trainUnk(int lev) {
         const TagEntry* myDictEntry = dictEntries[w];
         const KyteaString & word = myDictEntry->word;
         const unsigned wordLen = word.length();
-        for(unsigned p = 0; p < myDictEntry->tags.size(); p++) {
+        if((int)myDictEntry->tags.size() <= lev) continue;
+        for(unsigned p = 0; p < myDictEntry->tags[lev].size(); p++) {
             const KyteaString & tag = myDictEntry->tags[lev][p];
             // stacks[endposition][hypothesis][sequencepos].first = word, .second = tag
             vector< vector< AlignHyp > > stacks(wordLen+1, vector< AlignHyp >());
@@ -607,7 +609,8 @@ void Kytea::trainUnk(int lev) {
                 for(unsigned j = 0; j < stacks[cstart].size(); j++) {
                     const AlignHyp & myHyp = stacks[cstart][j];
                     const unsigned pstart = myHyp[myHyp.size()-1].second;
-                    for(unsigned k = 0; k < mySubEntry->tags.size(); k++) {
+                    if((int)mySubEntry->tags.size() <= lev) continue;
+                    for(unsigned k = 0; k < mySubEntry->tags[lev].size(); k++) {
                         // if the current hypothesis matches the alignment hypothesis
                         const KyteaString & pstr = mySubEntry->tags[lev][k];
                         const unsigned pend = pstart+pstr.length();
@@ -636,20 +639,27 @@ void Kytea::trainUnk(int lev) {
             }
         }
     }
-    cerr << " Building index" << endl;
+    if(tagMap.size() == 0) {
+        cerr << " No words found! Aborting unknown model for level "<<lev<<endl;
+        return;
+    }
+    if(config_->getDebug() > 0)
+        cerr << " Building index" << endl;
     Dictionary tagDict(util_);
     tagDict.buildIndex(tagMap);
 
     // 3. put a Dirichlet process prior on the translations, and calculate the ideal alpha
     // count how many unique options there are for each pronunciation
     //  and accumulate the numerator counts
-    cerr << " Calculating alpha" << endl;
+    if(config_->getDebug() > 0)
+        cerr << " Calculating alpha" << endl;
     TwoCountHash tagCounts;
     const vector<TagEntry*> & subEntries = subwordDict_->getEntries();
     vector<unsigned> numerCounts;
     for(unsigned w = 0; w < subEntries.size(); w++) {
         const ProbTagEntry* mySubEntry = (ProbTagEntry*)subEntries[w];
-        for(unsigned p = 0; p < mySubEntry->tags.size(); p++) {
+        if((int)mySubEntry->tags.size() <= lev) continue;
+        for(unsigned p = 0; p < mySubEntry->tags[lev].size(); p++) {
             const KyteaString& tag = mySubEntry->tags[lev][p];
             TwoCountHash::iterator pcit = tagCounts.find(tag);
             if(pcit == tagCounts.end())
@@ -710,7 +720,7 @@ void Kytea::trainUnk(int lev) {
         ProbTagEntry* mySubEntry = (ProbTagEntry*)subEntries[w];
         if(mySubEntry->probs[lev].size() != mySubEntry->tags[lev].size())
             mySubEntry->probs[lev].resize(mySubEntry->tags[lev].size(),0);
-        for(unsigned p = 0; p < mySubEntry->tags.size(); p++) {
+        for(unsigned p = 0; p < mySubEntry->tags[lev].size(); p++) {
             const KyteaString & tag = mySubEntry->tags[lev][p];
             ProbTagEntry* myTagEntry = (ProbTagEntry*)tagDict.findEntry(tag);
             double origCount = mySubEntry->probs[lev][p];
@@ -732,8 +742,9 @@ void Kytea::trainUnk(int lev) {
     
     // 6. make the language model
     cerr << " Calculating LM" << endl;
-    subwordModel_ = new KyteaLM(config_->getUnkN());
-    subwordModel_->train(tagCorpus);
+    if((int)subwordModels_.size() <= lev) subwordModels_.resize(lev+1,0);
+    subwordModels_[lev] = new KyteaLM(config_->getUnkN());
+    subwordModels_[lev]->train(tagCorpus);
 
 }
 
@@ -756,7 +767,8 @@ void Kytea::writeModel(const char* fileName) {
     }
     modout->writeModelDictionary(dict_);
     modout->writeProbDictionary(subwordDict_);
-    modout->writeLM(subwordModel_);
+    for(int i = 0; i < config_->getNumTags(); i++)
+        modout->writeLM(i>=(int)subwordModels_.size()?0:subwordModels_[i]);
 
     delete modout;
 
@@ -787,15 +799,11 @@ void Kytea::readModel(const char* fileName) {
     // read the dictionaries
     dict_ = modin->readModelDictionary();
     subwordDict_ = modin->readProbDictionary();
-    subwordModel_ = modin->readLM();
+    subwordModels_.resize(config_->getNumTags(),0);
+    for(int i = 0; i < config_->getNumTags(); i++)
+        subwordModels_[i] = modin->readLM();
 
     delete modin;
-    // if(!config_->getDoUnk()) {
-    //     delete subwordModel_;
-    //     subwordModel_ = 0;
-    //     delete subwordDict_;
-    //     subwordDict_ = 0;
-    // }
     
     // prepare the prefixes in advance for faster analysis
     preparePrefixes();
@@ -867,7 +875,7 @@ vector< KyteaTag > Kytea::generateTagCandidates(const KyteaString & str, int lev
                 );
                 // cerr << "  ("<<start<<","<<end<<") "<<util_->showString(entry->word)<<", "<<util_->showString(nextPair.first)<<"/"<<nextPair.second;
                 for(unsigned pos = stack[start][k].first.length(); pos < nextPair.first.length(); pos++) {
-                    nextPair.second += subwordModel_->scoreSingle(nextPair.first,pos);
+                    nextPair.second += subwordModels_[lev]->scoreSingle(nextPair.first,pos);
                     // cerr << "-->" << nextPair.second;
                 }
                 // cerr << endl;
@@ -877,12 +885,12 @@ vector< KyteaTag > Kytea::generateTagCandidates(const KyteaString & str, int lev
     }
     vector<KyteaTag> ret = stack[stack.size()-1];
     for(unsigned i = 0; i < ret.size(); i++)
-        ret[i].second += subwordModel_->scoreSingle(ret[i].first,ret[i].first.length());
+        ret[i].second += subwordModels_[lev]->scoreSingle(ret[i].first,ret[i].first.length());
     return ret;
 }
 void Kytea::calculateUnknownTag(KyteaWord & word, int lev) {
     // cerr << "calculateUnknownTag("<<util_->showString(word.surf)<<")"<<endl;
-    if(subwordModel_ == 0) return;
+    if(subwordModels_[lev] == 0) return;
     if(word.surf.length() > 256) {
         cerr << "WARNING: skipping pronunciation estimation for extremely long unknown word of length "
             <<word.surf.length()<<" starting with '"
@@ -891,6 +899,7 @@ void Kytea::calculateUnknownTag(KyteaWord & word, int lev) {
         return;
     }
     // generate candidates
+    if((int)word.tags.size() <= lev) word.tags.resize(lev+1);
     word.tags[lev] = generateTagCandidates(word.surf, lev);
     vector<KyteaTag> & tags = word.tags[lev];
     // get the max

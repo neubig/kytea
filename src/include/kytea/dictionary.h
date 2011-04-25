@@ -243,6 +243,8 @@ public:
     };
 
     void buildIndex(const WordMap & input) {
+        if(input.size() == 0)
+            THROW_ERROR("Cannot build dictionary for no input");
         clearData();
         states_.push_back(new DictionaryState());
         buildGoto(input.begin(), input.end(), 0, 0);

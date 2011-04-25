@@ -259,9 +259,9 @@ inline unsigned char sjis2(KyteaChar a) {
 KyteaChar StringUtilSjis::mapChar(const string & str, bool add) {
     unsigned len = str.length();
     KyteaChar ret;
-    const unsigned char first = (unsigned char)str[0];
     if(len == 1) {
 #ifdef STRING_UTIL_SAFE
+        const unsigned char first = (unsigned char)str[0];
         if((first & maskl1) && !(first >= 0xA0 && first <= 0xDF))
             THROW_ERROR("Poorly formed SJIS character (illegal length 1 char)");
 #endif
@@ -269,6 +269,7 @@ KyteaChar StringUtilSjis::mapChar(const string & str, bool add) {
     }
     else if(len == 2) {
 #ifdef STRING_UTIL_SAFE
+        const unsigned char first = (unsigned char)str[0];
         if(!(first & maskl1) || (first >= 0xA0 && first <= 0xDF))
             THROW_ERROR("Poorly formed SJIS character (illegal length 2 char)");
 #endif
