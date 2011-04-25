@@ -82,6 +82,7 @@ public:
     ~ProbTagEntry() { }
     
     double incrementProb(const KyteaString & str, int lev) {
+        // std::cerr << "p.size=="<<probs.size()<<", t.size="<<tags.size()<<std::endl;
         if(probs.size() != tags.size())
             probs.resize(tags.size());
         if(probs[lev].size() != tags[lev].size())
