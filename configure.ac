@@ -17,7 +17,7 @@ AC_CONFIG_FILES([
 ])
 
 # disable shared libraries
-AM_DISABLE_SHARED
+# AM_DISABLE_SHARED
 AC_PROG_LIBTOOL
 
 # Intialize automake
@@ -27,8 +27,8 @@ AM_INIT_AUTOMAKE([-Wall])
 AC_PROG_CXX
 AC_PROG_CC
 
-# CFLAGS="-O3 -Wall -g"
-# CXXFLAGS="-O3 -Wall -g"
+CFLAGS="-O3 -Wall -g"
+CXXFLAGS="-O3 -Wall -g"
 
 # Checks for features.
 AC_ARG_ENABLE(quantize,
