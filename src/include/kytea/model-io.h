@@ -29,9 +29,9 @@
 
 
 #if DISABLE_QUANTIZE
-#   define MODEL_IO_VERSION "0.2.0NQ"
+#   define MODEL_IO_VERSION "0.3.0NQ"
 #else
-#   define MODEL_IO_VERSION "0.2.0"
+#   define MODEL_IO_VERSION "0.3.0"
 #endif
 
 namespace kytea {
