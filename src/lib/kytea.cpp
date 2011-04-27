@@ -920,8 +920,8 @@ void Kytea::calculateUnknownTag(KyteaWord & word, int lev) {
         tags[i].second /= totalProb;
     sort(tags.begin(), tags.end());
     // trim the number of candidates
-    if(config_->getUnkCount() != 0 && config_->getUnkCount() < tags.size())
-        tags.resize(config_->getUnkCount());
+    if(config_->getTagMax() != 0 && config_->getTagMax() < tags.size())
+        tags.resize(config_->getTagMax());
 
 }
 void Kytea::calculateTags(KyteaSentence & sent, int lev) {
@@ -987,6 +987,7 @@ void Kytea::calculateTags(KyteaSentence & sent, int lev) {
         }
         if(!word.hasTag(lev) && defTag.length())
             word.addTag(lev,KyteaTag(util_->mapString(defTag),0));
+        word.limitTags(lev,config_->getTagMax());
     }
 }
 

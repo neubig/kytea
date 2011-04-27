@@ -58,6 +58,10 @@ public:
     bool unknown;
 
     // get a tag for a certain level
+    void limitTags(unsigned lev, unsigned lim) {
+        if(tags.size() > lev && tags[lev].size() > lim)
+            tags[lev].resize(lim);
+    }
     const int getNumTags() const { return tags.size(); }
     const KyteaTag * getTag(int lev) const { return (lev<(int)tags.size()&&tags[lev].size()>0) ? &tags[lev][0] : 0; }
     const std::vector< KyteaTag > & getTags(int lev) const { return tags[lev]; }
