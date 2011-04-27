@@ -75,11 +75,9 @@ private:
 
     // unknown word arguments
     //  unkN: the n-gram length of the unknown word spelling model
-    //  unkCount: the maximum number of unknown word candidates to return
     //  defTag: a default tag to use when no candidates were generated
     //  unkTag: a tag to append after every word with no tag in the dictionary
     char unkN_;
-    unsigned unkCount_;
     unsigned unkBeam_;
     std::string defTag_;
     std::string unkTag_;
@@ -102,6 +100,8 @@ private:
     // the number of tag levels
     int numTags_;
     std::vector<bool> global_;
+    //  tagMax: the maximum number of tags to return for a word
+    unsigned tagMax_;
 
     // check argument legality
     void ch(const char * n, const char* v);
@@ -113,12 +113,12 @@ public:
                     outputForm_(CORP_FORMAT_FULL), doWS_(true), doTags_(true),
                     addFeat_(false), confidence_(0.0), charW_(3), charN_(3), 
                     typeW_(3), typeN_(3), dictN_(4), 
-                    unkN_(3), unkCount_(5), unkBeam_(50), defTag_("UNK"), unkTag_(),
+                    unkN_(3), unkBeam_(50), defTag_("UNK"), unkTag_(),
                     bias_(1.0f), eps_(HUGE_VAL), cost_(1.0),
                     solverType_(1/*SVM*/),
                     wordBound_(" "), tagBound_("/"), elemBound_("&"), unkBound_(" "), 
                     noBound_("-"), hasBound_("|"), skipBound_("?"), escape_("\\"), 
-                    numTags_(0) {
+                    numTags_(0), tagMax_(3) {
         setEncoding("utf8");
     }
     ~KyteaConfig() {
@@ -173,7 +173,7 @@ public:
     const char getTypeWindow() const { return typeW_; }
     const char getDictionaryN() const { return dictN_; }
     const char getUnkN() const { return unkN_; }
-    const unsigned getUnkCount() const { return unkCount_; }
+    const unsigned getTagMax() const { return tagMax_; }
     const unsigned getUnkBeam() const { return unkBeam_; }
     const std::string & getUnkTag() const { return unkTag_; }
     const std::string & getDefaultTag() const { return defTag_; }
@@ -216,7 +216,7 @@ public:
     void setTypeN(char v) { typeN_ = v; }
     void setDictionaryN(char v) { dictN_ = v; }
     void setUnkN(char v) { unkN_ = v; }
-    void setUnkCount(unsigned v) { unkCount_ = v; }
+    void setTagMax(unsigned v) { tagMax_ = v; }
     void setUnkBeam(unsigned v) { unkBeam_ = v; }
     void setUnkTag(const std::string & v) { unkTag_ = v; }
     void setUnkTag(const char* v) { unkTag_ = v; }

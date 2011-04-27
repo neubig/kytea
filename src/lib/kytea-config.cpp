@@ -113,7 +113,7 @@ void KyteaConfig::printUsage() {
 "Format Options: " << endl <<
 "  -in      The formatting of the input  (raw/full/part/conf, default raw)" << endl <<
 "  -out     The formatting of the output (full/part/conf, default full)" << endl <<
-"  -unkcount The maximum number of unknown pronunciations to print (default 5," << endl <<
+"  -tagmax  The maximum number of tags to print for one word (default 3," << endl <<
 "            0 implies no limit)" << endl << 
 "  -deftag  A tag for words that cannot be given any tag (for example, "<<endl<<
 "           unknown words that contain a character not in the subword dictionary)" << endl << 
@@ -226,9 +226,9 @@ unsigned KyteaConfig::parseRunArg(const char * n, const char * v) {
     else if(!strcmp(n, "-notags"))   { setDoTags(false); r=0; }
     else if(!strcmp(n, "-notag"))    { ch(n,v); setDoTag(util_->parseInt(v)-1,false); }
     else if(!strcmp(n, "-numtags"))  { ch(n,v); setNumTags(util_->parseInt(v)); }
+    else if(!strcmp(n, "-tagmax"))   { ch(n,v); setTagMax(util_->parseInt(v)); }
 
     // the limit on the number of unknown words to output
-    else if(!strcmp(n, "-unkcount")) { ch(n,v); setUnkCount(util_->parseInt(v)); }
     else if(!strcmp(n, "-unktag"))   { ch(n,v); setUnkTag(v); }
     else if(!strcmp(n, "-deftag"))   { ch(n,v); setDefaultTag(v); }
     else if(!strcmp(n, "-unkbeam"))  { ch(n,v); setUnkBeam(util_->parseInt(v)); }
