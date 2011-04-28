@@ -73,8 +73,12 @@ KyteaSentence * FullCorpusIO::readSentence() {
             }
             buff[bpos++] = ks[j];
         }
-        if(bpos == 0)
-            THROW_ERROR("Empty word at position "<<j<<" in "<<s);
+        if(bpos == 0) {
+            if(ks[j] == spaceChar)
+                continue;
+            else
+                THROW_ERROR("Empty word at position "<<j<<" in "<<s);
+        }
         KyteaWord word(buff.substr(0,bpos));
         charLen += bpos;
         // 2) get the tags
