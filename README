@@ -4,3 +4,12 @@ KyTea is a general text analysis toolkit, with a focus on Japanese and other lan
 
 Detailed usage information can be found at 
 http://www.phontron.com/kytea
+
+To build KyTea, run
+
+> ./configure
+> make
+
+If there is no configure file in the directory (for example, if you checked the source out from github), you can rebuild the configure file using
+
+> autoreconf -i
