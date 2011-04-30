@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.59])
-AC_INIT([kytea], [0.3.0], [kytea@phontron.com])
+AC_INIT([kytea], [0.3.1], [kytea@phontron.com])
 AC_CONFIG_SRCDIR([src/lib/kytea.cpp])
 AC_CONFIG_HEADERS([src/include/kytea/config.h])
 AC_CONFIG_FILES([
@@ -23,12 +23,22 @@ AC_PROG_LIBTOOL
 # Intialize automake
 AM_INIT_AUTOMAKE([-Wall])
 
-# Checks for programs.
+# set CFLAGS and CXXFLAGS for maximal optimization
+if test -n "${CXXFLAGS}"; then
+  user_set_cxxflags=yes
+fi
 AC_PROG_CXX
+if test X$user_set_cxxflags != Xyes; then
+  CXXFLAGS="-g -Wall -O3"
+fi
+if test -n "${CFLAGS}"; then
+  user_set_cflags=yes
+fi
 AC_PROG_CC
+if test X$user_set_cflags != Xyes; then
+  CFLAGS="-g -Wall -O3"
+fi
 
-CFLAGS="-O3 -Wall -g"
-CXXFLAGS="-O3 -Wall -g"
 
 # Checks for features.
 AC_ARG_ENABLE(quantize,
