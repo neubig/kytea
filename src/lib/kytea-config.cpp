@@ -224,7 +224,11 @@ unsigned KyteaConfig::parseRunArg(const char * n, const char * v) {
     // whether or not to perform word segmentation, pronunciation estimation
     else if(!strcmp(n, "-nows"))     { setDoWS(false); r=0; }
     else if(!strcmp(n, "-notags"))   { setDoTags(false); r=0; }
-    else if(!strcmp(n, "-notag"))    { ch(n,v); setDoTag(util_->parseInt(v)-1,false); }
+    else if(!strcmp(n, "-notag"))    { 
+        ch(n,v); 
+        if(util_->parseInt(v) < 1) THROW_ERROR("Illegal setting "<<v<<" for -notag (must be 1 or greater)");
+        setDoTag(util_->parseInt(v)-1,false);
+    }
     else if(!strcmp(n, "-numtags"))  { ch(n,v); setNumTags(util_->parseInt(v)); }
     else if(!strcmp(n, "-tagmax"))   { ch(n,v); setTagMax(util_->parseInt(v)); }
 
