@@ -1079,6 +1079,8 @@ void Kytea::analyze() {
     }
     out->setUnkTag(config_->getUnkTag());
     out->setNumTags(config_->getNumTags());
+    for(int i = 0; i < config_->getNumTags(); i++)
+        out->setDoTag(i,config_->getDoTag(i));
 
     KyteaSentence* next;
     while((next = in->readSentence()) != 0) {

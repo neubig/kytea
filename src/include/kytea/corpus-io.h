@@ -38,17 +38,23 @@ protected:
 
     std::string unkTag_;
     int numTags_;
+    std::vector<bool> doTag_;
 
 public:
 
     typedef char Format;
 
-    CorpusIO(StringUtil * util) : GeneralIO(util), unkTag_(), numTags_(0) { }
-    CorpusIO(StringUtil * util, const char* file, bool out) : GeneralIO(util,file,out,false), numTags_(0) { } 
-    CorpusIO(StringUtil * util, std::iostream & str, bool out) : GeneralIO(util,str,out,false), numTags_(0) { }
+    CorpusIO(StringUtil * util) : GeneralIO(util), unkTag_(), numTags_(0), doTag_() { }
+    CorpusIO(StringUtil * util, const char* file, bool out) : GeneralIO(util,file,out,false), numTags_(0), doTag_() { } 
+    CorpusIO(StringUtil * util, std::iostream & str, bool out) : GeneralIO(util,str,out,false), numTags_(0), doTag_() { }
 
     int getNumTags() { return numTags_; }
     void setNumTags(int numTags) { numTags_ = numTags; }
+    void setDoTag(int i, bool v) { 
+        if(i >= (int)doTag_.size()) doTag_.resize(i+1,true);
+        doTag_[i] = v;
+    }
+    bool getDoTag(int i) { return i >= (int)doTag_.size() || doTag_[i]; }
 
     virtual ~CorpusIO() { }
 
