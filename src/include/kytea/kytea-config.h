@@ -225,7 +225,10 @@ public:
     void setOnTraining(bool v) { onTraining_ = v; }
     void setDoWS(bool v) { doWS_ = v; }
     void setDoTags(bool v) { doTags_ = v; } 
-    void setDoTag(int i, bool v)  { if(i >= (int)doTag_.size()) doTag_.resize(i+1,true); doTag_[i] = v; } 
+    void setDoTag(int i, bool v)  { 
+        if(i >= (int)doTag_.size()) doTag_.resize(i+1,true); 
+        doTag_[i] = v;
+    } 
     void setInputFormat(CorpForm v) { inputForm_ = v; }
     void setWordBound(const char* v) { wordBound_ = v; } 
     void setTagBound(const char* v) { tagBound_ = v; } 

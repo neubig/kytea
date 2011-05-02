@@ -987,7 +987,8 @@ void Kytea::calculateTags(KyteaSentence & sent, int lev) {
         }
         if(!word.hasTag(lev) && defTag.length())
             word.addTag(lev,KyteaTag(util_->mapString(defTag),0));
-        word.limitTags(lev,config_->getTagMax());
+        if(config_->getTagMax() > 0)
+            word.limitTags(lev,config_->getTagMax());
     }
 }
 
