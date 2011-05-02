@@ -301,18 +301,20 @@ void ProbCorpusIO::writeSentence(const KyteaSentence * sent, double conf)  {
     }
     *str_ << endl;
     for(int k = 0; k < getNumTags(); k++) {
-        for(unsigned i = 0; i < sent->words.size(); i++) {
-            if(i != 0) *str_ << space;
-            const vector< KyteaTag > & tags = sent->words[i].getTags(k);
-            if(tags.size() > 0) {
-                *str_ << tags[0].second;
-                if(allTags_)
-                    for(unsigned j = 1; j < tags.size(); j++)
-                        *str_ << amp << tags[j].second;
-            } else
-                *str_ << 0;
+        if(getDoTag(k)) {
+            for(unsigned i = 0; i < sent->words.size(); i++) {
+                if(i != 0) *str_ << space;
+                const vector< KyteaTag > & tags = sent->words[i].getTags(k);
+                if(tags.size() > 0) {
+                    *str_ << tags[0].second;
+                    if(allTags_)
+                        for(unsigned j = 1; j < tags.size(); j++)
+                            *str_ << amp << tags[j].second;
+                } else
+                    *str_ << 0;
+            }
+            *str_ << endl;
         }
-        *str_ << endl;
     }
     *str_ << endl;
 }

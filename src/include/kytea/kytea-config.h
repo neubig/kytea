@@ -184,7 +184,7 @@ public:
     const int getSolverType() const { return solverType_; }
     const bool getDoWS() const { return doWS_; }
     const bool getDoTags() const { return doTags_; }
-    const bool getDoTag(int i) const { return (i >= (int)doTag_.size() || doTag_[i]); }
+    const bool getDoTag(int i) const { return doTags_ && (i >= (int)doTag_.size() || doTag_[i]); }
     const char* getWordBound() const { return wordBound_.c_str(); } 
     const char* getTagBound() const { return tagBound_.c_str(); } 
     const char* getElemBound() const { return elemBound_.c_str(); } 
