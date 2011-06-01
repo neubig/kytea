@@ -184,8 +184,6 @@ KyteaSentence * PartCorpusIO::readSentence() {
             } else
                 ret->wsConfs.push_back(PROB_FALSE);
         }
-        if(j != len)
-            ret->wsConfs.push_back(PROB_TRUE);
         KyteaWord word(buff.substr(0,bpos));
         charLen += bpos;
         word.isCertain = cert;
@@ -204,6 +202,8 @@ KyteaSentence * PartCorpusIO::readSentence() {
                 THROW_ERROR("Empty tag at position "<<j<<" in "<<s);
             word.addTag(lev,KyteaTag(buff.substr(0,bpos),PROB_TRUE));
         }
+        if(j != len)
+            ret->wsConfs.push_back(PROB_TRUE);
         ret->words.push_back(word);
     }
 
