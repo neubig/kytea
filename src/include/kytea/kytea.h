@@ -78,6 +78,9 @@ public:
     //  mapString/showString)
     StringUtil* getStringUtil() { return config_->getStringUtil(); }
 
+    // Get the the configuration of this isntance of KyTea
+    KyteaConfig* getConfig() { return config_; }
+
     // These are available for convenience, and require you to set
     //  the appropriate settings in KyteaConfig first
     //  "trainAll" performs full training of Kytea from start to finish

@@ -1,1 +1,1 @@
-SUBDIRS = include lib bin
+SUBDIRS = include lib bin api

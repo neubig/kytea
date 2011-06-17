@@ -13,6 +13,7 @@ AC_CONFIG_FILES([
     src/lib/liblinear/Makefile
     src/lib/liblinear/blas/Makefile
     src/bin/Makefile
+    src/api/Makefile
     data/Makefile
 ])
 
