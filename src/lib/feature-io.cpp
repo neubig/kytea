@@ -8,6 +8,7 @@ void FeatureIO::load(const string& fileName,StringUtil* util) {
     ifstream in(fileName.c_str());
     string line, str, str2;
     // load the dictionary
+    unsigned char maxDict = 0;
     getline(in,line); 
     numTags_ = util->parseInt(line.c_str());
     getline(in,line); 
@@ -18,6 +19,7 @@ void FeatureIO::load(const string& fileName,StringUtil* util) {
         int inDict = util->parseInt(str2.c_str());
         TagEntry* ent = new ModelTagEntry(util->mapString(str));
         ent->inDict = (char)inDict;
+        maxDict = max(maxDict,(unsigned char)inDict);
         ent->setNumTags(numTags_);
         for(int j = 0; j < numTags_; j++) {
             getline(in,line); istringstream tiss(line);
@@ -35,6 +37,10 @@ void FeatureIO::load(const string& fileName,StringUtil* util) {
     if(line.length()) {
         THROW_ERROR("Expected empty line in feature file, but instead got '"<<line<<"'");
     }
+
+    for(unsigned i = 0; i < 8; i++)
+        if((1 << i) & maxDict)
+            numDicts_ = i+1;
 
     // load the features
     while(getline(in,line)) {
