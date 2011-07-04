@@ -180,7 +180,7 @@ void Kytea::buildVocabulary() {
     if(dict_ != 0) delete dict_;
     dict_ = new Dictionary(util_);
     dict_->buildIndex(allWords);
-    dict_->setNumDicts(config_->getDictionaryFiles().size());
+    dict_->setNumDicts(max((int)config_->getDictionaryFiles().size(),fio_.getNumDicts()));
     if(config_->getDebug() > 0)
         cerr << "done!" << endl;
 
@@ -1004,8 +1004,14 @@ void Kytea::trainAll() {
     trainSanityCheck();
     
     // handle the feature files
-    if(config_->getFeatureIn().length())
-        fio_.load(config_->getFeatureIn(),util_);
+    if(config_->getFeatureIn().length()) {
+        if(config_->getDebug() > 0) {
+            cerr << "Loading features from "<<config_->getFeatureIn() << "...";
+            fio_.load(config_->getFeatureIn(),util_);
+            cerr << " done!" << endl;
+        } else
+            fio_.load(config_->getFeatureIn(),util_);
+    }
     config_->setNumTags(max(config_->getNumTags(),fio_.getNumTags()));
     if(config_->getFeatureOut().length())
         fio_.openOut(config_->getFeatureOut());

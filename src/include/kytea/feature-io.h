@@ -18,16 +18,17 @@ protected:
 
     TagHash feats_;
     Dictionary::WordMap wm_;
-    int numTags_;
+    int numTags_, numDicts_;
 
 public:
     
-    FeatureIO() : out_(0), numTags_(0) { }
+    FeatureIO() : out_(0), numTags_(0), numDicts_(0) { }
     ~FeatureIO() {
         if(out_) delete out_;
     }
 
     int getNumTags() { return numTags_; }
+    int getNumDicts() { return numDicts_; }
     void setNumTags(int numTags) { numTags_ = numTags; }
 
     void load(const std::string& fileName,StringUtil* util);
