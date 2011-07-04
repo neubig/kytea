@@ -17,11 +17,12 @@
 #ifndef KYTEA_H__
 #define KYTEA_H__
 
-#include "kytea-config.h"
-#include "kytea-struct.h"
-#include "kytea-model.h"
-#include "kytea-lm.h"
-#include "dictionary.h"
+#include "kytea/kytea-config.h"
+#include "kytea/kytea-struct.h"
+#include "kytea/kytea-model.h"
+#include "kytea/kytea-lm.h"
+#include "kytea/dictionary.h"
+#include "kytea/feature-io.h"
 
 namespace kytea  {
 
@@ -48,6 +49,8 @@ private:
 
     std::vector<unsigned> dictFeats_;
     std::vector<KyteaString> charPrefixes_, typePrefixes_;
+
+    FeatureIO fio_;
 
 public:
 
@@ -95,7 +98,7 @@ public:
 
     void init() { 
         util_ = config_->getStringUtil();
-        dict_ = new Dictionary(util_);
+        // dict_ = new Dictionary(util_);
         dict_ = 0; wsModel_ = 0; subwordDict_ = 0;
     }
 
@@ -109,8 +112,11 @@ public:
         for(int i = 0; i < (int)subwordModels_.size(); i++) {
             if(subwordModels_[i] != 0) delete subwordModels_[i];
         }
+        for(int i = 0; i < (int)globalMods_.size(); i++)
+            if(globalMods_[i] != 0) delete globalMods_[i];
         for(Sentences::iterator it = sentences_.begin(); it != sentences_.end(); it++)
             delete *it;
+        
     }
 
 private:

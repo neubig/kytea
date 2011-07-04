@@ -156,6 +156,7 @@ feature_node * allocateFeatures(const vector<unsigned> & feats, int biasId, doub
 }
 // train the model
 void KyteaModel::trainModel(const vector< vector<unsigned> > & xs, vector<int> & ys, double bias, int solver, double epsilon, double cost) {
+    if(xs.size() == 0) return;
     solver_ = solver;
     if(weights_.size()>0)
         weights_.clear();
@@ -164,6 +165,13 @@ void KyteaModel::trainModel(const vector< vector<unsigned> > & xs, vector<int> &
     struct problem   prob;
     struct parameter param;
     prob.l = xs.size();
+    // for(int i = 0; i < min(5,(int)xs.size()); i++) {
+    //     cerr << "ys["<<i<<"] == "<<ys[i]<<":";
+    //     for(int j = 0; j < (int)xs[i].size(); j++) {
+    //         cerr << " "<<xs[i][j];
+    //     }
+    //     cerr << endl;
+    // }
     prob.y = &ys.front();
 
     // allocate the feature space
@@ -222,18 +230,18 @@ void KyteaModel::trainModel(const vector< vector<unsigned> > & xs, vector<int> &
 #endif
 
     // trim values
-    FeatVec oldNames = names_;
+    oldNames_ = names_;
     names_.clear();
     ids_.clear();
     KyteaString empty;
     mapFeat(empty);
     weights_.clear();
-    for(i=0; i<(int)oldNames.size()-1; i++) {
+    for(i=0; i<(int)oldNames_.size()-1; i++) {
         double myMax = 0.0;
     	for(j=0; j<numW_; j++) 
             myMax = max(abs(mod_->w[i*numW_+j]),myMax);
         if(myMax>SIG_CUTOFF) {
-            mapFeat(oldNames[i+1]);
+            mapFeat(oldNames_[i+1]);
             for(j = 0; j < numW_; j++)
                 weights_.push_back((FeatVal)(mod_->w[i*numW_+j]/multiplier_));
         }
