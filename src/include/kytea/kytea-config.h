@@ -14,8 +14,8 @@
 * limitations under the License.
 */
 
-#ifndef KYPE_CONFIG_H__
-#define KYPE_CONFIG_H__
+#ifndef KYTEA_CONFIG_H__
+#define KYTEA_CONFIG_H__
 
 namespace kytea {
 class KyteaConfig;
@@ -57,6 +57,9 @@ private:
 
     std::string input_, output_;     // the file to input/output
     CorpForm inputForm_, outputForm_; // the format/file to input/output to (default: stdout, full)
+
+    std::string featIn_, featOut_;
+    std::ostream* featStr_;
 
     bool doWS_, doTags_;
     std::vector<bool> doTag_;
@@ -110,7 +113,8 @@ public:
 
     KyteaConfig() : onTraining_(true), debug_(0), util_(0), dicts_(), 
                     modelForm_('B'), inputForm_(CORP_FORMAT_DEFAULT),
-                    outputForm_(CORP_FORMAT_FULL), doWS_(true), doTags_(true),
+                    outputForm_(CORP_FORMAT_FULL), featStr_(0),
+                    doWS_(true), doTags_(true),
                     addFeat_(false), confidence_(0.0), charW_(3), charN_(3), 
                     typeW_(3), typeN_(3), dictN_(4), 
                     unkN_(3), unkBeam_(50), defTag_("UNK"), unkTag_(),
@@ -166,6 +170,8 @@ public:
     const StringUtil * getStringUtil() const { return util_; }
     const CorpForm getInputFormat() const { return inputForm_; }
     const CorpForm getOutputFormat() const { return outputForm_; }
+    const std::string & getFeatureIn() const { return featIn_; }
+    const std::string & getFeatureOut() const { return featOut_; }
     
     const char getCharN() const { return charN_; }
     const char getCharWindow() const { return charW_; }
@@ -240,7 +246,20 @@ public:
     void setEscape(const char* v) { escape_ = v; } 
     void setNumTags(int v) { numTags_ = v; } 
     void setGlobal(int v) { if((int)global_.size() <= v) global_.resize(v+1,false); global_[v] = true; } 
+    void setFeatureIn(const std::string & featIn) { featIn_ = featIn; }
+    void setFeatureOut(const std::string & featOut) { featOut_ = featOut; }
 
+    std::ostream * getFeatureOutStream() {
+        if(featOut_.length() && !featStr_)
+            featStr_ = new std::ofstream(featOut_.c_str());
+        return featStr_;
+    }
+    void closeFeatureOutStream() {
+        if(featStr_) {
+            delete featStr_;
+            featStr_ = 0;
+        }
+    }
 
     // set the encoding of the StringUtil class and reset all the IOs
     void setEncoding(const char* str) {

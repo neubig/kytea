@@ -21,9 +21,10 @@
 #include <stdexcept>
 #include <cstring>
 #include <sstream>
+#include <iostream>
 
 // will boundary check when defined
-// #define KYTEA_STRING_SAFE
+#define KYTEA_STRING_SAFE
 
 namespace kytea {
 
@@ -125,7 +126,6 @@ public:
         memcpy(ret.getImpl()->chars_, impl_->chars_+s, sizeof(KyteaChar)*l);
         return ret;
     }
-    
 
     KyteaString substr(unsigned s, unsigned l) const {
 #ifdef KYTEA_STRING_SAFE
@@ -188,6 +188,16 @@ public:
             impl_ = new KyteaStringImpl(*impl_);
         }
         return impl_;
+    }
+
+
+    bool beginsWith(const KyteaString & s) const {
+        if(s.length() > this->length()) return 0;
+        for(int i = s.length()-1; i >= 0; i--) {
+            if((*this)[i] != s[i])
+                return 0;
+        }
+        return 1;
     }
 
 };

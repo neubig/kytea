@@ -33,7 +33,7 @@
 
 
 // do sanity checks on the IO files
-// #define KYTEA_IO_SAFE
+#define KYTEA_IO_SAFE
 
 namespace kytea {
 

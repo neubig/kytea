@@ -17,7 +17,7 @@
 #ifndef KYTEA_DICTIONARY_H_
 #define KYTEA_DICTIONARY_H_
 
-// #define DICTIONARY_SAFE
+#define DICTIONARY_SAFE
 
 #include "kytea-string.h"
 #include "kytea-model.h"

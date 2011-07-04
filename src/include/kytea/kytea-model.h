@@ -23,7 +23,7 @@
 #include <vector>
 #include <iostream>
 
-// #define KYTEA_SAFE
+#define MODEL_SAFE
 #define SIG_CUTOFF 1E-6
 
 namespace kytea {
@@ -48,6 +48,7 @@ private:
 
     KyteaUnsignedMap ids_;
     FeatVec names_;
+    FeatVec oldNames_;
     std::vector<int> labels_;
     std::vector<FeatVal> weights_;
     double multiplier_;
@@ -64,7 +65,6 @@ public:
 
     // feature functions
     inline unsigned mapFeat(const KyteaString & str) {
-        // std::cerr << "mapFeat:"; for(unsigned i=0;i<str.length();i++) std::cerr << " " << str[i]; std::cerr << std::endl;
         KyteaUnsignedMap::const_iterator it = ids_.find(str);
         unsigned ret = 0;
         if(it != ids_.end())
@@ -74,6 +74,7 @@ public:
             ids_[str] = ret;
             names_.push_back(str);
         }
+        // std::cerr << "mapFeat:"; for(unsigned i=0;i<str.length();i++) std::cerr << " " << str[i]; std::cerr << " --> "<<ret<<"/"<<names_.size()<<std::endl;
         return ret;
     }
     inline KyteaString showFeat(unsigned val) {
@@ -90,12 +91,14 @@ public:
     bool getAddFeatures() { return addFeat_; }
 
     const FeatVec & getNames() const { return names_; }
+    const FeatVec & getOldNames() const { return oldNames_; }
 
     std::vector< std::pair<int,double> > runClassifier(const std::vector<unsigned> & feat);
     // std::pair<int,double> runClassifier(const std::vector<unsigned> & feat);
     void printClassifier(const std::vector<unsigned> & feat, StringUtil * util, std::ostream & out = std::cerr);
 
     void trainModel(const std::vector< std::vector<unsigned> > & xs, std::vector<int> & ys, double bias, int solver, double epsilon, double cost);
+    void trimModel();
 
     inline const unsigned getNumFeatures() const { return names_.size()-1; }
     inline const double getBias() const { return bias_; }
@@ -121,6 +124,34 @@ public:
     
 
 };
+
+class TagTriplet {
+public:
+    std::vector< std::vector<unsigned> > first;
+    std::vector<int> second;
+    KyteaModel * third;
+    std::vector<KyteaString> fourth;
+
+    TagTriplet() : first(), second(), third(0), fourth() { }
+};
+
+// maps for use with various classes
+#ifdef HAVE_TR1_UNORDERED_MAP
+#   include <tr1/unordered_map>
+    typedef std::tr1::unordered_map<KyteaString, TagTriplet*, KyteaStringHash> TagHash;
+#elif HAVE_EXT_HASH_MAP
+#   include <ext/hash_map>
+    namespace __gnu_cxx {
+    template <>
+    struct hash<std::string> {
+        size_t operator() (const std::string& x) const { return hash<const char*>()(x.c_str()); }
+    };
+    }
+    typedef __gnu_cxx::hash_map<KyteaString, TagTriplet*, KyteaStringHash> TagHash;
+#else
+#   include <map>
+    typedef std::map<KyteaString, TagTriplet*> TagHash;
+#endif
 
 }
 
