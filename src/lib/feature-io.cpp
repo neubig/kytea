@@ -52,7 +52,9 @@ void FeatureIO::load(const string& fileName,StringUtil* util) {
             numTags_ = max(numTags_,util->parseInt(str.c_str())+1);
         }
         // make the structure
-        TagTriplet * trip = new TagTriplet;
+        TagTriplet * trip = new TagTriplet();
+        trip->first = vector< vector<unsigned> >();
+        trip->second = vector<int>();
         trip->third = new KyteaModel();
         feats_.insert(pair<KyteaString,TagTriplet*>(util->mapString(line),trip));
         // read the tags

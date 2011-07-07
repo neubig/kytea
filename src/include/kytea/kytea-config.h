@@ -172,6 +172,7 @@ public:
     const CorpForm getOutputFormat() const { return outputForm_; }
     const std::string & getFeatureIn() const { return featIn_; }
     const std::string & getFeatureOut() const { return featOut_; }
+    const bool getWriteFeatures() const { return featOut_.length() > 0; }
     
     const char getCharN() const { return charN_; }
     const char getCharWindow() const { return charW_; }
