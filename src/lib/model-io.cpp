@@ -380,8 +380,9 @@ void TextModelIO::writeEntry(const ModelTagEntry * entry) {
         }
     }
     *str_ << endl;
-    for(int i = 0; i < numTags_; i++)
+    for(int i = 0; i < numTags_; i++) {
         writeModel((int)entry->tagMods.size() > i?entry->tagMods[i]:0);
+    }
 }
 
 template <>
@@ -671,6 +672,7 @@ void BinaryModelIO::writeEntry(const ModelTagEntry * entry) {
     writeString(entry->word);
     for(int i = 0; i < numTags_; i++) {
         int mySize = (int)entry->tags.size() > i ? entry->tags[i].size() : 0;
+        // if there are multiple tags, but only one existed in model training data, swap
         writeBinary((uint32_t)mySize);
         for(int j = 0; j < mySize; j++) {
             writeString(entry->tags[i][j]);

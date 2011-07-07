@@ -475,15 +475,17 @@ void Kytea::trainLocalTags(int lev) {
     ModelTagEntry* myEntry = 0;
     for(unsigned i = 0; i < entries.size(); i++) {
         myEntry = (ModelTagEntry*)entries[i];
-        if((int)myEntry->tags.size() > lev && myEntry->tags[lev].size() > 1) {
+        if((int)myEntry->tags.size() > lev && (myEntry->tags[lev].size() > 1 || config_->getWriteFeatures())) {
             TagTriplet * trip = fio_.getFeatures(featId+myEntry->word,true);
-            trip->first = vector< vector<unsigned> >();
-            trip->second = vector<int>();
+            // trip->first = vector< vector<unsigned> >();
+            // trip->second = vector<int>();
+            // if((int)myEntry->tagMods.size() <= lev)
+            //     myEntry->tagMods.resize(lev+1,0);
+            // if(myEntry->tagMods[lev])
+            //     delete myEntry->tagMods[lev];
             if((int)myEntry->tagMods.size() <= lev)
                 myEntry->tagMods.resize(lev+1,0);
-            if(myEntry->tagMods[lev])
-                delete myEntry->tagMods[lev];
-            myEntry->tagMods[lev] = new KyteaModel();
+            myEntry->tagMods[lev] = (trip->third ? trip->third : new KyteaModel());
             trip->third = myEntry->tagMods[lev];
             trip->fourth = myEntry->tags[lev];
         }
@@ -515,13 +517,23 @@ void Kytea::trainLocalTags(int lev) {
     if(config_->getDebug() > 0)
         cerr << "done!" << endl << "Training local tag classifiers ";
     // calculate classifiers
-    for(TagHash::iterator peit = fio_.getFeatures().begin(); peit != fio_.getFeatures().end(); peit++) {
-        vector< vector<unsigned> > & xs = peit->second->first;
-        vector<int> & ys = peit->second->second;
-        
-        // train the model
-        peit->second->third->trainModel(xs,ys,config_->getBias(),config_->getSolverType(),config_->getEpsilon(),config_->getCost());
-
+    for(unsigned i = 0; i < entries.size(); i++) {
+        myEntry = (ModelTagEntry*)entries[i];
+        if((int)myEntry->tags.size() > lev && (myEntry->tags[lev].size() > 1 || config_->getWriteFeatures())) {
+            TagTriplet * trip = fio_.getFeatures(featId+myEntry->word,false);
+            if(!trip) THROW_ERROR("FATAL: Unbuilt model in entry table");
+            // cerr << "Training local model for "<<util_->showString(myEntry->word) << endl;
+            vector< vector<unsigned> > & xs = trip->first;
+            vector<int> & ys = trip->second;
+            
+            // train the model
+            trip->third->trainModel(xs,ys,config_->getBias(),config_->getSolverType(),config_->getEpsilon(),config_->getCost());
+            if(trip->third->getNumClasses() == 1) {
+                int myLab = trip->third->getLabel(0)-1;
+                KyteaString tmpString = myEntry->tags[lev][0]; myEntry->tags[lev][0] = myEntry->tags[lev][myLab]; myEntry->tags[lev][myLab] = tmpString;
+                char tmpDict = myEntry->tagInDicts[lev][0]; myEntry->tagInDicts[lev][0] = myEntry->tagInDicts[lev][myLab]; myEntry->tagInDicts[lev][myLab] = tmpDict;
+            }
+        }
     }
 
     // print the features
