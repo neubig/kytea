@@ -108,7 +108,7 @@ void KyteaConfig::printUsage() {
 "  -nows    Don't do word segmentation (raw input cannot be accepted)" << endl <<
 "  -notags  Do only word segmentation, no tagging" << endl <<
 "  -notag   Skip the tag of the nth tag (n starts at 1)" << endl <<
-"  -nounk   Don't estimate the pronunciation of unkown words" << endl <<
+"  -nounk   Don't estimate the pronunciation of unknown words" << endl <<
 "  -unkbeam The width of the beam to use in beam search for unknown words " <<endl<<
 "           (default 50, 0 for full search)" << endl <<
 "  -debug   The debugging level (0=silent, 1=simple, 2=detailed)" << endl <<
@@ -233,6 +233,7 @@ unsigned KyteaConfig::parseRunArg(const char * n, const char * v) {
         if(util_->parseInt(v) < 1) THROW_ERROR("Illegal setting "<<v<<" for -notag (must be 1 or greater)");
         setDoTag(util_->parseInt(v)-1,false);
     }
+    else if(!strcmp(n, "-nounk"))    { setDoUnk(false); r=0; }
     else if(!strcmp(n, "-numtags"))  { ch(n,v); setNumTags(util_->parseInt(v)); }
     else if(!strcmp(n, "-tagmax"))   { ch(n,v); setTagMax(util_->parseInt(v)); }
 

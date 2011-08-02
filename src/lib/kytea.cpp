@@ -968,9 +968,11 @@ void Kytea::calculateTags(KyteaSentence & sent, int lev) {
         }
         // calculate unknown tags
         if(tags == 0 || tags->size() == 0) {
-            calculateUnknownTag(word,lev);
-            if(config_->getDebug() >= 2)
-                cerr << "Tag "<<i+1<<" ("<<util_->showString(sent.words[i].surf)<<"->UNK)"<<endl;
+            if(config_->getDoUnk()) {
+                calculateUnknownTag(word,lev);
+                if(config_->getDebug() >= 2)
+                    cerr << "Tag "<<i+1<<" ("<<util_->showString(sent.words[i].surf)<<"->UNK)"<<endl;
+            }
         }
         // calculate known tags
         else {
