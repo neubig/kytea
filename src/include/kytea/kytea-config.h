@@ -61,7 +61,7 @@ private:
     std::string featIn_, featOut_;
     std::ostream* featStr_;
 
-    bool doWS_, doTags_;
+    bool doWS_, doTags_, doUnk_;
     std::vector<bool> doTag_;
 
     // feature options
@@ -114,7 +114,7 @@ public:
     KyteaConfig() : onTraining_(true), debug_(0), util_(0), dicts_(), 
                     modelForm_('B'), inputForm_(CORP_FORMAT_DEFAULT),
                     outputForm_(CORP_FORMAT_FULL), featStr_(0),
-                    doWS_(true), doTags_(true),
+                    doWS_(true), doTags_(true), doUnk_(true),
                     addFeat_(false), confidence_(0.0), charW_(3), charN_(3), 
                     typeW_(3), typeN_(3), dictN_(4), 
                     unkN_(3), unkBeam_(50), defTag_("UNK"), unkTag_(),
@@ -190,6 +190,7 @@ public:
     const double getCost() const { return cost_; }
     const int getSolverType() const { return solverType_; }
     const bool getDoWS() const { return doWS_; }
+    const bool getDoUnk() const { return doUnk_; }
     const bool getDoTags() const { return doTags_; }
     const bool getDoTag(int i) const { return doTags_ && (i >= (int)doTag_.size() || doTag_[i]); }
     const char* getWordBound() const { return wordBound_.c_str(); } 
@@ -231,6 +232,7 @@ public:
     void setDefaultTag(const char* v) { defTag_ = v; }
     void setOnTraining(bool v) { onTraining_ = v; }
     void setDoWS(bool v) { doWS_ = v; }
+    void setDoUnk(bool v) { doUnk_ = v; }
     void setDoTags(bool v) { doTags_ = v; } 
     void setDoTag(int i, bool v)  { 
         if(i >= (int)doTag_.size()) doTag_.resize(i+1,true); 
