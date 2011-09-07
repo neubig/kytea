@@ -150,7 +150,7 @@ public:
     typedef std::map<std::string, kytea::KyteaChar> StringCharMap;
     typedef std::map<kytea::KyteaString,unsigned> KyteaUnsignedMap;
     typedef std::map<kytea::KyteaString,double>   KyteaDoubleMap;
-    typedef std::map<kytea::KyteaString, std::pair<unsigned,unsigned>> TwoCountHash;
+    typedef std::map<kytea::KyteaString, std::pair<unsigned,unsigned> > TwoCountHash;
 #endif
 
 #endif
