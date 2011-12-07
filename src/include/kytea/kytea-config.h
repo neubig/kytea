@@ -125,6 +125,27 @@ public:
                     numTags_(0), tagMax_(3) {
         setEncoding("utf8");
     }
+    KyteaConfig(const KyteaConfig & rhs) 
+                  :  onTraining_(rhs.onTraining_), debug_(rhs.debug_), 
+                     util_(rhs.util_), dicts_(rhs.dicts_),
+                     modelForm_(rhs.modelForm_), inputForm_(rhs.inputForm_), 
+                     outputForm_(rhs.outputForm_), featStr_(rhs.featStr_), 
+                     doWS_(rhs.doWS_), doTags_(rhs.doTags_), 
+                     doUnk_(rhs.doUnk_), addFeat_(rhs.addFeat_), 
+                     confidence_(rhs.confidence_), charW_(rhs.charW_), 
+                     charN_(rhs.charN_), typeW_(rhs.typeW_), 
+                     typeN_(rhs.typeN_), dictN_(rhs.dictN_), 
+                     unkN_(rhs.unkN_), unkBeam_(rhs.unkBeam_), 
+                     defTag_(rhs.defTag_), unkTag_(rhs.unkTag_), 
+                     bias_(rhs.bias_), eps_(rhs.eps_), cost_(rhs.cost_), 
+                     solverType_(rhs.solverType_), wordBound_(rhs.wordBound_), 
+                     tagBound_(rhs.tagBound_), elemBound_(rhs.elemBound_), 
+                     unkBound_(rhs.unkBound_), noBound_(rhs.noBound_), 
+                     hasBound_(rhs.hasBound_), skipBound_(rhs.skipBound_), 
+                     escape_(rhs.escape_), numTags_(rhs.numTags_), tagMax_(rhs.tagMax_)
+    {
+
+    }
     ~KyteaConfig() {
         if(util_)
             delete util_;

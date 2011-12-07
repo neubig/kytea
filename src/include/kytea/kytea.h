@@ -23,25 +23,32 @@
 #include "kytea/kytea-lm.h"
 #include "kytea/dictionary.h"
 #include "kytea/feature-io.h"
+#include "kytea/feature-lookup.h"
 
 namespace kytea  {
+
+class KyteaTest;
 
 // a class representing the main analyzer
 class Kytea {
 
 private:
+    friend class KyteaTest;
     typedef unsigned FeatureId;
     typedef std::list<KyteaSentence*> Sentences;
     typedef std::vector< std::vector< FeatureId > > SentenceFeatures;
 
     StringUtil* util_;
     KyteaConfig* config_;
-    Dictionary * dict_;
+    Dictionary<ModelTagEntry> * dict_;
+    unsigned char numDicts_;
     Sentences sentences_;
 
+    // Values for the word segmentation models
     KyteaModel* wsModel_;
+    FeatureLookup * wsFeatLookup_;
 
-    Dictionary* subwordDict_;
+    Dictionary<ProbTagEntry>* subwordDict_;
     std::vector<KyteaLM*> subwordModels_;
 
     std::vector<KyteaModel*> globalMods_;
@@ -99,16 +106,19 @@ public:
     void init() { 
         util_ = config_->getStringUtil();
         // dict_ = new Dictionary(util_);
-        dict_ = 0; wsModel_ = 0; subwordDict_ = 0;
+        dict_ = 0; wsModel_ = 0;
+        wsFeatLookup_ = 0; subwordDict_ = 0;
     }
 
     Kytea() : config_(new KyteaConfig()) { init(); }
-    Kytea(KyteaConfig & config) : config_(&config) { init(); }
+    Kytea(KyteaConfig * config) : config_(config) { init(); }
     
     ~Kytea() {
         if(dict_) delete dict_;
         if(subwordDict_) delete subwordDict_;
         if(wsModel_) delete wsModel_;
+        if(wsFeatLookup_) delete wsFeatLookup_;
+        if(config_) delete config_;
         for(int i = 0; i < (int)subwordModels_.size(); i++) {
             if(subwordModels_[i] != 0) delete subwordModels_[i];
         }
@@ -118,6 +128,11 @@ public:
             delete *it;
         
     }
+
+protected:
+
+    KyteaModel* getWSModel() { return wsModel_; }
+    void setWSModel(KyteaModel* model) { wsModel_ = model; }
 
 private:
 

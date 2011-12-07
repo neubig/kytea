@@ -21,8 +21,10 @@
 #include "kytea-model.h"
 #include "kytea-lm.h"
 #include "kytea-config.h"
+#include "feature-lookup.h"
 #include "dictionary.h"
 #include "config.h"
+#include <vector>
 #include <algorithm>
 #include <stdint.h>
 #include <iostream>
@@ -61,16 +63,39 @@ public:
     virtual void writeConfig(const KyteaConfig & conf) = 0;
     virtual void writeModel(const KyteaModel * mod) = 0;
     virtual void writeWordList(const std::vector<KyteaString> & list) = 0;
-    virtual void writeModelDictionary(const Dictionary * dict) = 0;
-    virtual void writeProbDictionary(const Dictionary * dict) = 0;
     virtual void writeLM(const KyteaLM * mod) = 0;
+    virtual void writeFeatureVector(const FeatVec * vec) = 0;
+    virtual void writeFeatureValue(const FeatVal val) = 0;
 
     virtual void readConfig(KyteaConfig & conf) = 0;
     virtual KyteaModel * readModel() = 0;
     virtual std::vector<KyteaString> readWordList() = 0;
-    virtual Dictionary * readModelDictionary() = 0;
-    virtual Dictionary * readProbDictionary() = 0;
     virtual KyteaLM * readLM() = 0;
+    virtual FeatVec * readFeatureVector() = 0;
+    virtual FeatVal readFeatureValue() = 0;
+
+    // These must be explicitly expanded because templated virtuals are not allowed
+    virtual void writeModelDictionary(const Dictionary<ModelTagEntry> * dict) = 0;
+    virtual void writeProbDictionary(const Dictionary<ProbTagEntry> * dict) = 0;
+    virtual void writeVectorDictionary(const Dictionary<FeatVec > * dict) = 0;
+    virtual Dictionary<ModelTagEntry> * readModelDictionary() = 0;
+    virtual Dictionary<ProbTagEntry> * readProbDictionary() = 0;
+    virtual Dictionary<FeatVec > * readVectorDictionary() = 0;
+
+    void writeFeatLookup(const FeatureLookup * featLookup) {
+        writeVectorDictionary(featLookup->getCharDict());
+        writeVectorDictionary(featLookup->getTypeDict());
+        writeFeatureVector(featLookup->getDictVector());
+        writeFeatureValue(featLookup->getBias());
+    }
+    FeatureLookup * readFeatLookup() {
+        FeatureLookup * look = new FeatureLookup;
+        look->setCharDict(readVectorDictionary());
+        look->setTypeDict(readVectorDictionary());
+        look->setDictVector(readFeatureVector());
+        look->setBias(readFeatureValue());
+        return look;
+    }
 
 };
 
@@ -87,15 +112,18 @@ public:
     void writeConfig(const KyteaConfig & conf);
     void writeModel(const KyteaModel * mod);
     void writeWordList(const std::vector<KyteaString> & list);
-    void writeModelDictionary(const Dictionary * dict) { writeDictionary<ModelTagEntry>(dict); }
-    void writeProbDictionary(const Dictionary * dict) { writeDictionary<ProbTagEntry>(dict); }
+    void writeModelDictionary(const Dictionary<ModelTagEntry> * dict) { writeDictionary(dict); }
+    void writeProbDictionary(const Dictionary<ProbTagEntry> * dict) { writeDictionary(dict); }
+    void writeVectorDictionary(const Dictionary<FeatVec > * dict) { writeDictionary(dict); }
     void writeLM(const KyteaLM * mod);
+    void writeFeatureVector(const FeatVec * vec);
+    void writeFeatureValue(const FeatVal val);
 
     template <class Entry>
     void writeEntry(const Entry * entry);
 
     template <class Entry>
-    void writeDictionary(const Dictionary * dict) {
+    void writeDictionary(const Dictionary<Entry> * dict) {
         if(dict == 0) {
             *str_ << "0" << std::endl << "0" << std::endl;
             return;
@@ -119,7 +147,7 @@ public:
             *str_ << (states[i]->isBranch?'b':'n') << std::endl;
         }
         // write the entries
-        const std::vector<TagEntry*> & entries = dict->getEntries();
+        const std::vector<Entry*> & entries = dict->getEntries();
         *str_ << entries.size() << std::endl;
         for(unsigned i = 0; i < entries.size(); i++)
             writeEntry((Entry*)entries[i]);
@@ -132,16 +160,19 @@ public:
     void readConfig(KyteaConfig & conf);
     KyteaModel * readModel();
     std::vector<KyteaString> readWordList();
-    Dictionary * readModelDictionary() { return readDictionary<ModelTagEntry>(); }
-    Dictionary * readProbDictionary()  { return readDictionary<ProbTagEntry>(); }
+    Dictionary<ModelTagEntry> * readModelDictionary() { return readDictionary<ModelTagEntry>(); }
+    Dictionary<ProbTagEntry> * readProbDictionary()  { return readDictionary<ProbTagEntry>(); }
+    Dictionary<FeatVec > * readVectorDictionary()  { return readDictionary<FeatVec >(); }
     KyteaLM * readLM();
+    FeatVec * readFeatureVector();
+    FeatVal readFeatureValue();
 
     template <class Entry>
     Entry * readEntry();
 
     template <class Entry>
-    Dictionary * readDictionary() {
-        Dictionary * dict = new Dictionary(util_);
+    Dictionary<Entry> * readDictionary() {
+        Dictionary<Entry> * dict = new Dictionary<Entry>(util_);
         std::string line, buff;
         // get the number of dictionaries
         std::getline(*str_, line);
@@ -180,7 +211,7 @@ public:
             states[i] = state;
         }
         // get the entries
-        std::vector<TagEntry*> & entries = dict->getEntries();
+        std::vector<Entry*> & entries = dict->getEntries();
         getline(*str_, line);
         entries.resize(util_->parseInt(line.c_str()));
         for(unsigned i = 0; i < entries.size(); i++) {
@@ -204,15 +235,18 @@ public:
     void writeConfig(const KyteaConfig & conf);
     void writeModel(const KyteaModel * mod);
     void writeWordList(const std::vector<KyteaString> & list);
-    void writeModelDictionary(const Dictionary * dict) { writeDictionary<ModelTagEntry>(dict); }
-    void writeProbDictionary(const Dictionary * dict) { writeDictionary<ProbTagEntry>(dict); }
+    void writeModelDictionary(const Dictionary<ModelTagEntry> * dict) { writeDictionary(dict); }
+    void writeProbDictionary(const Dictionary<ProbTagEntry> * dict) { writeDictionary(dict); }
+    void writeVectorDictionary(const Dictionary<FeatVec > * dict) { writeDictionary(dict); }
     void writeLM(const KyteaLM * mod);
+    void writeFeatureVector(const FeatVec * vec);
+    void writeFeatureValue(const FeatVal val);
 
     template <class Entry>
     void writeEntry(const Entry * entry);
 
     template <class Entry>
-    void writeDictionary(const Dictionary * dict) {
+    void writeDictionary(const Dictionary<Entry> * dict) {
         // write the number of dicts
         if(dict == 0) {
             writeBinary((unsigned char)0);
@@ -239,10 +273,10 @@ public:
             writeBinary(state->isBranch);
         }
         // write the entries
-        const std::vector<TagEntry*> & entries = dict->getEntries();
+        const std::vector<Entry*> & entries = dict->getEntries();
         writeBinary((uint32_t)entries.size());
         for(unsigned i = 0; i < entries.size(); i++)
-            writeEntry((Entry*)entries[i]);
+            writeEntry(entries[i]);
 
     }
 
@@ -251,16 +285,19 @@ public:
     void readConfig(KyteaConfig & conf);
     KyteaModel * readModel();
     std::vector<KyteaString> readWordList();
-    Dictionary * readModelDictionary() { return readDictionary<ModelTagEntry>(); }
-    Dictionary * readProbDictionary()  { return readDictionary<ProbTagEntry>(); }
+    Dictionary<ModelTagEntry> * readModelDictionary() { return readDictionary<ModelTagEntry>(); }
+    Dictionary<ProbTagEntry> * readProbDictionary()  { return readDictionary<ProbTagEntry>(); }
+    Dictionary<FeatVec > * readVectorDictionary()  { return readDictionary<FeatVec >(); }
     KyteaLM * readLM();
+    FeatVec * readFeatureVector();
+    FeatVal readFeatureValue();
 
     template <class Entry>
     Entry * readEntry();
 
     template <class Entry>
-    Dictionary * readDictionary() {
-        Dictionary * dict = new Dictionary(util_);
+    Dictionary<Entry> * readDictionary() {
+        Dictionary<Entry> * dict = new Dictionary<Entry>(util_);
         std::string line, buff;
         // get the number of dictionaries
         unsigned numDicts = readBinary<unsigned char>();
@@ -287,7 +324,7 @@ public:
             states[i] = state;
         }
         // get the entries
-        std::vector<TagEntry*> & entries = dict->getEntries();
+        std::vector<Entry*> & entries = dict->getEntries();
         entries.resize(readBinary<uint32_t>());
         for(unsigned i = 0; i < entries.size(); i++) 
             entries[i] = readEntry<Entry>();

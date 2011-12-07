@@ -17,7 +17,7 @@ void FeatureIO::load(const string& fileName,StringUtil* util) {
         getline(in,line); istringstream iss(line);
         iss >> str >> str2;
         int inDict = util->parseInt(str2.c_str());
-        TagEntry* ent = new ModelTagEntry(util->mapString(str));
+        ModelTagEntry* ent = new ModelTagEntry(util->mapString(str));
         ent->inDict = (char)inDict;
         maxDict = max(maxDict,(unsigned char)inDict);
         ent->setNumTags(numTags_);
@@ -31,7 +31,7 @@ void FeatureIO::load(const string& fileName,StringUtil* util) {
                 ent->tagInDicts[j].push_back((char)inDict);
             }
         }
-        wm_.insert(pair<KyteaString,TagEntry*>(ent->word,ent));
+        wm_.insert(pair<KyteaString,ModelTagEntry*>(ent->word,ent));
     }
     getline(in,line); 
     if(line.length()) {
@@ -113,7 +113,7 @@ void FeatureIO::printFeatures(const KyteaString & featId, TagTriplet * trip, Str
         *out_ << util->showString(trip->fourth[i]);
     }
     // print the feature names
-    const KyteaModel::FeatVec & names = trip->third->getOldNames();
+    const FeatNameVec & names = trip->third->getOldNames();
     *out_ << endl << names.size() << endl;
     for(int i = 0; i < (int)names.size(); i++) {
         // cerr << "wrote feature "<<i<<" "<<util->showString(names[i])<<endl;
@@ -150,7 +150,7 @@ void FeatureIO::printWordMap(StringUtil * util) {
     if(!out_) return;
     *out_ << numTags_ << endl;
     *out_ << wm_.size() << endl;
-    for(Dictionary::WordMap::const_iterator it = wm_.begin(); it != wm_.end(); it++) {
+    for(Dictionary<ModelTagEntry>::WordMap::const_iterator it = wm_.begin(); it != wm_.end(); it++) {
         const TagEntry * te = it->second;
         *out_ << util->showString(te->word) << " " << (int)te->inDict << endl;
         for(int i = 0; i < numTags_; i++) {

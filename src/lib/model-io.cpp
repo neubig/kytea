@@ -140,7 +140,7 @@ void TextModelIO::writeModel(const KyteaModel * mod) {
 
     *str_ << "w" << endl;
     // print the feature names and values
-    const KyteaModel::FeatVec & names = mod->getNames();
+    const FeatNameVec & names = mod->getNames();
     for(i=0; i<w_size; i++)
     {
     	int j;
@@ -282,7 +282,7 @@ KyteaModel * TextModelIO::readModel() {
         string buff;
 		for(j=0; j<nr_w; j++) {
             iss >> buff;
-            mod->setWeight(i,j,(KyteaModel::FeatVal)util_->parseFloat(buff.c_str()));
+            mod->setWeight(i,j,(FeatVal)util_->parseFloat(buff.c_str()));
         }
 	}
     mod->setNumFeatures(nr_feature);
@@ -355,6 +355,25 @@ KyteaLM * TextModelIO::readLM() {
     return lm;
 }
 
+void TextModelIO::writeFeatureValue(FeatVal entry) {
+    *str_ << entry << endl;
+}
+
+void TextModelIO::writeFeatureVector(const vector<FeatVal> * entry) {
+    int mySize = (int)(entry ? entry->size() : 0);
+    for(int j = 0; j < mySize; j++) {
+        if(j!=0) *str_ << " ";
+        *str_ << (*entry)[j];
+        // *str_ << util_->showString((*entry)[j]);
+    }
+    *str_ << endl;
+}
+
+template <>
+void TextModelIO::writeEntry(const vector<FeatVal> * entry) {
+    writeFeatureVector(entry);
+}
+
 template <>
 void TextModelIO::writeEntry(const ModelTagEntry * entry) {
     *str_ << util_->showString(entry->word) << endl;
@@ -406,6 +425,22 @@ void TextModelIO::writeEntry(const ProbTagEntry * entry) {
     }
 }
 
+void BinaryModelIO::writeFeatureValue(FeatVal entry) {
+    writeBinary((FeatVal)entry);
+}
+
+void BinaryModelIO::writeFeatureVector(const vector<FeatVal> * entry) {
+    int mySize = (int)(entry ? entry->size() : 0);
+    writeBinary((uint32_t)mySize);
+    for(int j = 0; j < mySize; j++)
+        writeBinary((FeatVal)(*entry)[j]);
+}
+
+template <>
+void BinaryModelIO::writeEntry(const vector<FeatVal> * entry) {
+    writeFeatureVector(entry);
+}
+
 template <>
 void BinaryModelIO::writeEntry(const ProbTagEntry * entry) {
     writeString(entry->word);
@@ -417,6 +452,27 @@ void BinaryModelIO::writeEntry(const ProbTagEntry * entry) {
             writeBinary((double)entry->probs[i][j]);
         }
     }
+}
+
+vector<FeatVal>* TextModelIO::readFeatureVector() {
+    string line, buff;
+    vector<FeatVal> * entry = new vector<FeatVal>;
+    getline(*str_, line);
+    istringstream iss(line);
+    while(iss >> buff)
+        entry->push_back(util_->parseFloat(buff.c_str()));
+    return entry;
+}
+
+FeatVal TextModelIO::readFeatureValue() {
+    string line;
+    getline(*str_, line);
+    return (FeatVal)util_->parseFloat(line.c_str());
+}
+
+template <>
+vector<FeatVal>* TextModelIO::readEntry<vector<FeatVal> >() {
+    return readFeatureVector();
 }
 
 template <>
@@ -525,7 +581,7 @@ void BinaryModelIO::writeModel(const KyteaModel * mod) {
     }
 
     // print the feature names
-    const KyteaModel::FeatVec & names = mod->getNames();
+    const FeatNameVec & names = mod->getNames();
     writeBinary((uint32_t)names.size());
     for(unsigned i = 1; i < names.size(); i++)
         writeString(names[i]);
@@ -631,7 +687,7 @@ KyteaModel * BinaryModelIO::readModel() {
 	mod->initializeWeights(w_size,nr_w);
 	for(i=0; (int)i<w_size; i++) 
 		for(int j=0; j<nr_w; j++) 
-            mod->setWeight(i,j,readBinary<KyteaModel::FeatVal>()); 
+            mod->setWeight(i,j,readBinary<FeatVal>()); 
     
     // read models shouldn't add any additional features
     mod->setAddFeatures(false);
@@ -682,6 +738,23 @@ void BinaryModelIO::writeEntry(const ModelTagEntry * entry) {
     writeBinary((unsigned char)entry->inDict);
     for(int i = 0; i < numTags_; i++)
         writeModel((int)entry->tagMods.size() > i ? entry->tagMods[i] : 0);
+}
+
+FeatVal BinaryModelIO::readFeatureValue() {
+    return readBinary<FeatVal>();
+}
+
+vector<FeatVal>* BinaryModelIO::readFeatureVector() {
+    int mySize = readBinary<uint32_t>();
+    vector<FeatVal> * entry = new vector<FeatVal>;
+    for(int i = 0; i < mySize; i++)
+        entry->push_back(readBinary<FeatVal>());
+    return entry;
+}
+
+template <>
+vector<FeatVal>* BinaryModelIO::readEntry<vector<FeatVal> >() {
+    return readFeatureVector();
 }
 
 template <>
