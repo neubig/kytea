@@ -7,9 +7,6 @@
 
 namespace kytea {
 
-template <class Entry>
-class Dictionary;
-
 class FeatureLookup {
 protected:
     Dictionary<FeatVec> *charDict_, *typeDict_;
@@ -33,10 +30,14 @@ public:
         return bias_;
     }
 
-    void addNgramScores(const Dictionary<FeatVec> & dict, 
+    void addNgramScores(const Dictionary<FeatVec> * dict, 
                         const KyteaString & str,
                         int window,
                         std::vector<FeatSum> & score);
+
+    void addDictionaryScores(
+        const Dictionary<ModelTagEntry>::MatchResult & matches,
+        int numDicts, int max, std::vector<FeatSum> & score);
 
     // Setters, these will all take control of the features they are passed
     //  (without making a copy)
@@ -52,6 +53,7 @@ public:
     void setBias(FeatVal bias) {
         bias_ = bias;
     }
+
 
 };
 

@@ -153,9 +153,9 @@ public:
         }
         // Check the dictionary match
         vector<FeatVal> dictExp(2*5*3, 0);
-        dictExp[0*15+0*3+0] = SIZE+1;
+        dictExp[0*15+0*3+2] = SIZE+1;
         dictExp[0*15+4*3+1] = SIZE+2;
-        dictExp[1*15+4*3+2] = SIZE+3;
+        dictExp[1*15+4*3+0] = SIZE+3;
         const vector<FeatVal> & dictAct = *look->getDictVector();
         if(dictExp.size() != dictAct.size()) {
             cerr << "dictExp.size() == "<<dictExp.size()
@@ -180,7 +180,7 @@ public:
         FeatureLookup * feat = makeFeatureLookup(&util);
         KyteaString str = util.mapString("漢カひ。１A");
         vector<FeatSum> act(5,0);
-        feat->addNgramScores(*feat->getCharDict(), str, 3, act);
+        feat->addNgramScores(feat->getCharDict(), str, 3, act);
         vector<FeatSum> exp(5,0);
         exp[2] = 11*(11+1)/2; // All features from 1-11 should fire
         int ret = 1;
@@ -242,8 +242,8 @@ public:
         FeatureLookup * feat = mod.toFeatureLookup(&util, 3, 3, 2, 5);
         // Get the score matrix for lookup
         vector<FeatSum> act(5,0);
-        feat->addNgramScores(*feat->getCharDict(), str, 3, act);
-        feat->addNgramScores(*feat->getTypeDict(), typeStr, 3, act);
+        feat->addNgramScores(feat->getCharDict(), str, 3, act);
+        feat->addNgramScores(feat->getTypeDict(), typeStr, 3, act);
         for(int i = 0; i < 5; i++)
             act[i] += feat->getBias();
         // Calculate the n-gram features
@@ -264,6 +264,38 @@ public:
         return ret;
     }
 
+    int testFeatureLookupDictionary() {
+        StringUtilUtf8 util;
+        FeatureLookup * look = makeFeatureLookup(&util);
+        KyteaString str = util.mapString("漢カひ。１A");
+        Kytea kytea;
+        // Dictionary
+        Dictionary<ModelTagEntry>::WordMap dictMap;
+        kytea.addTag<ModelTagEntry>(dictMap, util.mapString("１"), 0, NULL, 0);
+        kytea.addTag<ModelTagEntry>(dictMap, util.mapString("漢カひ。１A"), 0, NULL, 0);
+        kytea.addTag<ModelTagEntry>(dictMap, util.mapString("漢カひ。１"), 0, NULL, 0);
+        kytea.addTag<ModelTagEntry>(dictMap, util.mapString("カひ。１A"), 0, NULL, 1);
+        Dictionary<ModelTagEntry> dict(&util);
+        dict.buildIndex(dictMap);
+        // Check that these are added correctly
+        vector<FeatSum> exp(5,13); // All are inside D1I5 (only once)
+        exp[4] += 12; // The last one is to the right of D1L1
+        exp[0] += 14; // The last one is to the right of D2R5
+        vector<FeatSum> act(5,0);
+        look->addDictionaryScores(dict.match(str), 2, 5, act);
+        // Check that these are equal
+        int ret = 1;
+        for(int i = 0; i < 5; i++) {
+            if(act[i] != exp[i]) {
+                cerr 
+                    << "act["<<i<<"]="<<act[i]
+                    << " exp["<<i<<"]="<<exp[i] <<endl;
+                ret = 0;
+            }
+        }
+        return ret;
+    }
+
     void runTest() {
         int done = 0, succeeded = 0;
         done++; cout << "testGetTypeString()" << endl; if(testGetTypeString()) succeeded++; else cout << "FAILED!!!" << endl;
@@ -271,6 +303,7 @@ public:
         done++; cout << "testModelToLookup()" << endl; if(testModelToLookup()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testFeatureLookup()" << endl; if(testFeatureLookup()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testFeatureLookupMatchesModel()" << endl; if(testFeatureLookupMatchesModel()) succeeded++; else cout << "FAILED!!!" << endl;
+        done++; cout << "testFeatureLookupDictionary()" << endl; if(testFeatureLookupDictionary()) succeeded++; else cout << "FAILED!!!" << endl;
         cout << "Finished with "<<succeeded<<"/"<<done<<" tests succeeding"<<endl;
     }
 

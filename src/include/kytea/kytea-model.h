@@ -38,7 +38,6 @@ typedef std::vector<FeatVal> FeatVec;
 #include "kytea/kytea-struct.h"
 #include "kytea/kytea-string.h"
 #include "kytea/string-util.h"
-#include "kytea/feature-lookup.h"
 
 #define MODEL_SAFE
 

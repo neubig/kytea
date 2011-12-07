@@ -31,7 +31,7 @@ using namespace std;
 // Dictionary building functions //
 ///////////////////////////////////
 template <class Entry>
-void addTag(typename Dictionary<Entry>::WordMap& allWords, const KyteaString & word, int lev, const KyteaString * tag, int dict) {
+void Kytea::addTag(typename Dictionary<Entry>::WordMap& allWords, const KyteaString & word, int lev, const KyteaString * tag, int dict) {
     typedef typename Dictionary<Entry>::WordMap WordMap;
     typename WordMap::iterator it = allWords.find(word);
     if(it == allWords.end()) {
@@ -68,12 +68,12 @@ void addTag(typename Dictionary<Entry>::WordMap& allWords, const KyteaString & w
     }
 }
 template <class Entry>
-void addTag(typename Dictionary<Entry>::WordMap& allWords, const KyteaString & word, const KyteaTag * tag, int dict) {
+void Kytea::addTag(typename Dictionary<Entry>::WordMap& allWords, const KyteaString & word, const KyteaTag * tag, int dict) {
     addTag<Entry>(allWords,word,(tag?&tag->first:0),dict);
 }
 
 template <class Entry>
-void scanDictionaries(const vector<string> & dict, typename Dictionary<Entry>::WordMap & wordMap, KyteaConfig * config, StringUtil * util, bool saveIds = true) {
+void Kytea::scanDictionaries(const vector<string> & dict, typename Dictionary<Entry>::WordMap & wordMap, KyteaConfig * config, StringUtil * util, bool saveIds) {
     // scan the dictionaries
     KyteaString word;
     unsigned char numDicts = 0;
@@ -266,7 +266,7 @@ unsigned Kytea::wsNgramFeatures(const KyteaString & chars, SentenceFeatures & fe
 
 void Kytea::preparePrefixes() {
     // prepare dictionary prefixes
-    if(config_->getDoWS()) {
+    if(config_->getDoWS() && wsModel_) {
         const char cs[3] = { 'L', 'I', 'R' };
         dictFeats_.resize(0);
         for(unsigned di = 0; di < dict_->getNumDicts(); di++) {
@@ -847,15 +847,18 @@ void Kytea::calculateWS(KyteaSentence & sent) {
     // wsDictionaryFeatures(sent.chars, feats);
     // wsNgramFeatures(sent.chars, feats, charPrefixes_, config_->getCharN());
     // wsNgramFeatures(util_->mapString(util_->getTypeString(sent.chars)), feats, typePrefixes_, config_->getTypeN());
-    vector<FeatSum> scores(sent.chars.length()-1, 0);
-    if(wsFeatLookup_->getCharDict())
-        wsFeatLookup_->addNgramScores(*wsFeatLookup_->getCharDict(), 
-                                      sent.chars, config_->getCharWindow(), 
-                                      scores);
-    if(wsFeatLookup_->getTypeDict())
-        wsFeatLookup_->addNgramScores(*wsFeatLookup_->getTypeDict(), 
-                                      util_->mapString(util_->getTypeString(sent.chars)), 
-                                      config_->getTypeWindow(), scores);
+    vector<FeatSum> scores(sent.chars.length()-1, wsFeatLookup_->getBias());
+    wsFeatLookup_->addNgramScores(wsFeatLookup_->getCharDict(), 
+                                  sent.chars, config_->getCharWindow(), 
+                                  scores);
+    wsFeatLookup_->addNgramScores(wsFeatLookup_->getTypeDict(), 
+                                  util_->mapString(util_->getTypeString(sent.chars)), 
+                                  config_->getTypeWindow(), scores);
+    if(wsFeatLookup_->getDictVector())
+        wsFeatLookup_->addDictionaryScores(
+            dict_->match(sent.chars),
+            dict_->getNumDicts(), config_->getDictionaryN(),
+            scores);
 
     for(unsigned i = 0; i < sent.wsConfs.size(); i++)
         sent.wsConfs[i] = scores[i];
