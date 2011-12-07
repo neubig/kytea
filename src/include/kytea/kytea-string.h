@@ -24,7 +24,7 @@
 #include <iostream>
 
 // will boundary check when defined
-#define KYTEA_STRING_SAFE
+// #define KYTEA_STRING_SAFE
 
 namespace kytea {
 

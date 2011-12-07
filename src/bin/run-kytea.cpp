@@ -25,10 +25,10 @@ using namespace kytea;
 int main(int argv, char **argc) {
 
     try {
-        KyteaConfig config;
-        config.setDebug(0);
-        config.setOnTraining(false);
-        config.parseRunCommandLine(argv, argc);
+        KyteaConfig * config = new KyteaConfig;
+        config->setDebug(0);
+        config->setOnTraining(false);
+        config->parseRunCommandLine(argv, argc);
 
         Kytea kytea(config);
         kytea.analyze();

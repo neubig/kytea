@@ -26,10 +26,10 @@ using namespace kytea;
 int main(int argv, char **argc) {
 
     try {
-        KyteaConfig config;
-        config.setDebug(1);
-        config.setOnTraining(true);
-        config.parseTrainCommandLine(argv, argc);
+        KyteaConfig * config = new KyteaConfig;
+        config->setDebug(1);
+        config->setOnTraining(true);
+        config->parseTrainCommandLine(argv, argc);
 
         Kytea kytea(config);
         kytea.trainAll();

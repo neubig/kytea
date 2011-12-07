@@ -30,10 +30,10 @@ using namespace std;
 ///////////////////////////////////
 // Dictionary building functions //
 ///////////////////////////////////
-typedef Dictionary::WordMap WordMap;
 template <class Entry>
-void addTag(Dictionary::WordMap& allWords, const KyteaString & word, int lev, const KyteaString * tag, int dict) {
-    WordMap::iterator it = allWords.find(word);
+void addTag(typename Dictionary<Entry>::WordMap& allWords, const KyteaString & word, int lev, const KyteaString * tag, int dict) {
+    typedef typename Dictionary<Entry>::WordMap WordMap;
+    typename WordMap::iterator it = allWords.find(word);
     if(it == allWords.end()) {
         Entry * ent = new Entry(word);
         ent->setNumTags(lev+1);
@@ -42,11 +42,11 @@ void addTag(Dictionary::WordMap& allWords, const KyteaString & word, int lev, co
             ent->tagInDicts[lev].push_back(0);
         }
         if(dict >= 0) {
-            TagEntry::setInDict(ent->inDict,dict);
+            Entry::setInDict(ent->inDict,dict);
             if(tag)
-                TagEntry::setInDict(ent->tagInDicts[lev][0],dict);
+                Entry::setInDict(ent->tagInDicts[lev][0],dict);
         }
-        allWords.insert(WordMap::value_type(word,ent));
+        allWords.insert(typename WordMap::value_type(word,ent));
     }
     else {
         if(tag) {
@@ -61,19 +61,19 @@ void addTag(Dictionary::WordMap& allWords, const KyteaString & word, int lev, co
                 tagInDicts.push_back(0);
             }
             if(dict >= 0)
-                TagEntry::setInDict(tagInDicts[i],dict);
+                Entry::setInDict(tagInDicts[i],dict);
         }
         if(dict >= 0) 
-            TagEntry::setInDict(it->second->inDict,dict);
+            Entry::setInDict(it->second->inDict,dict);
     }
 }
 template <class Entry>
-void addTag(Dictionary::WordMap& allWords, const KyteaString & word, const KyteaTag * tag, int dict) {
+void addTag(typename Dictionary<Entry>::WordMap& allWords, const KyteaString & word, const KyteaTag * tag, int dict) {
     addTag<Entry>(allWords,word,(tag?&tag->first:0),dict);
 }
 
 template <class Entry>
-void scanDictionaries(const vector<string> & dict, Dictionary::WordMap & wordMap, KyteaConfig * config, StringUtil * util, bool saveIds = true) {
+void scanDictionaries(const vector<string> & dict, typename Dictionary<Entry>::WordMap & wordMap, KyteaConfig * config, StringUtil * util, bool saveIds = true) {
     // scan the dictionaries
     KyteaString word;
     unsigned char numDicts = 0;
@@ -118,7 +118,7 @@ void scanDictionaries(const vector<string> & dict, Dictionary::WordMap & wordMap
 
 void Kytea::buildVocabulary() {
 
-    Dictionary::WordMap & allWords = fio_.getWordMap();
+    Dictionary<ModelTagEntry>::WordMap & allWords = fio_.getWordMap();
 
     if(config_->getDebug() > 0)
         cerr << "Scanning dictionaries and corpora for vocabulary" << endl;
@@ -178,7 +178,7 @@ void Kytea::buildVocabulary() {
     if(allWords.size() == 0)
         THROW_ERROR("FATAL: There were sentences in the training data, but no words were found!");
     if(dict_ != 0) delete dict_;
-    dict_ = new Dictionary(util_);
+    dict_ = new Dictionary<ModelTagEntry>(util_);
     dict_->buildIndex(allWords);
     dict_->setNumDicts(max((int)config_->getDictionaryFiles().size(),fio_.getNumDicts()));
     if(config_->getDebug() > 0)
@@ -186,21 +186,19 @@ void Kytea::buildVocabulary() {
 
 }
 
-
 /////////////////////////////////
 // Word segmentation functions //
 /////////////////////////////////
 
 unsigned Kytea::wsDictionaryFeatures(const KyteaString & chars, SentenceFeatures & features) {
-    // vector<TagEntry*> & entries = dict_->getEntries();
+    // vector<Entry*> & entries = dict_->getEntries();
     // vector<DictionaryState*> & states = dict_->getStates();
     // unsigned currState = 0, nextState;
-    TagEntry* myEntry;
+    ModelTagEntry* myEntry;
     const unsigned len = features.size(), max=config_->getDictionaryN(), dictLen = len*3*max;
-    char* on = (char*)malloc(dict_->getNumDicts()*dictLen);
+    vector<char> on(dict_->getNumDicts()*dictLen, 0);
     unsigned ret = 0, end;
-    memset(on,0,dict_->getNumDicts()*dictLen);
-    Dictionary::MatchResult matches = dict_->match(chars);
+    Dictionary<ModelTagEntry>::MatchResult matches = dict_->match(chars);
     for(unsigned i = 0; i < matches.size(); i++) {
         end = matches[i].first;
         myEntry = matches[i].second;
@@ -221,12 +219,11 @@ unsigned Kytea::wsDictionaryFeatures(const KyteaString & chars, SentenceFeatures
                 for(unsigned k = end-wlen+1; k < end; k++)
                     on[dictOffset +     k*3*max    +  1*max  + lablen] = 1;
             }
-        }
-        
+        }        
     }
     for(unsigned i = 0; i < len; i++) {
         for(unsigned di = 0; di < dict_->getNumDicts(); di++) {
-            char* myOn = on+di*dictLen + i*3*max;
+            char* myOn = &on[di*dictLen + i*3*max];
             for(unsigned j = 0; j < 3*max; j++) {
                 unsigned featId = 3*max*di+j;
                 if(myOn[j] && dictFeats_[featId]) {
@@ -236,7 +233,6 @@ unsigned Kytea::wsDictionaryFeatures(const KyteaString & chars, SentenceFeatures
             }
         }
     }
-    free(on);
     return ret;
 }
 unsigned Kytea::wsNgramFeatures(const KyteaString & chars, SentenceFeatures & features, const vector<KyteaString> & prefixes, int n) {
@@ -471,10 +467,10 @@ void Kytea::trainLocalTags(int lev) {
     preparePrefixes();
     wsModel_->setAddFeatures(wsAdd);
     // find words that need to be modeled
-    vector<TagEntry*> & entries = dict_->getEntries();
+    vector<ModelTagEntry*> & entries = dict_->getEntries();
     ModelTagEntry* myEntry = 0;
     for(unsigned i = 0; i < entries.size(); i++) {
-        myEntry = (ModelTagEntry*)entries[i];
+        myEntry = entries[i];
         if((int)myEntry->tags.size() > lev && (myEntry->tags[lev].size() > 1 || config_->getWriteFeatures())) {
             TagTriplet * trip = fio_.getFeatures(featId+myEntry->word,true);
             // trip->first = vector< vector<unsigned> >();
@@ -518,7 +514,7 @@ void Kytea::trainLocalTags(int lev) {
         cerr << "done!" << endl << "Training local tag classifiers ";
     // calculate classifiers
     for(unsigned i = 0; i < entries.size(); i++) {
-        myEntry = (ModelTagEntry*)entries[i];
+        myEntry = entries[i];
         if((int)myEntry->tags.size() > lev && (myEntry->tags[lev].size() > 1 || config_->getWriteFeatures())) {
             TagTriplet * trip = fio_.getFeatures(featId+myEntry->word,false);
             if(!trip) THROW_ERROR("FATAL: Unbuilt model in entry table");
@@ -544,18 +540,18 @@ void Kytea::trainLocalTags(int lev) {
 }
 
 unsigned Kytea::tagDictFeatures(const KyteaString & surf, int lev, vector<unsigned> & myFeats, KyteaModel * model) {
-    ModelTagEntry* ent = (ModelTagEntry*)dict_->findEntry(surf);
+    const ModelTagEntry* ent = dict_->findEntry(surf);
     if(ent == 0 || ent->inDict == 0 || (int)ent->tagInDicts.size() <= lev) { 
         unsigned thisFeat = model->mapFeat(util_->mapString("UNK"));
         if(thisFeat) { myFeats.push_back(thisFeat); return 1; }
         return 0;
     }
     KyteaString ksd = util_->mapString("D");
-    vector<unsigned char> & tid = ent->tagInDicts[lev];
+    const vector<unsigned char> & tid = ent->tagInDicts[lev];
     int ret = 0;
     for(int i = 0; i < (int)tid.size(); i++) {
         for(int j = 0; j < 8; j++) {
-            if(TagEntry::isInDict(tid[i],j)) {
+            if(ModelTagEntry::isInDict(tid[i],j)) {
                 ostringstream oss; oss << "-" << j;
                 KyteaString ks = ksd+ent->tags[lev][i]+util_->mapString(oss.str());
                 unsigned thisFeat = model->mapFeat(ks);
@@ -596,9 +592,9 @@ void Kytea::trainUnk(int lev) {
     
     // 1. load the subword dictionaries
     if(!subwordDict_) {
-        WordMap subwordMap;
+        Dictionary<ProbTagEntry>::WordMap subwordMap;
         scanDictionaries<ProbTagEntry>(config_->getSubwordDictFiles(), subwordMap, config_, util_, false);
-        subwordDict_ = new Dictionary(util_);
+        subwordDict_ = new Dictionary<ProbTagEntry>(util_);
         subwordDict_->buildIndex(subwordMap);
     }
 
@@ -606,8 +602,8 @@ void Kytea::trainUnk(int lev) {
     //     create dictionary of pronunciations to count, collect counts
     cerr << " Aligning pronunciation strings" << endl;
     typedef vector< pair<unsigned,unsigned> > AlignHyp;
-    const vector<TagEntry*> & dictEntries = dict_->getEntries();
-    WordMap tagMap;
+    const vector<ModelTagEntry*> & dictEntries = dict_->getEntries();
+    Dictionary<ProbTagEntry>::WordMap tagMap;
     vector<KyteaString> tagCorpus;
     for(unsigned w = 0; w < dictEntries.size(); w++) {
         const TagEntry* myDictEntry = dictEntries[w];
@@ -620,9 +616,9 @@ void Kytea::trainUnk(int lev) {
             vector< vector< AlignHyp > > stacks(wordLen+1, vector< AlignHyp >());
             stacks[0].push_back(AlignHyp(1,pair<unsigned,unsigned>(0,0)));
             // find matches in the word
-            Dictionary::MatchResult matches = subwordDict_->match(word);
+            Dictionary<ProbTagEntry>::MatchResult matches = subwordDict_->match(word);
             for(unsigned i = 0; i < matches.size(); i++) {
-                const TagEntry* mySubEntry = matches[i].second;
+                const ProbTagEntry* mySubEntry = matches[i].second;
                 const unsigned cend = matches[i].first+1;
                 const unsigned cstart = cend-mySubEntry->word.length();
                 for(unsigned j = 0; j < stacks[cstart].size(); j++) {
@@ -650,7 +646,7 @@ void Kytea::trainUnk(int lev) {
                     for(unsigned j = 1; j < myHyp.size(); j++) {
                         KyteaString subChar = word.substr(myHyp[j-1].first,myHyp[j].first-myHyp[j-1].first);
                         KyteaString subTag = tag.substr(myHyp[j-1].second,myHyp[j].second-myHyp[j-1].second);
-                        ProbTagEntry* mySubEntry = (ProbTagEntry*)subwordDict_->findEntry(subChar);
+                        ProbTagEntry* mySubEntry = subwordDict_->findEntry(subChar);
                         // cerr << "incrementing i="<<i<<", j="<<j<<", subChar="<<util_->showString(subChar)<<", subTag="<<util_->showString(subTag)<<endl;
                         mySubEntry->incrementProb(subTag,lev);
                         addTag<ProbTagEntry>(tagMap,subTag,lev,&subTag,0);
@@ -666,7 +662,7 @@ void Kytea::trainUnk(int lev) {
     }
     if(config_->getDebug() > 0)
         cerr << " Building index" << endl;
-    Dictionary tagDict(util_);
+    Dictionary<ProbTagEntry> tagDict(util_);
     tagDict.buildIndex(tagMap);
 
     // 3. put a Dirichlet process prior on the translations, and calculate the ideal alpha
@@ -675,10 +671,10 @@ void Kytea::trainUnk(int lev) {
     if(config_->getDebug() > 0)
         cerr << " Calculating alpha" << endl;
     TwoCountHash tagCounts;
-    const vector<TagEntry*> & subEntries = subwordDict_->getEntries();
+    const vector<ProbTagEntry*> & subEntries = subwordDict_->getEntries();
     vector<unsigned> numerCounts;
     for(unsigned w = 0; w < subEntries.size(); w++) {
-        const ProbTagEntry* mySubEntry = (ProbTagEntry*)subEntries[w];
+        const ProbTagEntry* mySubEntry = subEntries[w];
         if((int)mySubEntry->tags.size() <= lev) continue;
         for(unsigned p = 0; p < mySubEntry->tags[lev].size(); p++) {
             const KyteaString& tag = mySubEntry->tags[lev][p];
@@ -729,21 +725,19 @@ void Kytea::trainUnk(int lev) {
 
     // 4. count actual tag phrases and prepare the LM corpus
     for(unsigned p = 0; p < tagCorpus.size(); p++) {
-        Dictionary::MatchResult matches = tagDict.match(tagCorpus[p]);
-        for(unsigned m = 0; m < matches.size(); m++) {
-            ProbTagEntry* myTagEntry = (ProbTagEntry*)matches[m].second;
-            myTagEntry->incrementProb(myTagEntry->word,lev);
-        }
+        Dictionary<ProbTagEntry>::MatchResult matches = tagDict.match(tagCorpus[p]);
+        for(unsigned m = 0; m < matches.size(); m++)
+            matches[m].second->incrementProb(matches[m].second->word,lev);
     }
 
     // 5. calculate the TM probabilities and adjust with the segmentation probabilities
     for(unsigned w = 0; w < subEntries.size(); w++) {
-        ProbTagEntry* mySubEntry = (ProbTagEntry*)subEntries[w];
+        ProbTagEntry* mySubEntry = subEntries[w];
         if(mySubEntry->probs[lev].size() != mySubEntry->tags[lev].size())
             mySubEntry->probs[lev].resize(mySubEntry->tags[lev].size(),0);
         for(unsigned p = 0; p < mySubEntry->tags[lev].size(); p++) {
             const KyteaString & tag = mySubEntry->tags[lev][p];
-            ProbTagEntry* myTagEntry = (ProbTagEntry*)tagDict.findEntry(tag);
+            ProbTagEntry* myTagEntry = tagDict.findEntry(tag);
             double origCount = mySubEntry->probs[lev][p];
             pair<unsigned,unsigned> myTagCounts = tagCounts[tag];
             // get the smoothed TM probability
@@ -780,7 +774,14 @@ void Kytea::writeModel(const char* fileName) {
     
     ModelIO * modout = ModelIO::createIO(fileName,config_->getModelFormat(), true, *config_);
     modout->writeConfig(*config_);
-    modout->writeModel(wsModel_);
+    // Write out the word segmentation features
+    if(wsFeatLookup_ == NULL)
+        wsFeatLookup_ = wsModel_->toFeatureLookup(util_, 
+                                                  config_->getCharWindow(), 
+                                                  config_->getTypeWindow(),
+                                                  config_->getDictionaryFiles().size(),
+                                                  config_->getDictionaryN());
+    modout->writeFeatLookup(wsFeatLookup_);
     // write the global models
     for(int i = 0; i < config_->getNumTags(); i++) {
         modout->writeWordList(i >= (int)globalTags_.size()?vector<KyteaString>():globalTags_[i]);
@@ -808,7 +809,8 @@ void Kytea::readModel(const char* fileName) {
     util_ = config_->getStringUtil();
 
     modin->readConfig(*config_);
-    wsModel_ = modin->readModel();
+    // Write out the word segmentation features
+    wsFeatLookup_ = modin->readFeatLookup();
 
     // read the global models
     globalMods_.resize(config_->getNumTags(),0);
@@ -840,25 +842,23 @@ void Kytea::readModel(const char* fileName) {
 
 void Kytea::calculateWS(KyteaSentence & sent) {
     
-    // get the features for the sentence
-    SentenceFeatures feats(sent.wsConfs.size());
-    wsDictionaryFeatures(sent.chars, feats);
-    wsNgramFeatures(sent.chars, feats, charPrefixes_, config_->getCharN());
-    wsNgramFeatures(util_->mapString(util_->getTypeString(sent.chars)), feats, typePrefixes_, config_->getTypeN());
+    // // get the features for the sentence
+    // SentenceFeatures feats(sent.wsConfs.size());
+    // wsDictionaryFeatures(sent.chars, feats);
+    // wsNgramFeatures(sent.chars, feats, charPrefixes_, config_->getCharN());
+    // wsNgramFeatures(util_->mapString(util_->getTypeString(sent.chars)), feats, typePrefixes_, config_->getTypeN());
+    vector<FeatSum> scores(sent.chars.length()-1, 0);
+    if(wsFeatLookup_->getCharDict())
+        wsFeatLookup_->addNgramScores(*wsFeatLookup_->getCharDict(), 
+                                      sent.chars, config_->getCharWindow(), 
+                                      scores);
+    if(wsFeatLookup_->getTypeDict())
+        wsFeatLookup_->addNgramScores(*wsFeatLookup_->getTypeDict(), 
+                                      util_->mapString(util_->getTypeString(sent.chars)), 
+                                      config_->getTypeWindow(), scores);
 
-    for(unsigned i = 0; i < sent.wsConfs.size(); i++) {
-        // // only parse non-confident values
-        // if(abs(sent.wsConfs[i]) <= config_->getConfidence()) {
-        // }
-        pair<int,double> answer = wsModel_->runClassifier(feats[i])[0];
-        // print why each decision was made
-        if(config_->getDebug() >= 2) {
-            cerr << "WB "<<i+1<<" ("<<util_->showString(sent.chars.substr(i,2))<<"): ";
-            wsModel_->printClassifier(feats[i],util_);
-            cerr << endl;
-        }
-        sent.wsConfs[i] = answer.first * abs(answer.second);
-    }
+    for(unsigned i = 0; i < sent.wsConfs.size(); i++)
+        sent.wsConfs[i] = scores[i];
 
     sent.refreshWS(config_->getConfidence());
 
@@ -872,13 +872,13 @@ bool kyteaTagMore(const KyteaTag a, const KyteaTag b) {
 # define BEAM_SIZE 50
 vector< KyteaTag > Kytea::generateTagCandidates(const KyteaString & str, int lev) {
     // cerr << "generateTagCandidates("<<util_->showString(str)<<")"<<endl;
-    Dictionary::MatchResult matches = subwordDict_->match(str);
+    Dictionary<ProbTagEntry>::MatchResult matches = subwordDict_->match(str);
     vector< vector< KyteaTag > > stack(str.length()+1);
     stack[0].push_back(KyteaTag(KyteaString(),0));
     unsigned end, start, lastEnd = 0;
     for(unsigned i = 0; i < matches.size(); i++) {
         // cerr << " match "<<util_->showString(matches[i].second->word)<<" "<<matches[i].first<<endl;
-        ProbTagEntry* entry = (ProbTagEntry*)matches[i].second;
+        ProbTagEntry* entry = matches[i].second;
         end = matches[i].first+1;
         start = end-entry->word.length();
         // trim to the beam size
@@ -951,7 +951,7 @@ void Kytea::calculateTags(KyteaSentence & sent, int lev) {
         KyteaWord & word = sent.words[i];
         startPos = finPos;
         finPos = startPos+word.surf.length();
-        ModelTagEntry* ent = (ModelTagEntry*)dict_->findEntry(word.surf);
+        ModelTagEntry* ent = dict_->findEntry(word.surf);
         word.setUnknown(ent == 0);
         // choose whether to do local or global estimation
         vector<KyteaString> * tags = 0;
@@ -1094,7 +1094,7 @@ void Kytea::analyze() {
         }
     }
     // sanity checks
-    if(config_->getDoWS() && wsModel_ == 0)
+    if(config_->getDoWS() && wsFeatLookup_ == NULL)
         THROW_ERROR("Word segmentation cannot be performed with this model. A new model must be retrained without the -nows option.");
 
     if(config_->getDebug() > 0)    

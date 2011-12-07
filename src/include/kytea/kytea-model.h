@@ -17,20 +17,14 @@
 #ifndef KYTEA_MODEL_H__
 #define KYTEA_MODEL_H__
 
-#include "kytea-struct.h"
-#include "kytea-string.h"
-#include "string-util.h"
+#define MODEL_SAFE
+
 #include <vector>
 #include <iostream>
-
-#define MODEL_SAFE
-#define SIG_CUTOFF 1E-6
+#include "config.h"
 
 namespace kytea {
-
-class KyteaModel {
-public:
-
+// Define the size of the feature values and sums
 #if DISABLE_QUANTIZE
     typedef double FeatVal;
     typedef double FeatSum;
@@ -38,7 +32,28 @@ public:
     typedef short FeatVal;
     typedef int FeatSum;
 #endif
-    typedef std::vector<KyteaString> FeatVec;
+typedef std::vector<FeatVal> FeatVec;
+}
+
+#include "kytea/kytea-struct.h"
+#include "kytea/kytea-string.h"
+#include "kytea/string-util.h"
+#include "kytea/feature-lookup.h"
+
+#define MODEL_SAFE
+
+#define SIG_CUTOFF 1E-6
+
+namespace kytea {
+
+typedef std::vector<KyteaString> FeatNameVec;
+
+class FeatureLookup;
+template <class Entry>
+class Dictionary;
+
+class KyteaModel {
+public:
 
     static inline bool isProbabilistic(int solver) {
         return solver == 0 || solver == 6 || solver == 7;
@@ -47,8 +62,8 @@ public:
 private:
 
     KyteaUnsignedMap ids_;
-    FeatVec names_;
-    FeatVec oldNames_;
+    FeatNameVec names_;
+    FeatNameVec oldNames_;
     std::vector<int> labels_;
     std::vector<FeatVal> weights_;
     double multiplier_;
@@ -57,7 +72,7 @@ private:
     bool addFeat_;
 
 public:
-    KyteaModel() : names_(), multiplier_(0.0f), bias_(1.0f), solver_(1), addFeat_(true) {
+    KyteaModel() : names_(), multiplier_(1.0f), bias_(1.0f), solver_(1), addFeat_(true) {
         KyteaString str;
         mapFeat(str);
     }
@@ -90,8 +105,8 @@ public:
     void setAddFeatures(bool addFeat) { addFeat_ = addFeat; }
     bool getAddFeatures() { return addFeat_; }
 
-    const FeatVec & getNames() const { return names_; }
-    const FeatVec & getOldNames() const { return oldNames_; }
+    const FeatNameVec & getNames() const { return names_; }
+    const FeatNameVec & getOldNames() const { return oldNames_; }
 
     std::vector< std::pair<int,double> > runClassifier(const std::vector<unsigned> & feat);
     // std::pair<int,double> runClassifier(const std::vector<unsigned> & feat);
@@ -106,12 +121,20 @@ public:
     inline const int getSolver() const { return solver_; }
     inline const unsigned getNumClasses() const { return labels_.size(); }
     inline const int getLabel(unsigned idx) const { return labels_[idx]; }
-    inline const FeatVal getWeight(unsigned i, unsigned j) const { return weights_[i*numW_+j]; }
+    inline const FeatVal getWeight(unsigned i, unsigned j) const {
+        int id = i*numW_+j;
+#ifdef MODEL_SAFE
+        if(id >= (int)weights_.size())
+            THROW_ERROR("weight out of bounds: size="<<weights_.size()<<" id="<<id);
+#endif
+        return weights_[id];
+    }
     inline const double getMultiplier() const { return multiplier_; }
 
     inline void setBias(double bias) { bias_ = bias; }
     inline void setLabel(unsigned i, int lab) { labels_[i] = lab; }
     inline void setSolver(int i) { solver_ = i; }
+    inline void setNumWeights(int i) { numW_ = i; }
     inline void setNumFeatures(unsigned i) {
         if(i != getNumFeatures()) 
             THROW_ERROR("setting the number of features to a different value is not allowed ("<<i<<" != "<<getNumFeatures()<<")");
@@ -119,8 +142,19 @@ public:
     void setNumClasses(unsigned i);
 
     void initializeWeights(unsigned i, unsigned j) { weights_.resize(i*j,0); }
-    void setWeight(unsigned i, unsigned j, FeatVal w) { weights_[i*numW_+j] = w; }
+    void setWeight(unsigned i, unsigned j, FeatVal w) { 
+        int id = i*numW_+j;
+#ifdef MODEL_SAFE
+        if(id >= (int)weights_.size())
+            THROW_ERROR("weight out of bounds: size="<<weights_.size()<<" id="<<id);
+#endif
+        weights_[id] = w;
+    }
     void setMultiplier(double m) { multiplier_ = m; }
+
+    FeatureLookup * toFeatureLookup(StringUtil * util, int charw, int typew, int numDicts, int maxLen);
+    Dictionary<std::vector<FeatVal> > * 
+        makeDictionaryFromPrefixes(const std::vector<KyteaString> & prefs, int label, StringUtil* util);
     
 
 };

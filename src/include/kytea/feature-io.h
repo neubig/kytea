@@ -17,7 +17,7 @@ protected:
     std::ofstream * out_;
 
     TagHash feats_;
-    Dictionary::WordMap wm_;
+    Dictionary<ModelTagEntry>::WordMap wm_;
     int numTags_, numDicts_;
 
 public:
@@ -36,7 +36,7 @@ public:
     void openOut(const std::string& fileName);
     void closeOut();
     
-    Dictionary::WordMap & getWordMap() { return wm_; }
+    Dictionary<ModelTagEntry>::WordMap & getWordMap() { return wm_; }
 
     TagHash & getFeatures() { return feats_; }
     TagTriplet * getFeatures(const KyteaString & str, bool add);

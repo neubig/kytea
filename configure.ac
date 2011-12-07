@@ -13,6 +13,7 @@ AC_CONFIG_FILES([
     src/lib/liblinear/Makefile
     src/lib/liblinear/blas/Makefile
     src/bin/Makefile
+    src/test/Makefile
     src/api/Makefile
     data/Makefile
 ])
@@ -44,8 +45,8 @@ fi
 # Checks for features.
 AC_ARG_ENABLE(quantize,
   [  --enable-quantize       Quantize the model, resulting in smaller but possibly less accurate models)],
-  [enable_quantize=yes], [])
-if test "$enable_quantize" != yes; then
+  [enable_quantize=yes], [enable_quantize=no])
+if test "$enable_quantize" == no; then
     AC_DEFINE([DISABLE_QUANTIZE], [1], [Disable quantizing])
 else
     AC_DEFINE([DISABLE_QUANTIZE], [0], [Enable quantizing])

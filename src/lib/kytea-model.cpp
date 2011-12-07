@@ -1,4 +1,5 @@
 #include <kytea/kytea-model.h>
+#include <kytea/feature-lookup.h>
 #include "liblinear/linear.h"
 #include <cstdlib>
 #include <cmath>
@@ -261,4 +262,73 @@ void KyteaModel::setNumClasses(unsigned v) {
         THROW_ERROR("Trying to set the number of classes to 1");
     labels_.resize(v);
     numW_ = (v==2 && solver_ != MCSVM_CS?1:v);
+}
+
+Dictionary<vector<FeatVal> > * KyteaModel::makeDictionaryFromPrefixes(const vector<KyteaString> & prefs, int label, StringUtil* util) {
+    typedef Dictionary<vector<FeatVal> >::WordMap WordMap;
+    WordMap wm;
+    int pos;
+    for(int i = 0; i < (int)weights_.size(); i++) {
+        const KyteaString & str = names_[i];
+        for(pos = 0; pos < (int)prefs.size() && !str.beginsWith(prefs[pos]); pos++);
+        if(pos != (int)prefs.size()) {
+            KyteaString name = str.substr(prefs[pos].length());
+            WordMap::iterator it = wm.find(name);
+            if(it == wm.end()) {
+                pair<WordMap::iterator, bool> p = wm.insert(WordMap::value_type(name,new vector<FeatVal>(prefs.size())));
+                it = p.first;
+            }
+            // cerr << "adding for "<<util->showString(str)<<" @ "<<util->showString(name) << " ["<<pos<<"]"<<"/"<<(*it->second).size()<<" == "<<weights_[i-1]<<"/"<<weights_.size()<<endl;
+            (*it->second)[prefs.size()-pos-name.length()] = weights_[i-1]*label;
+        }
+    }
+    if(wm.size() > 0) {
+        Dictionary<vector<FeatVal> > * ret = new Dictionary<vector<FeatVal> >(util);
+        ret->buildIndex(wm);
+        return ret;
+    }
+    return NULL;
+}
+
+FeatureLookup * KyteaModel::toFeatureLookup(StringUtil * util, int charw, int typew, int numDicts, int maxLen) {
+    FeatureLookup * featLook = new FeatureLookup;
+    // Make the character values
+    vector<KyteaString> charPref, typePref, dictPref;
+    for(int i = 1-charw; i <= charw; i++) {
+        ostringstream oss; oss << "X" << i;
+        charPref.push_back(util->mapString(oss.str()));
+    }
+    featLook->setCharDict(makeDictionaryFromPrefixes(charPref, labels_[0], util));
+    // Make the type values
+    for(int i = 1-typew; i <= typew; i++) {
+        ostringstream oss; oss << "T" << i;
+        typePref.push_back(util->mapString(oss.str()));
+    }
+    featLook->setTypeDict(makeDictionaryFromPrefixes(typePref, labels_[0], util));
+    // Get the bias feature
+    int bias = getBiasId();
+    if(bias != -1)
+        featLook->setBias(getWeight(bias-1, 0) * labels_[0]);
+    // Make the dictionary values, note that this will only work on
+    // the word segmentation dictionary (for now)
+    bool prevAddFeat = addFeat_;
+    addFeat_ = false;
+    vector<FeatVal> * dictFeats = new vector<FeatVal>(numDicts*maxLen*3,0);
+    int id = 0;
+    for(int i = 0; i < numDicts; i++) {
+        for(int j = 1; j <= maxLen; j++) {
+            ostringstream oss1; oss1 << "D" << i << "L" << j;
+            unsigned id1 = mapFeat(util->mapString(oss1.str()));
+            if(id1 != 0) (*dictFeats)[id] = getWeight(id1-1, 0) * labels_[0]; id++;
+            ostringstream oss2; oss2 << "D" << i << "I" << j;
+            unsigned id2 = mapFeat(util->mapString(oss2.str()));
+            if(id2 != 0) (*dictFeats)[id] = getWeight(id2-1, 0) * labels_[0]; id++;
+            ostringstream oss3; oss3 << "D" << i << "R" << j;
+            unsigned id3 = mapFeat(util->mapString(oss3.str()));
+            if(id3 != 0) (*dictFeats)[id] = getWeight(id3-1, 0) * labels_[0]; id++;
+        }
+    }
+    addFeat_ = prevAddFeat;
+    featLook->setDictVector(dictFeats);
+    return featLook;
 }
