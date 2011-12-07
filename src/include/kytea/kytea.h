@@ -160,6 +160,14 @@ private:
     unsigned tagSelfFeatures(const KyteaString & self, std::vector<unsigned> & feat, const KyteaString & pref, KyteaModel * model);
     unsigned tagDictFeatures(const KyteaString & surf, int lev, std::vector<unsigned> & myFeats, KyteaModel * model);
 
+
+    template <class Entry>
+    void addTag(typename Dictionary<Entry>::WordMap& allWords, const KyteaString & word, int lev, const KyteaString * tag, int dict);
+    template <class Entry>
+    void addTag(typename Dictionary<Entry>::WordMap& allWords, const KyteaString & word, const KyteaTag * tag, int dict);
+    template <class Entry>
+    void scanDictionaries(const std::vector<std::string> & dict, typename Dictionary<Entry>::WordMap & wordMap, KyteaConfig * config, StringUtil * util, bool saveIds = true);
+
     // functions for unknown word PE
     void trainUnk(int lev);
 
