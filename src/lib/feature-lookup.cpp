@@ -33,7 +33,7 @@ void FeatureLookup::addNgramScores(const Dictionary<FeatVec> * dict,
 }
 
 void FeatureLookup::addDictionaryScores(const Dictionary<ModelTagEntry>::MatchResult & matches, int numDicts, int max, vector<FeatSum> & score) {
-    if(!dictVector_ || matches.size() == 0) return;
+    if(dictVector_ == NULL || dictVector_->size() == 0 || matches.size() == 0) return;
     const int len = score.size(), dictLen = len*3*max;
     vector<char> on(numDicts*dictLen, 0);
     int end;

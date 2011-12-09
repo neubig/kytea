@@ -781,7 +781,7 @@ void Kytea::writeModel(const char* fileName) {
                                                   config_->getTypeWindow(),
                                                   config_->getDictionaryFiles().size(),
                                                   config_->getDictionaryN());
-    modout->writeFeatLookup(wsFeatLookup_);
+    modout->writeFeatureLookup(wsFeatLookup_);
     // write the global models
     for(int i = 0; i < config_->getNumTags(); i++) {
         modout->writeWordList(i >= (int)globalTags_.size()?vector<KyteaString>():globalTags_[i]);
@@ -810,7 +810,7 @@ void Kytea::readModel(const char* fileName) {
 
     modin->readConfig(*config_);
     // Write out the word segmentation features
-    wsFeatLookup_ = modin->readFeatLookup();
+    wsFeatLookup_ = modin->readFeatureLookup();
 
     // read the global models
     globalMods_.resize(config_->getNumTags(),0);
@@ -861,7 +861,7 @@ void Kytea::calculateWS(KyteaSentence & sent) {
             scores);
 
     for(unsigned i = 0; i < sent.wsConfs.size(); i++)
-        sent.wsConfs[i] = scores[i];
+        sent.wsConfs[i] = scores[i]*wsFeatLookup_->getMultiplier();
 
     sent.refreshWS(config_->getConfidence());
 

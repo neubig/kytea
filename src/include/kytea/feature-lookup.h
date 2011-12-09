@@ -12,8 +12,9 @@ protected:
     Dictionary<FeatVec> *charDict_, *typeDict_;
     FeatVec *dictVector_;
     FeatVal bias_;
+    double multiplier_;
 public:
-    FeatureLookup() : charDict_(NULL), typeDict_(NULL), dictVector_(NULL), bias_(0) { }
+    FeatureLookup() : charDict_(NULL), typeDict_(NULL), dictVector_(NULL), bias_(0), multiplier_(1.0) { }
     ~FeatureLookup();
 
     // Getters
@@ -28,6 +29,9 @@ public:
     }
     const FeatVal getBias() const {
         return bias_;
+    }
+    const double getMultiplier() const {
+        return multiplier_;
     }
 
     void addNgramScores(const Dictionary<FeatVec> * dict, 
@@ -52,6 +56,9 @@ public:
     }
     void setBias(FeatVal bias) {
         bias_ = bias;
+    }
+    void setMultiplier(double multiplier) {
+        multiplier_ = multiplier;
     }
 
 

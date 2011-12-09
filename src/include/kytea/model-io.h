@@ -64,15 +64,13 @@ public:
     virtual void writeModel(const KyteaModel * mod) = 0;
     virtual void writeWordList(const std::vector<KyteaString> & list) = 0;
     virtual void writeLM(const KyteaLM * mod) = 0;
-    virtual void writeFeatureVector(const FeatVec * vec) = 0;
-    virtual void writeFeatureValue(const FeatVal val) = 0;
+    virtual void writeFeatVec(const FeatVec * vec) = 0;
 
     virtual void readConfig(KyteaConfig & conf) = 0;
     virtual KyteaModel * readModel() = 0;
     virtual std::vector<KyteaString> readWordList() = 0;
     virtual KyteaLM * readLM() = 0;
-    virtual FeatVec * readFeatureVector() = 0;
-    virtual FeatVal readFeatureValue() = 0;
+    virtual FeatVec * readFeatVec() = 0;
 
     // These must be explicitly expanded because templated virtuals are not allowed
     virtual void writeModelDictionary(const Dictionary<ModelTagEntry> * dict) = 0;
@@ -82,20 +80,8 @@ public:
     virtual Dictionary<ProbTagEntry> * readProbDictionary() = 0;
     virtual Dictionary<FeatVec > * readVectorDictionary() = 0;
 
-    void writeFeatLookup(const FeatureLookup * featLookup) {
-        writeVectorDictionary(featLookup->getCharDict());
-        writeVectorDictionary(featLookup->getTypeDict());
-        writeFeatureVector(featLookup->getDictVector());
-        writeFeatureValue(featLookup->getBias());
-    }
-    FeatureLookup * readFeatLookup() {
-        FeatureLookup * look = new FeatureLookup;
-        look->setCharDict(readVectorDictionary());
-        look->setTypeDict(readVectorDictionary());
-        look->setDictVector(readFeatureVector());
-        look->setBias(readFeatureValue());
-        return look;
-    }
+    virtual void writeFeatureLookup(const FeatureLookup * featLookup) = 0;
+    virtual FeatureLookup * readFeatureLookup() = 0;
 
 };
 
@@ -116,8 +102,8 @@ public:
     void writeProbDictionary(const Dictionary<ProbTagEntry> * dict) { writeDictionary(dict); }
     void writeVectorDictionary(const Dictionary<FeatVec > * dict) { writeDictionary(dict); }
     void writeLM(const KyteaLM * mod);
-    void writeFeatureVector(const FeatVec * vec);
-    void writeFeatureValue(const FeatVal val);
+    void writeFeatVec(const FeatVec * vec);
+    void writeFeatureLookup(const FeatureLookup * featLookup);
 
     template <class Entry>
     void writeEntry(const Entry * entry);
@@ -164,8 +150,8 @@ public:
     Dictionary<ProbTagEntry> * readProbDictionary()  { return readDictionary<ProbTagEntry>(); }
     Dictionary<FeatVec > * readVectorDictionary()  { return readDictionary<FeatVec >(); }
     KyteaLM * readLM();
-    FeatVec * readFeatureVector();
-    FeatVal readFeatureValue();
+    FeatVec * readFeatVec();
+    FeatureLookup * readFeatureLookup();
 
     template <class Entry>
     Entry * readEntry();
@@ -239,8 +225,8 @@ public:
     void writeProbDictionary(const Dictionary<ProbTagEntry> * dict) { writeDictionary(dict); }
     void writeVectorDictionary(const Dictionary<FeatVec > * dict) { writeDictionary(dict); }
     void writeLM(const KyteaLM * mod);
-    void writeFeatureVector(const FeatVec * vec);
-    void writeFeatureValue(const FeatVal val);
+    void writeFeatVec(const FeatVec * vec);
+    void writeFeatureLookup(const FeatureLookup * featLookup);
 
     template <class Entry>
     void writeEntry(const Entry * entry);
@@ -289,8 +275,8 @@ public:
     Dictionary<ProbTagEntry> * readProbDictionary()  { return readDictionary<ProbTagEntry>(); }
     Dictionary<FeatVec > * readVectorDictionary()  { return readDictionary<FeatVec >(); }
     KyteaLM * readLM();
-    FeatVec * readFeatureVector();
-    FeatVal readFeatureValue();
+    FeatVec * readFeatVec();
+    FeatureLookup * readFeatureLookup();
 
     template <class Entry>
     Entry * readEntry();

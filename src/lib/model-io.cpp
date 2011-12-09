@@ -355,11 +355,8 @@ KyteaLM * TextModelIO::readLM() {
     return lm;
 }
 
-void TextModelIO::writeFeatureValue(FeatVal entry) {
-    *str_ << entry << endl;
-}
 
-void TextModelIO::writeFeatureVector(const vector<FeatVal> * entry) {
+void TextModelIO::writeFeatVec(const vector<FeatVal> * entry) {
     int mySize = (int)(entry ? entry->size() : 0);
     for(int j = 0; j < mySize; j++) {
         if(j!=0) *str_ << " ";
@@ -371,7 +368,7 @@ void TextModelIO::writeFeatureVector(const vector<FeatVal> * entry) {
 
 template <>
 void TextModelIO::writeEntry(const vector<FeatVal> * entry) {
-    writeFeatureVector(entry);
+    writeFeatVec(entry);
 }
 
 template <>
@@ -425,11 +422,7 @@ void TextModelIO::writeEntry(const ProbTagEntry * entry) {
     }
 }
 
-void BinaryModelIO::writeFeatureValue(FeatVal entry) {
-    writeBinary((FeatVal)entry);
-}
-
-void BinaryModelIO::writeFeatureVector(const vector<FeatVal> * entry) {
+void BinaryModelIO::writeFeatVec(const vector<FeatVal> * entry) {
     int mySize = (int)(entry ? entry->size() : 0);
     writeBinary((uint32_t)mySize);
     for(int j = 0; j < mySize; j++)
@@ -438,7 +431,7 @@ void BinaryModelIO::writeFeatureVector(const vector<FeatVal> * entry) {
 
 template <>
 void BinaryModelIO::writeEntry(const vector<FeatVal> * entry) {
-    writeFeatureVector(entry);
+    writeFeatVec(entry);
 }
 
 template <>
@@ -454,25 +447,19 @@ void BinaryModelIO::writeEntry(const ProbTagEntry * entry) {
     }
 }
 
-vector<FeatVal>* TextModelIO::readFeatureVector() {
+vector<FeatVal>* TextModelIO::readFeatVec() {
     string line, buff;
     vector<FeatVal> * entry = new vector<FeatVal>;
     getline(*str_, line);
     istringstream iss(line);
     while(iss >> buff)
-        entry->push_back(util_->parseFloat(buff.c_str()));
+        entry->push_back((FeatVal)util_->parseFloat(buff.c_str()));
     return entry;
-}
-
-FeatVal TextModelIO::readFeatureValue() {
-    string line;
-    getline(*str_, line);
-    return (FeatVal)util_->parseFloat(line.c_str());
 }
 
 template <>
 vector<FeatVal>* TextModelIO::readEntry<vector<FeatVal> >() {
-    return readFeatureVector();
+    return readFeatVec();
 }
 
 template <>
@@ -740,11 +727,7 @@ void BinaryModelIO::writeEntry(const ModelTagEntry * entry) {
         writeModel((int)entry->tagMods.size() > i ? entry->tagMods[i] : 0);
 }
 
-FeatVal BinaryModelIO::readFeatureValue() {
-    return readBinary<FeatVal>();
-}
-
-vector<FeatVal>* BinaryModelIO::readFeatureVector() {
+vector<FeatVal>* BinaryModelIO::readFeatVec() {
     int mySize = readBinary<uint32_t>();
     vector<FeatVal> * entry = new vector<FeatVal>;
     for(int i = 0; i < mySize; i++)
@@ -754,7 +737,7 @@ vector<FeatVal>* BinaryModelIO::readFeatureVector() {
 
 template <>
 vector<FeatVal>* BinaryModelIO::readEntry<vector<FeatVal> >() {
-    return readFeatureVector();
+    return readFeatVec();
 }
 
 template <>
@@ -823,5 +806,43 @@ vector<KyteaString> BinaryModelIO::readWordList() {
     return list;
 }
 
+void TextModelIO::writeFeatureLookup(const FeatureLookup* featLookup) {
+    writeVectorDictionary(featLookup->getCharDict());
+    writeVectorDictionary(featLookup->getTypeDict());
+    writeFeatVec(featLookup->getDictVector());
+    *str_ << featLookup->getBias() << endl;
+    *str_ << featLookup->getMultiplier() << endl;
+}
+
+FeatureLookup * TextModelIO::readFeatureLookup() {
+    FeatureLookup * look = new FeatureLookup;
+    look->setCharDict(readVectorDictionary());
+    look->setTypeDict(readVectorDictionary());
+    look->setDictVector(readFeatVec());
+    string line;
+    getline(*str_, line);
+    look->setBias((FeatVal)util_->parseFloat(line.c_str()));
+    getline(*str_, line);
+    look->setMultiplier(util_->parseFloat(line.c_str()));
+    return look;
+}
+
+void BinaryModelIO::writeFeatureLookup(const FeatureLookup * featLookup) {
+    writeVectorDictionary(featLookup->getCharDict());
+    writeVectorDictionary(featLookup->getTypeDict());
+    writeFeatVec(featLookup->getDictVector());
+    writeBinary((FeatVal)featLookup->getBias());
+    writeBinary((double)featLookup->getMultiplier());
+}
+
+FeatureLookup * BinaryModelIO::readFeatureLookup() {
+    FeatureLookup * look = new FeatureLookup;
+    look->setCharDict(readVectorDictionary());
+    look->setTypeDict(readVectorDictionary());
+    look->setDictVector(readFeatVec());
+    look->setBias(readBinary<FeatVal>());
+    look->setMultiplier(readBinary<double>());
+    return look;
+}
 
 }
