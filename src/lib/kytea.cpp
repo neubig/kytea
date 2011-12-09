@@ -181,6 +181,7 @@ void Kytea::buildVocabulary() {
     dict_ = new Dictionary<ModelTagEntry>(util_);
     dict_->buildIndex(allWords);
     dict_->setNumDicts(max((int)config_->getDictionaryFiles().size(),fio_.getNumDicts()));
+    cerr << "Number of dictionaries: "<<(int)dict_->getNumDicts() <<endl;
     if(config_->getDebug() > 0)
         cerr << "done!" << endl;
 
@@ -779,7 +780,7 @@ void Kytea::writeModel(const char* fileName) {
         wsFeatLookup_ = wsModel_->toFeatureLookup(util_, 
                                                   config_->getCharWindow(), 
                                                   config_->getTypeWindow(),
-                                                  config_->getDictionaryFiles().size(),
+                                                  dict_->getNumDicts(),
                                                   config_->getDictionaryN());
     modout->writeFeatureLookup(wsFeatLookup_);
     // write the global models
@@ -1022,12 +1023,11 @@ void Kytea::trainAll() {
     
     // handle the feature files
     if(config_->getFeatureIn().length()) {
-        if(config_->getDebug() > 0) {
+        if(config_->getDebug() > 0)
             cerr << "Loading features from "<<config_->getFeatureIn() << "...";
-            fio_.load(config_->getFeatureIn(),util_);
+        fio_.load(config_->getFeatureIn(),util_);
+        if(config_->getDebug() > 0)
             cerr << " done!" << endl;
-        } else
-            fio_.load(config_->getFeatureIn(),util_);
     }
     config_->setNumTags(max(config_->getNumTags(),fio_.getNumTags()));
     if(config_->getFeatureOut().length())
