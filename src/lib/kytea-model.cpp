@@ -311,24 +311,28 @@ FeatureLookup * KyteaModel::toFeatureLookup(StringUtil * util, int charw, int ty
         featLook->setBias(getWeight(bias-1, 0) * labels_[0]);
     // Make the dictionary values, note that this will only work on
     // the word segmentation dictionary (for now)
-    bool prevAddFeat = addFeat_;
-    addFeat_ = false;
-    vector<FeatVal> * dictFeats = new vector<FeatVal>(numDicts*maxLen*3,0);
-    int id = 0;
-    for(int i = 0; i < numDicts; i++) {
-        for(int j = 1; j <= maxLen; j++) {
-            ostringstream oss1; oss1 << "D" << i << "R" << j;
-            unsigned id1 = mapFeat(util->mapString(oss1.str()));
-            if(id1 != 0) (*dictFeats)[id] = getWeight(id1-1, 0) * labels_[0]; id++;
-            ostringstream oss2; oss2 << "D" << i << "I" << j;
-            unsigned id2 = mapFeat(util->mapString(oss2.str()));
-            if(id2 != 0) (*dictFeats)[id] = getWeight(id2-1, 0) * labels_[0]; id++;
-            ostringstream oss3; oss3 << "D" << i << "L" << j;
-            unsigned id3 = mapFeat(util->mapString(oss3.str()));
-            if(id3 != 0) (*dictFeats)[id] = getWeight(id3-1, 0) * labels_[0]; id++;
+    if(numDicts*maxLen > 0) {
+        bool prevAddFeat = addFeat_;
+        addFeat_ = false;
+        vector<FeatVal> * dictFeats = new vector<FeatVal>(numDicts*maxLen*3,0);
+        int id = 0;
+        for(int i = 0; i < numDicts; i++) {
+            for(int j = 1; j <= maxLen; j++) {
+                ostringstream oss1; oss1 << "D" << i << "R" << j;
+                unsigned id1 = mapFeat(util->mapString(oss1.str()));
+                if(id1 != 0) (*dictFeats)[id] = getWeight(id1-1, 0) * labels_[0]; id++;
+                ostringstream oss2; oss2 << "D" << i << "I" << j;
+                unsigned id2 = mapFeat(util->mapString(oss2.str()));
+                if(id2 != 0) (*dictFeats)[id] = getWeight(id2-1, 0) * labels_[0]; id++;
+                ostringstream oss3; oss3 << "D" << i << "L" << j;
+                unsigned id3 = mapFeat(util->mapString(oss3.str()));
+                if(id3 != 0) (*dictFeats)[id] = getWeight(id3-1, 0) * labels_[0]; id++;
+            }
         }
+        addFeat_ = prevAddFeat;
+        featLook->setDictVector(dictFeats);
     }
-    addFeat_ = prevAddFeat;
-    featLook->setDictVector(dictFeats);
+    // Set the multiplier
+    featLook->setMultiplier(multiplier_);
     return featLook;
 }
