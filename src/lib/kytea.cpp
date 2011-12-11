@@ -181,7 +181,6 @@ void Kytea::buildVocabulary() {
     dict_ = new Dictionary<ModelTagEntry>(util_);
     dict_->buildIndex(allWords);
     dict_->setNumDicts(max((int)config_->getDictionaryFiles().size(),fio_.getNumDicts()));
-    cerr << "Number of dictionaries: "<<(int)dict_->getNumDicts() <<endl;
     if(config_->getDebug() > 0)
         cerr << "done!" << endl;
 
