@@ -55,23 +55,23 @@ KyteaString StringUtilUtf8::mapString(const string & str) {
         if(!(maskl1 & str[pos]))
             ret.push_back(mapChar(str.substr(pos++, 1)));
         else if((maskl5 & str[pos]) == maskl5) {
-            THROW_ERROR("Bad unicode character (five leading 1s)");
+            THROW_ERROR("Expected UTF8 file but found non-UTF8 string (specify the proper encoding with -encode utf8/euc/sjis): "<<str);
         }
         else if((maskl4 & str[pos]) == maskl4) {
             if(pos + 3 >= len || badu(str[pos+1]) || badu(str[pos+2]) || badu(str[pos+3]))
-                THROW_ERROR("Bad unicode character (poorly formed length-4)");
+                THROW_ERROR("Expected UTF8 file but found non-UTF8 string (specify the proper encoding with -encode utf8/euc/sjis): "<<str);
             ret.push_back(mapChar(str.substr(pos, 4)));
             pos += 4;
         }
         else if((maskl3 & str[pos]) == maskl3) {
             if(pos + 2 >= len || badu(str[pos+1]) || badu(str[pos+2]))
-                THROW_ERROR("Bad unicode character (poorly formed length-3)");
+                THROW_ERROR("Expected UTF8 file but found non-UTF8 string (specify the proper encoding with -encode utf8/euc/sjis): "<<str);
             ret.push_back(mapChar(str.substr(pos, 3)));
             pos += 3;
         }
         else {
             if(pos + 1 >= len || badu(str[pos+1]))
-                THROW_ERROR("Bad unicode character (poorly formed length-2)");
+                THROW_ERROR("Expected UTF8 file but found non-UTF8 string (specify the proper encoding with -encode utf8/euc/sjis): "<<str);
             ret.push_back(mapChar(str.substr(pos, 2)));
             pos += 2;
         }
@@ -154,19 +154,19 @@ KyteaChar StringUtilEuc::mapChar(const string & str, bool add) {
     if(len == 1) {
 #ifdef STRING_UTIL_SAFE
         if(str[0] & maskl1)
-            THROW_ERROR("Poorly formed EUC character (illegal length 1 char)");
+            THROW_ERROR("Expected EUC file but found non-EUC string (specify the proper encoding with -encode utf8/euc/sjis): "<<str);
 #endif
         ret = eucm(0,str[0]);
     }
     else if(len == 2) {
 #ifdef STRING_UTIL_SAFE
         if(!(maskl1 & str[0] & str[1]))
-            THROW_ERROR("Poorly formed EUC character (illegal length 2 char)");
+            THROW_ERROR("Expected EUC file but found non-EUC string (specify the proper encoding with -encode utf8/euc/sjis): "<<str);
 #endif
         ret = eucm(str[0],str[1]);
     } 
     else
-        THROW_ERROR("Poorly formed EUC character (too small or large)");
+        THROW_ERROR("Expected EUC file but found non-EUC string (specify the proper encoding with -encode utf8/euc/sjis): "<<str);
     return ret;
 }
 
@@ -263,7 +263,7 @@ KyteaChar StringUtilSjis::mapChar(const string & str, bool add) {
 #ifdef STRING_UTIL_SAFE
         const unsigned char first = (unsigned char)str[0];
         if((first & maskl1) && !(first >= 0xA0 && first <= 0xDF))
-            THROW_ERROR("Poorly formed SJIS character (illegal length 1 char)");
+            THROW_ERROR("Expected SJIS file but found non-SJIS string (specify the proper encoding with -encode utf8/euc/sjis): "<<str);
 #endif
         ret = sjism(0,str[0]);
     }
@@ -271,12 +271,12 @@ KyteaChar StringUtilSjis::mapChar(const string & str, bool add) {
 #ifdef STRING_UTIL_SAFE
         const unsigned char first = (unsigned char)str[0];
         if(!(first & maskl1) || (first >= 0xA0 && first <= 0xDF))
-            THROW_ERROR("Poorly formed SJIS character (illegal length 2 char)");
+            THROW_ERROR("Expected SJIS file but found non-SJIS string (specify the proper encoding with -encode utf8/euc/sjis): "<<str);
 #endif
         ret = sjism(str[0],str[1]);
     } 
     else
-        THROW_ERROR("Poorly formed SJIS character (too small or large)");
+        THROW_ERROR("Expected SJIS file but found non-SJIS string (specify the proper encoding with -encode utf8/euc/sjis): "<<str);
     return ret;
 }
 
