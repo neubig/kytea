@@ -21,6 +21,7 @@
 
 #include <vector>
 #include <iostream>
+#include <stdint.h>
 #include "config.h"
 
 namespace kytea {
@@ -29,8 +30,8 @@ namespace kytea {
     typedef double FeatVal;
     typedef double FeatSum;
 #else
-    typedef short FeatVal;
-    typedef int FeatSum;
+    typedef int16_t FeatVal;
+    typedef int32_t FeatSum;
 #endif
 typedef std::vector<FeatVal> FeatVec;
 }
