@@ -6,6 +6,8 @@ using namespace std;
 
 void FeatureIO::load(const string& fileName,StringUtil* util) {
     ifstream in(fileName.c_str());
+    if(in.fail())
+        THROW_ERROR("Failed to open feature file "<<fileName);
     string line, str, str2;
     // load the dictionary
     unsigned char maxDict = 0;

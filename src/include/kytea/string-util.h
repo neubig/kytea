@@ -25,7 +25,7 @@
 #include <cstdlib>
 
 // enforces boundary checking
-// #define STRING_UTIL_SAFE
+#define STRING_UTIL_SAFE
 
 namespace kytea {
 
