@@ -7,6 +7,7 @@ AC_CONFIG_SRCDIR([src/lib/kytea.cpp])
 AC_CONFIG_HEADERS([src/include/kytea/config.h])
 AC_CONFIG_FILES([
     Makefile
+    kytea.pc
     src/Makefile
     src/include/Makefile
     src/lib/Makefile
