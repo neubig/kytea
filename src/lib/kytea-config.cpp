@@ -32,13 +32,13 @@ void KyteaConfig::setIOFormat(const char* str, CorpForm & cf) {
 }
 
 
-void KyteaConfig::parseTrainCommandLine(int argc, char ** argv) {
+void KyteaConfig::parseTrainCommandLine(int argc, const char ** argv) {
     for(int i = 1; i < argc; i++)
         i += parseTrainArg(argv[i], (i == argc-1?NULL:argv[i+1]));
 }
 
 
-void KyteaConfig::parseRunCommandLine(int argc, char ** argv) {
+void KyteaConfig::parseRunCommandLine(int argc, const char ** argv) {
     for(int i = 1; i < argc; i++)
         i += parseRunArg(argv[i], (i == argc-1?NULL:argv[i+1]));
     // load the model file if it has not been specified at the command line

@@ -23,7 +23,7 @@ using namespace std;
 using namespace kytea;
 
 // trains a KyTea model
-int main(int argv, char **argc) {
+int main(int argv, const char **argc) {
 
     try {
         KyteaConfig * config = new KyteaConfig;

@@ -66,7 +66,7 @@ private:
 
     // feature options
     bool addFeat_;              // whether or not to add newly found features
-    double confidence_;          // when using probability, only annotate or use values that
+    double confidence_;         // when using probability, only annotate or use values that
                                 //  are at least this confident (default: 0=deterministic)
     
     //  charW: the number of characters on either side of the boundary to use (default: 3)
@@ -165,8 +165,8 @@ public:
     }
 
     // parse command line arguments
-    void parseTrainCommandLine(int argc, char ** argv);
-    void parseRunCommandLine(int argc, char ** argv);
+    void parseTrainCommandLine(int argc, const char ** argv);
+    void parseRunCommandLine(int argc, const char ** argv);
 
     void printUsage();
 

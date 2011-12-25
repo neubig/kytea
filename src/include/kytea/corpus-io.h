@@ -141,7 +141,7 @@ public:
         bounds_[5] = util_->mapChar(elemBound);
         bounds_[6] = util_->mapChar(escape);
     }
-    PartCorpusIO(StringUtil * util, const char* file, bool out, const char* unkBound = " ", const char* skipBound = "?", const char* noBound = "-", const char* hasBound = "|", const char* tagBound = "/", const char* elemBound = "&", const char* escape = "\\") : CorpusIO(util,file,out), bounds_(7) { 
+    PartCorpusIO(StringUtil * util, std::iostream & str, bool out, const char* unkBound = " ", const char* skipBound = "?", const char* noBound = "-", const char* hasBound = "|", const char* tagBound = "/", const char* elemBound = "&", const char* escape = "\\") : CorpusIO(util,str,out), bounds_(7) { 
         bounds_[0] = util_->mapChar(unkBound);
         bounds_[1] = util_->mapChar(skipBound);
         bounds_[2] = util_->mapChar(noBound);
@@ -150,7 +150,7 @@ public:
         bounds_[5] = util_->mapChar(elemBound);
         bounds_[6] = util_->mapChar(escape);
     }
-    PartCorpusIO(StringUtil * util, std::iostream & str, bool out, const char* unkBound = " ", const char* skipBound = "?", const char* noBound = "-", const char* hasBound = "|", const char* tagBound = "/", const char* elemBound = "&", const char* escape = "\\") : CorpusIO(util,str,out), bounds_(7) { 
+    PartCorpusIO(StringUtil * util, const char* file, bool out, const char* unkBound = " ", const char* skipBound = "?", const char* noBound = "-", const char* hasBound = "|", const char* tagBound = "/", const char* elemBound = "&", const char* escape = "\\") : CorpusIO(util,file,out), bounds_(7) { 
         bounds_[0] = util_->mapChar(unkBound);
         bounds_[1] = util_->mapChar(skipBound);
         bounds_[2] = util_->mapChar(noBound);
