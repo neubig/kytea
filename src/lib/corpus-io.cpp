@@ -141,10 +141,10 @@ void FullCorpusIO::writeSentence(const KyteaSentence * sent, double conf) {
     *str_ << endl;
 }
 
-KyteaString mapList(const list<KyteaChar> & lst) {
+KyteaString mapList(const vector<KyteaChar> & lst) {
     KyteaString ret(lst.size());
     unsigned pos = 0;
-    for(list<KyteaChar>::const_iterator it = lst.begin(); it != lst.end(); it++)
+    for(vector<KyteaChar>::const_iterator it = lst.begin(); it != lst.end(); it++)
         ret[pos++] = *it;
     return ret;
 }

@@ -860,8 +860,10 @@ void Kytea::calculateWS(KyteaSentence & sent) {
             dict_->getNumDicts(), config_->getDictionaryN(),
             scores);
 
+    // Update values, but only ones that are not already sure
     for(unsigned i = 0; i < sent.wsConfs.size(); i++)
-        sent.wsConfs[i] = scores[i]*wsFeatLookup_->getMultiplier();
+        if(abs(sent.wsConfs[i]) <= config_->getConfidence())
+            sent.wsConfs[i] = scores[i]*wsFeatLookup_->getMultiplier();
 
     sent.refreshWS(config_->getConfidence());
 

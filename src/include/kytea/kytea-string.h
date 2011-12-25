@@ -17,7 +17,7 @@
 #ifndef KYTEA_STRING_H__
 #define KYTEA_STRING_H__
 
-#include <list>
+#include <vector>
 #include <stdexcept>
 #include <cstring>
 #include <sstream>
@@ -68,7 +68,7 @@ private:
 
 public:
 
-    typedef std::list<KyteaString> Tokens;
+    typedef std::vector<KyteaString> Tokens;
 
     // ctor
     KyteaString() : impl_(0) { }
@@ -88,7 +88,7 @@ public:
     Tokens tokenize(const KyteaString & delim, bool includeDelim = false) const {
         unsigned i,j,s=0;
         const unsigned l=length(),dl=delim.length();
-        std::list<KyteaString> ret;
+        std::vector<KyteaString> ret;
         for(i = 0; i < l; i++) {
             for(j = 0; j < dl && delim[j] != impl_->chars_[i]; j++);
             if(j != dl) {

@@ -35,7 +35,7 @@ class Kytea {
 private:
     friend class KyteaTest;
     typedef unsigned FeatureId;
-    typedef std::list<KyteaSentence*> Sentences;
+    typedef std::vector<KyteaSentence*> Sentences;
     typedef std::vector< std::vector< FeatureId > > SentenceFeatures;
 
     StringUtil* util_;
