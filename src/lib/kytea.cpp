@@ -1145,3 +1145,4 @@ void Kytea::analyze() {
         cerr << "done!" << endl;
 
 }
+

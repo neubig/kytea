@@ -169,23 +169,7 @@ public:
     TagTriplet() : first(), second(), third(0), fourth() { }
 };
 
-// maps for use with various classes
-#ifdef HAVE_TR1_UNORDERED_MAP
-#   include <tr1/unordered_map>
-    typedef std::tr1::unordered_map<KyteaString, TagTriplet*, KyteaStringHash> TagHash;
-#elif HAVE_EXT_HASH_MAP
-#   include <ext/hash_map>
-    namespace __gnu_cxx {
-    template <>
-    struct hash<std::string> {
-        size_t operator() (const std::string& x) const { return hash<const char*>()(x.c_str()); }
-    };
-    }
-    typedef __gnu_cxx::hash_map<KyteaString, TagTriplet*, KyteaStringHash> TagHash;
-#else
-#   include <map>
-    typedef std::map<KyteaString, TagTriplet*> TagHash;
-#endif
+typedef KyteaStringMap<TagTriplet*> TagHash;
 
 }
 

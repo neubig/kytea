@@ -129,10 +129,10 @@ public:
 // maps for use with various classes
 #ifdef HAVE_TR1_UNORDERED_MAP
 #   include <tr1/unordered_map>
-    typedef std::tr1::unordered_map<std::string, kytea::KyteaChar> StringCharMap;
-    typedef std::tr1::unordered_map<kytea::KyteaString,unsigned,kytea::KyteaStringHash> KyteaUnsignedMap;
-    typedef std::tr1::unordered_map<kytea::KyteaString,double,kytea::KyteaStringHash>   KyteaDoubleMap;
-    typedef std::tr1::unordered_map<kytea::KyteaString, std::pair<unsigned,unsigned>, kytea::KyteaStringHash> TwoCountHash;
+    template <class T>
+    class StringMap : public std::tr1::unordered_map<std::string,T> { };
+    template <class T>
+    class KyteaStringMap : public std::tr1::unordered_map<kytea::KyteaString,T,kytea::KyteaStringHash> { };
 #elif HAVE_EXT_HASH_MAP
 #   include <ext/hash_map>
     namespace __gnu_cxx {
@@ -141,16 +141,21 @@ public:
         size_t operator() (const std::string& x) const { return hash<const char*>()(x.c_str()); }
     };
     }
-    typedef __gnu_cxx::hash_map<std::string, kytea::KyteaChar> StringCharMap;
-    typedef __gnu_cxx::hash_map<kytea::KyteaString,unsigned,kytea::KyteaStringHash> KyteaUnsignedMap;
-    typedef __gnu_cxx::hash_map<kytea::KyteaString,double,kytea::KyteaStringHash>   KyteaDoubleMap;
-    typedef __gnu_cxx::hash_map<kytea::KyteaString, std::pair<unsigned,unsigned>, kytea::KyteaStringHash> TwoCountHash;
+    template <class T>
+    class StringMap : public __gnu_cxx::hash_map<std::string,T> { };
+    template <class T>
+    class KyteaStringMap : public __gnu_cxx::hash_map<kytea::KyteaString,T,kytea::KyteaStringHash> { };
 #else
 #   include <map>
-    typedef std::map<std::string, kytea::KyteaChar> StringCharMap;
-    typedef std::map<kytea::KyteaString,unsigned> KyteaUnsignedMap;
-    typedef std::map<kytea::KyteaString,double>   KyteaDoubleMap;
-    typedef std::map<kytea::KyteaString, std::pair<unsigned,unsigned> > TwoCountHash;
+    template <class T>
+    class StringMap : public std::map<std::string,T> { };
+    template <class T>
+    class KyteaStringMap : public std::map<kytea::KyteaString,T> { };
 #endif
+
+typedef StringMap<kytea::KyteaChar> StringCharMap;
+typedef KyteaStringMap<unsigned> KyteaUnsignedMap;
+typedef KyteaStringMap<double>   KyteaDoubleMap;
+typedef KyteaStringMap<std::pair<unsigned,unsigned> > TwoCountHash;
 
 #endif
