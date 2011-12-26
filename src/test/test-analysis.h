@@ -30,6 +30,7 @@ public:
         kytea = new Kytea(config);
         kytea->trainAll();
         util = kytea->getStringUtil();
+        config->setOnTraining(false);
     }
 
     ~TestAnalysis() {
@@ -60,10 +61,35 @@ public:
         return ok;
     }
 
+    int testConfidentInput() {
+        string confident_text = "これ/代名詞/これ は/助詞/は 信頼/名詞/しんらい 度/接尾辞/ど の/助詞/の 高/形容詞/たか い/語尾/い 入力/名詞/にゅうりょく で/助動詞/で す/語尾/す 。/補助記号/。\n";
+        // Read in a partially annotated sentence
+        stringstream instr;
+        instr << confident_text;
+        FullCorpusIO infcio(util, instr, false);
+        KyteaSentence * sent = infcio.readSentence();
+        // Calculate the tags
+        kytea->calculateWS(*sent);
+        kytea->calculateTags(*sent,0);
+        kytea->calculateTags(*sent,1);
+        // Write out the sentence
+        stringstream outstr;
+        FullCorpusIO outfcio(util, outstr, true);
+        outfcio.writeSentence(sent);
+        string actual_text = outstr.str();
+        if(actual_text != confident_text) {
+            cout << "actual_text != confident_text"<<endl<<" "<<actual_text<<endl<<" "<<confident_text<<endl;
+            return 0;
+        } else {
+            return 1;
+        } 
+}
+
     bool runTest() {
         int done = 0, succeeded = 0;
         done++; cout << "testWordSegmentation()" << endl; if(testWordSegmentation()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testPartialSegmentation()" << endl; if(testPartialSegmentation()) succeeded++; else cout << "FAILED!!!" << endl;
+        done++; cout << "testConfidentInput()" << endl; if(testConfidentInput()) succeeded++; else cout << "FAILED!!!" << endl;
         cout << "Finished with "<<succeeded<<"/"<<done<<" tests succeeding"<<endl;
         return done == succeeded;
     }

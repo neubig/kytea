@@ -124,7 +124,7 @@ private:
 
 public:
 
-    StringUtilUtf8() : charIds_(10), charNames_(), charTypes_() {
+    StringUtilUtf8() : charIds_(), charNames_(), charTypes_() {
         const char * initial[7] = { "", "K", "T", "H", "R", "D", "O" };
         for(unsigned i = 0; i < 7; i++) {
             charIds_.insert(std::pair<std::string,KyteaChar>(initial[i], i));
