@@ -59,7 +59,7 @@ public:
         return solver == 0 || solver == 6 || solver == 7;
     }
 
-private:
+protected:
 
     KyteaUnsignedMap ids_;
     FeatNameVec names_;
@@ -70,13 +70,38 @@ private:
     double bias_;
     int solver_, numW_;
     bool addFeat_;
+    FeatureLookup * featLookup_;
+
+    template <class T>
+    void checkVecEqual(const std::vector<T> & a, const std::vector<T> & b) {
+        if(a.size() != b.size()) THROW_ERROR("Vector sizes don't match: "<<a.size()<<" != "<<b.size());
+        for(int i = 0; i < (int)a.size(); i++)
+            if(a[i] != b[i]) THROW_ERROR("Vectors don't match at "<<i);
+    }
+
 
 public:
-    KyteaModel() : names_(), multiplier_(1.0f), bias_(1.0f), solver_(1), addFeat_(true) {
+    KyteaModel() : multiplier_(1.0f), bias_(1.0f), solver_(1), addFeat_(true), featLookup_(NULL) {
         KyteaString str;
         mapFeat(str);
     }
-    ~KyteaModel() { }
+    ~KyteaModel();
+
+    void checkEqual(const KyteaModel & rhs) {
+        for(KyteaUnsignedMap::const_iterator it = ids_.begin(); it != ids_.end(); it++) {
+            KyteaUnsignedMap::const_iterator rit = rhs.ids_.find(it->first);
+            if(rit == rhs.ids_.end() || it->second != rit->second) THROW_ERROR("Ids don't match");
+        }
+        checkVecEqual(names_, rhs.names_);
+        // Ignore old names, they are not really important
+        checkVecEqual(labels_, rhs.labels_);
+        checkVecEqual(weights_, rhs.weights_);
+        if(abs((multiplier_ - rhs.multiplier_)/multiplier_) > 0.01) THROW_ERROR("multipliers don't match: "<<multiplier_ << " != " << rhs.multiplier_);
+        if(bias_ != rhs.bias_) THROW_ERROR("biass don't match: "<<bias_ << " != " << rhs.bias_);
+        if(solver_ != rhs.solver_) THROW_ERROR("solvers don't match: "<<solver_ << " != " << rhs.solver_);
+        if(numW_ != rhs.numW_) THROW_ERROR("numWs don't match: "<<numW_ << " != " << rhs.numW_);
+        if(addFeat_ != rhs.addFeat_) THROW_ERROR("addFeats don't match: "<<addFeat_ << " != " << rhs.addFeat_);
+    }
 
     // feature functions
     inline unsigned mapFeat(const KyteaString & str) {
@@ -121,12 +146,14 @@ public:
     inline const int getSolver() const { return solver_; }
     inline const unsigned getNumClasses() const { return labels_.size(); }
     inline const int getLabel(unsigned idx) const { return labels_[idx]; }
+    inline FeatureLookup * getFeatureLookup() const { return featLookup_; }
     inline const FeatVal getWeight(unsigned i, unsigned j) const {
         int id = i*numW_+j;
 #ifdef MODEL_SAFE
         if(id >= (int)weights_.size())
             THROW_ERROR("weight out of bounds: size="<<weights_.size()<<" id="<<id);
 #endif
+        // std::cerr << "getWeight("<<i<<","<<j<<") == "<<weights_[id]<<std::endl;
         return weights_[id];
     }
     inline const double getMultiplier() const { return multiplier_; }
@@ -135,6 +162,7 @@ public:
     inline void setLabel(unsigned i, int lab) { labels_[i] = lab; }
     inline void setSolver(int i) { solver_ = i; }
     inline void setNumWeights(int i) { numW_ = i; }
+    inline void setFeatureLookup(FeatureLookup * featLookup) { featLookup_ = featLookup; }
     inline void setNumFeatures(unsigned i) {
         if(i != getNumFeatures()) 
             THROW_ERROR("setting the number of features to a different value is not allowed ("<<i<<" != "<<getNumFeatures()<<")");
@@ -152,9 +180,9 @@ public:
     }
     void setMultiplier(double m) { multiplier_ = m; }
 
-    FeatureLookup * toFeatureLookup(StringUtil * util, int charw, int typew, int numDicts, int maxLen);
+    void buildFeatureLookup(StringUtil * util, int charw, int typew, int numDicts, int maxLen);
     Dictionary<std::vector<FeatVal> > * 
-        makeDictionaryFromPrefixes(const std::vector<KyteaString> & prefs, int label, StringUtil* util);
+        makeDictionaryFromPrefixes(const std::vector<KyteaString> & prefs, StringUtil* util);
     
 
 };

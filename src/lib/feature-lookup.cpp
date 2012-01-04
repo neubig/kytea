@@ -32,6 +32,42 @@ void FeatureLookup::addNgramScores(const Dictionary<FeatVec> * dict,
     }
 }
 
+// Look up values 
+void FeatureLookup::addTagNgrams(const KyteaString & chars, 
+                                 const Dictionary<FeatVec> * dict, 
+                                 vector<FeatSum> & scores,
+                                 int window, int startChar, int endChar) {
+    // Create a substring that exactly covers the window that we are interested
+    // in of up to -window characters before, and +window characters after
+    int myStart = max(startChar-window,0);
+    int myEnd = min(endChar+window,(int)chars.length());
+    // cerr << "startChar=="<<startChar<<", endChar=="<<endChar<<", myStart=="<<myStart<<", myEnd=="<<myEnd<<endl;
+    KyteaString str = 
+        chars.substr(myStart, startChar-myStart) +
+        chars.substr(endChar, myEnd-endChar);
+    // Match the features in this substring
+    Dictionary<FeatVec>::MatchResult res = dict->match(str);
+    // Add up the sum of all the features
+    // myStart-startChar is how far to the left of the starting character we are
+    int offset = window-(startChar-myStart);
+    for(int i = 0; i < (int)res.size(); i++) {
+        // The position we are interested in is the matched position plus the
+        // offset
+        int pos = res[i].first + offset;
+        // Reverse this and multiply by the number of candidates
+        pos = (window*2 - pos - 1) * scores.size();
+        FeatVal* vec = &((*res[i].second)[pos]);
+        // Now add up all the values in the feature vector
+        for(int j = 0; j < (int)scores.size(); j++) {
+#ifdef SAFE_MODEL
+            if(j+pos >= (int)res[i].second->size() || j+pos < 0)
+                THROW_ERROR("j+pos "<<j<<"+"<<pos<<" too big for res[i].second->size() "<<res[i].second->size()<<", window="<<window);
+#endif
+            scores[j] += vec[j];
+        }
+    }
+}
+
 void FeatureLookup::addDictionaryScores(const Dictionary<ModelTagEntry>::MatchResult & matches, int numDicts, int max, vector<FeatSum> & score) {
     if(dictVector_ == NULL || dictVector_->size() == 0 || matches.size() == 0) return;
     const int len = score.size(), dictLen = len*3*max;

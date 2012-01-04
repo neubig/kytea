@@ -1,7 +1,6 @@
 #ifndef FEATURE_LOOKUP__
 #define FEATURE_LOOKUP__
 
-#include "kytea/kytea-model.h"
 #include "kytea/dictionary.h"
 #include <vector>
 
@@ -10,11 +9,9 @@ namespace kytea {
 class FeatureLookup {
 protected:
     Dictionary<FeatVec> *charDict_, *typeDict_;
-    FeatVec *dictVector_;
-    FeatVal bias_;
-    double multiplier_;
+    FeatVec *dictVector_, *biases_;
 public:
-    FeatureLookup() : charDict_(NULL), typeDict_(NULL), dictVector_(NULL), bias_(0), multiplier_(1.0) { }
+    FeatureLookup() : charDict_(NULL), typeDict_(NULL), dictVector_(NULL), biases_(NULL) { }
     ~FeatureLookup();
 
     // Getters
@@ -27,11 +24,11 @@ public:
     const FeatVec * getDictVector() const {
         return dictVector_;
     }
-    const FeatVal getBias() const {
-        return bias_;
+    const FeatVal getBias(int id) const {
+        return (*biases_)[id];
     }
-    const double getMultiplier() const {
-        return multiplier_;
+    const std::vector<FeatVal> * getBiases() const {
+        return biases_;
     }
 
     void addNgramScores(const Dictionary<FeatVec> * dict, 
@@ -42,6 +39,11 @@ public:
     void addDictionaryScores(
         const Dictionary<ModelTagEntry>::MatchResult & matches,
         int numDicts, int max, std::vector<FeatSum> & score);
+
+    void addTagNgrams(const KyteaString & chars, 
+                      const Dictionary<FeatVec> * dict, 
+                      std::vector<FeatSum> & scores,
+                      int window, int startChar, int endChar);
 
     // Setters, these will all take control of the features they are passed
     //  (without making a copy)
@@ -54,11 +56,15 @@ public:
     void setDictVector(FeatVec * dictVector) {
         dictVector_ = dictVector;
     }
-    void setBias(FeatVal bias) {
-        bias_ = bias;
+    void setBias(FeatVal bias, int id) {
+        if(biases_ == NULL)
+            biases_ = new FeatVec(id+1, 0);
+        else if((int)biases_->size() <= id)
+            biases_->resize(id+1, 0);
+        (*biases_)[id] = bias;
     }
-    void setMultiplier(double multiplier) {
-        multiplier_ = multiplier;
+    void setBiases(FeatVec * biases) {
+        biases_ = biases;
     }
 
 

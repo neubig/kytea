@@ -152,6 +152,9 @@ void TextModelIO::writeModel(const KyteaModel * mod) {
     }
 
     *str_ << endl;
+
+    writeFeatureLookup(mod->getFeatureLookup());
+
 }
 
 // write out a language model
@@ -293,6 +296,7 @@ KyteaModel * TextModelIO::readModel() {
 
     // read models shouldn't add any additional features
     mod->setAddFeatures(false);
+    mod->setFeatureLookup(readFeatureLookup());
 
     return mod;
 
@@ -603,6 +607,8 @@ void BinaryModelIO::writeModel(const KyteaModel * mod) {
         }
     }
 
+    writeFeatureLookup(mod->getFeatureLookup());
+
 }
 
 void BinaryModelIO::writeLM(const KyteaLM * lm) {
@@ -678,6 +684,7 @@ KyteaModel * BinaryModelIO::readModel() {
     
     // read models shouldn't add any additional features
     mod->setAddFeatures(false);
+    mod->setFeatureLookup(readFeatureLookup());
 
     return mod;
 
@@ -807,41 +814,54 @@ vector<KyteaString> BinaryModelIO::readWordList() {
 }
 
 void TextModelIO::writeFeatureLookup(const FeatureLookup* featLookup) {
+    if(!featLookup) {
+        *str_ << endl;
+        return;
+    }
+    *str_ << "lookup" << endl;
     writeVectorDictionary(featLookup->getCharDict());
     writeVectorDictionary(featLookup->getTypeDict());
     writeFeatVec(featLookup->getDictVector());
-    *str_ << featLookup->getBias() << endl;
-    *str_ << featLookup->getMultiplier() << endl;
+    writeFeatVec(featLookup->getBiases());
 }
 
 FeatureLookup * TextModelIO::readFeatureLookup() {
+    string line;
+    getline(*str_, line);
+    if(line == "")
+        return 0;
+    else if (line != "lookup")
+        THROW_ERROR("Poorly formatted model: expecting 'lookup' but got "<<line);
     FeatureLookup * look = new FeatureLookup;
     look->setCharDict(readVectorDictionary());
     look->setTypeDict(readVectorDictionary());
     look->setDictVector(readFeatVec());
-    string line;
-    getline(*str_, line);
-    look->setBias((FeatVal)util_->parseFloat(line.c_str()));
-    getline(*str_, line);
-    look->setMultiplier(util_->parseFloat(line.c_str()));
+    look->setBiases(readFeatVec());
     return look;
 }
 
 void BinaryModelIO::writeFeatureLookup(const FeatureLookup * featLookup) {
-    writeVectorDictionary(featLookup->getCharDict());
-    writeVectorDictionary(featLookup->getTypeDict());
-    writeFeatVec(featLookup->getDictVector());
-    writeBinary((FeatVal)featLookup->getBias());
-    writeBinary((double)featLookup->getMultiplier());
+    if(featLookup) {
+       writeBinary<char>(1);
+       writeVectorDictionary(featLookup->getCharDict());
+       writeVectorDictionary(featLookup->getTypeDict());
+       writeFeatVec(featLookup->getDictVector());
+       writeFeatVec(featLookup->getBiases());
+    } else {
+        writeBinary<char>(0);
+    }
 }
 
 FeatureLookup * BinaryModelIO::readFeatureLookup() {
-    FeatureLookup * look = new FeatureLookup;
-    look->setCharDict(readVectorDictionary());
-    look->setTypeDict(readVectorDictionary());
-    look->setDictVector(readFeatVec());
-    look->setBias(readBinary<FeatVal>());
-    look->setMultiplier(readBinary<double>());
+    char active = readBinary<char>();
+    FeatureLookup * look = 0;
+    if(active) {
+        look = new FeatureLookup;
+        look->setCharDict(readVectorDictionary());
+        look->setTypeDict(readVectorDictionary());
+        look->setDictVector(readFeatVec());
+        look->setBiases(readFeatVec());
+    }
     return look;
 }
 
