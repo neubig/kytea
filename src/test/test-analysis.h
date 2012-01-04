@@ -3,6 +3,7 @@
 
 #include "test-base.h"
 #include <kytea/corpus-io.h>
+#include <kytea/model-io.h>
 
 namespace kytea {
 
@@ -40,10 +41,10 @@ public:
     int testWordSegmentation() {
         // Do the analysis (This is very close to the training data, so it
         // should work perfectly)
-        KyteaSentence sentence(util->mapString("これはデータです。"));
+        KyteaSentence sentence(util->mapString("これは学習データです。"));
         kytea->calculateWS(sentence);
         // Make the correct words
-        KyteaString::Tokens toks = util->mapString("これ は データ で す 。").tokenize(util->mapString(" "));
+        KyteaString::Tokens toks = util->mapString("これ は 学習 データ で す 。").tokenize(util->mapString(" "));
         return checkWordSeg(sentence,toks,util);
     }
 
@@ -62,6 +63,8 @@ public:
     }
 
     int testConfidentInput() {
+        // This is currently aborting, make sure it fails but continue
+        if(true) return 0;
         string confident_text = "これ/代名詞/これ は/助詞/は 信頼/名詞/しんらい 度/接尾辞/ど の/助詞/の 高/形容詞/たか い/語尾/い 入力/名詞/にゅうりょく で/助動詞/で す/語尾/す 。/補助記号/。\n";
         // Read in a partially annotated sentence
         stringstream instr;
@@ -83,12 +86,38 @@ public:
         } else {
             return 1;
         } 
-}
+    }
+
+    int testTextIO() {
+        stringstream outstr;
+        TextModelIO outio(util, outstr, true);
+        outio.writeModel(kytea->getWSModel());
+        stringstream instr;
+        instr << outstr.str();
+        TextModelIO inio(util, instr, false);
+        KyteaModel * inmod = inio.readModel();
+        inmod->checkEqual(*kytea->getWSModel());
+        return 1;
+    }
+
+    int testBinaryIO() {
+        stringstream outstr;
+        BinaryModelIO outio(util, outstr, true);
+        outio.writeModel(kytea->getWSModel());
+        stringstream instr;
+        instr << outstr.str();
+        BinaryModelIO inio(util, instr, false);
+        KyteaModel * inmod = inio.readModel();
+        inmod->checkEqual(*kytea->getWSModel());
+        return 1;
+    }
 
     bool runTest() {
         int done = 0, succeeded = 0;
         done++; cout << "testWordSegmentation()" << endl; if(testWordSegmentation()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testPartialSegmentation()" << endl; if(testPartialSegmentation()) succeeded++; else cout << "FAILED!!!" << endl;
+        done++; cout << "testTextIO()" << endl; if(testTextIO()) succeeded++; else cout << "FAILED!!!" << endl;
+        done++; cout << "testBinaryIO()" << endl; if(testBinaryIO()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testConfidentInput()" << endl; if(testConfidentInput()) succeeded++; else cout << "FAILED!!!" << endl;
         cout << "Finished with "<<succeeded<<"/"<<done<<" tests succeeding"<<endl;
         return done == succeeded;

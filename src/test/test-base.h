@@ -7,6 +7,10 @@ class TestBase {
 
 protected:
 
+    TestBase() : passed_(false) { }
+
+    bool passed_;
+
     int checkWordSeg(const KyteaSentence & sent, const vector<KyteaString> & toks, StringUtil * util) {
         const KyteaSentence::Words & words =  sent.words;
         int ok = 1;

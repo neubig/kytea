@@ -21,11 +21,18 @@
 #include "test-analysis.h"
 #include "test-corpusio.h"
 
+using namespace std;
+
 int main(int argv, char **argc) {
     kytea::KyteaTest test_kytea;
-    test_kytea.runTest();
     kytea::TestAnalysis test_analysis;
-    test_analysis.runTest();
     kytea::TestCorpusIO test_corpusio;
-    test_corpusio.runTest();
+    if(!(
+        test_kytea.runTest() &
+        test_analysis.runTest() &
+        test_corpusio.runTest())) {
+        cout << "**** FAILED!!! ****" << endl;
+    } else {
+        cout << "**** passed ****" << endl;
+    }
 }

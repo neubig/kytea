@@ -12,6 +12,7 @@ using namespace std;
 #define SIG_CUTOFF 1E-6
 #define SHORT_MAX 32767
 
+#define SAFE_MODEL
 
 template <class A, class B>
 class secondmore {
@@ -26,7 +27,6 @@ vector< pair<int,double> > KyteaModel::runClassifier(const vector<unsigned> & fe
     int i, j, featSize = feat.size();
     FeatSum dec;
     vector< pair<int,double> > ret(labels_.size());
-    // cerr << "labels.size="<<labels_.size()<<", "<<numW_<<endl;
     // for binary predictors
     if(numW_ == 1) {
         dec = (bias_>=0?getWeight(getBiasId()-1,0):0);
@@ -51,8 +51,9 @@ vector< pair<int,double> > KyteaModel::runClassifier(const vector<unsigned> & fe
         double sum = 0, max1 = -100000, max2 = -100000, weight;
         for(j = 0; j < numW_; j++) {
             dec = (bias_>=0?getWeight(getBiasId()-1,j):0);
-            for(i = 0; i < featSize; i++)
+            for(i = 0; i < featSize; i++) {
                 dec += getWeight(feat[i]-1,j);
+            }
             weight = dec*multiplier_;
             // get probability for LR
             if(isProbabilistic(solver_)) {
@@ -254,6 +255,8 @@ void KyteaModel::trainModel(const vector< vector<unsigned> > & xs, vector<int> &
     }
 
     free_and_destroy_model(&mod_);
+    // When we're done with training, no more adding features
+    addFeat_ = false;
 
 }
 
@@ -264,22 +267,25 @@ void KyteaModel::setNumClasses(unsigned v) {
     numW_ = (v==2 && solver_ != MCSVM_CS?1:v);
 }
 
-Dictionary<vector<FeatVal> > * KyteaModel::makeDictionaryFromPrefixes(const vector<KyteaString> & prefs, int label, StringUtil* util) {
+Dictionary<vector<FeatVal> > * KyteaModel::makeDictionaryFromPrefixes(const vector<KyteaString> & prefs, StringUtil* util) {
     typedef Dictionary<vector<FeatVal> >::WordMap WordMap;
     WordMap wm;
     int pos;
-    for(int i = 0; i < (int)weights_.size(); i++) {
+    for(int i = 0; i < (int)names_.size(); i++) {
         const KyteaString & str = names_[i];
         for(pos = 0; pos < (int)prefs.size() && !str.beginsWith(prefs[pos]); pos++);
         if(pos != (int)prefs.size()) {
             KyteaString name = str.substr(prefs[pos].length());
             WordMap::iterator it = wm.find(name);
             if(it == wm.end()) {
-                pair<WordMap::iterator, bool> p = wm.insert(WordMap::value_type(name,new vector<FeatVal>(prefs.size())));
+                pair<WordMap::iterator, bool> p = wm.insert(WordMap::value_type(name,new vector<FeatVal>(prefs.size()*numW_)));
                 it = p.first;
             }
-            // cerr << "adding for "<<util->showString(str)<<" @ "<<util->showString(name) << " ["<<pos<<"]"<<"/"<<(*it->second).size()<<" == "<<weights_[i-1]<<"/"<<weights_.size()<<endl;
-            (*it->second)[prefs.size()-pos-name.length()] = weights_[i-1]*label;
+            int id = (prefs.size()-pos-name.length())*numW_;
+            for(int j = 0; j < numW_; j++) {
+                // cerr << "adding for "<<util->showString(str)<<" @ "<<util->showString(name) << " ["<<id<<"]"<<"/"<<(*it->second).size()<<" == "<<getWeight(i,j)<<"/"<<weights_.size()<<endl;
+                (*it->second)[id+j] = getWeight(i-1,j) * labels_[0];
+            }
         }
     }
     if(wm.size() > 0) {
@@ -290,25 +296,27 @@ Dictionary<vector<FeatVal> > * KyteaModel::makeDictionaryFromPrefixes(const vect
     return NULL;
 }
 
-FeatureLookup * KyteaModel::toFeatureLookup(StringUtil * util, int charw, int typew, int numDicts, int maxLen) {
-    FeatureLookup * featLook = new FeatureLookup;
+void KyteaModel::buildFeatureLookup(StringUtil * util, int charw, int typew, int numDicts, int maxLen) {
+    if(featLookup_) delete featLookup_;
+    featLookup_ = new FeatureLookup;
     // Make the character values
     vector<KyteaString> charPref, typePref, dictPref;
     for(int i = 1-charw; i <= charw; i++) {
         ostringstream oss; oss << "X" << i;
         charPref.push_back(util->mapString(oss.str()));
     }
-    featLook->setCharDict(makeDictionaryFromPrefixes(charPref, labels_[0], util));
+    featLookup_->setCharDict(makeDictionaryFromPrefixes(charPref, util));
     // Make the type values
     for(int i = 1-typew; i <= typew; i++) {
         ostringstream oss; oss << "T" << i;
         typePref.push_back(util->mapString(oss.str()));
     }
-    featLook->setTypeDict(makeDictionaryFromPrefixes(typePref, labels_[0], util));
+    featLookup_->setTypeDict(makeDictionaryFromPrefixes(typePref, util));
     // Get the bias feature
     int bias = getBiasId();
     if(bias != -1)
-        featLook->setBias(getWeight(bias-1, 0) * labels_[0]);
+        for(int j = 0; j < numW_; j++)
+            featLookup_->setBias(getWeight(bias-1, j) * labels_[0], j);
     // Make the dictionary values, note that this will only work on
     // the word segmentation dictionary (for now)
     if(numDicts*maxLen > 0) {
@@ -330,9 +338,11 @@ FeatureLookup * KyteaModel::toFeatureLookup(StringUtil * util, int charw, int ty
             }
         }
         addFeat_ = prevAddFeat;
-        featLook->setDictVector(dictFeats);
+        featLookup_->setDictVector(dictFeats);
     }
-    // Set the multiplier
-    featLook->setMultiplier(multiplier_);
-    return featLook;
+}
+
+
+KyteaModel::~KyteaModel() {
+    if(featLookup_) delete featLookup_;
 }

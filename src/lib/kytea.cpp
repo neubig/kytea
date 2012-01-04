@@ -353,7 +353,14 @@ void Kytea::trainWS() {
 // Tag estimation functions //
 //////////////////////////////
 
-unsigned Kytea::tagCharFeatures(const KyteaString & chars, vector<unsigned> & feat, const vector<KyteaString> & prefixes, KyteaModel * model, int n, int sc, int ec) {
+// chars: the string to use to calculate features
+// feat: the vector of feature indices
+// prefixes: prefixes to use for features
+// model: model to use
+// n: window to use
+// sc: index of the first character before the word
+// ec: index of the first character after the word
+unsigned Kytea::tagNgramFeatures(const KyteaString & chars, vector<unsigned> & feat, const vector<KyteaString> & prefixes, KyteaModel * model, int n, int sc, int ec) {
     int w = (int)prefixes.size()/2;
     vector<KyteaChar> wind(prefixes.size());
     for(int i = w-1; i >= 0; i--)
@@ -426,8 +433,8 @@ void Kytea::trainGlobalTags(int lev) {
                 trip->fourth.push_back(tagSurf);
             myTag++;
             vector<unsigned> feat;
-            tagCharFeatures(charStr, feat, charPrefixes_, trip->third, config_->getCharN(), startPos-1, finPos);
-            tagCharFeatures(typeStr, feat, typePrefixes_, trip->third, config_->getTypeN(), startPos-1, finPos);
+            tagNgramFeatures(charStr, feat, charPrefixes_, trip->third, config_->getCharN(), startPos-1, finPos);
+            tagNgramFeatures(typeStr, feat, typePrefixes_, trip->third, config_->getTypeN(), startPos-1, finPos);
             tagSelfFeatures(word.surf, feat, kssx, trip->third);
             tagSelfFeatures(util_->mapString(util_->getTypeString(word.surf)), feat, ksst, trip->third);
             tagDictFeatures(word.surf, lev, feat, trip->third);
@@ -502,8 +509,8 @@ void Kytea::trainLocalTags(int lev) {
                 unsigned myTag = dict_->getTagID(word.surf,word.getTagSurf(lev),lev);
                 if(myTag != 0) {
                     vector<unsigned> feat;
-                    tagCharFeatures(charStr, feat, charPrefixes_, trip->third, config_->getCharN(), startPos-1, finPos);
-                    tagCharFeatures(typeStr, feat, typePrefixes_, trip->third, config_->getTypeN(), startPos-1, finPos);
+                    tagNgramFeatures(charStr, feat, charPrefixes_, trip->third, config_->getCharN(), startPos-1, finPos);
+                    tagNgramFeatures(typeStr, feat, typePrefixes_, trip->third, config_->getTypeN(), startPos-1, finPos);
                     trip->first.push_back(feat);
                     trip->second.push_back(myTag);
                 }
@@ -775,13 +782,10 @@ void Kytea::writeModel(const char* fileName) {
     ModelIO * modout = ModelIO::createIO(fileName,config_->getModelFormat(), true, *config_);
     modout->writeConfig(*config_);
     // Write out the word segmentation features
-    if(wsFeatLookup_ == NULL)
-        wsFeatLookup_ = wsModel_->toFeatureLookup(util_, 
-                                                  config_->getCharWindow(), 
-                                                  config_->getTypeWindow(),
-                                                  dict_->getNumDicts(),
-                                                  config_->getDictionaryN());
-    modout->writeFeatureLookup(wsFeatLookup_);
+    wsModel_->buildFeatureLookup(util_, 
+                                 config_->getCharWindow(), config_->getTypeWindow(),
+                                 dict_->getNumDicts(), config_->getDictionaryN());
+    modout->writeModel(wsModel_);
     // write the global models
     for(int i = 0; i < config_->getNumTags(); i++) {
         modout->writeWordList(i >= (int)globalTags_.size()?vector<KyteaString>():globalTags_[i]);
@@ -810,7 +814,7 @@ void Kytea::readModel(const char* fileName) {
 
     modin->readConfig(*config_);
     // Write out the word segmentation features
-    wsFeatLookup_ = modin->readFeatureLookup();
+    wsModel_ = modin->readModel();
 
     // read the global models
     globalMods_.resize(config_->getNumTags(),0);
@@ -847,23 +851,25 @@ void Kytea::calculateWS(KyteaSentence & sent) {
     // wsDictionaryFeatures(sent.chars, feats);
     // wsNgramFeatures(sent.chars, feats, charPrefixes_, config_->getCharN());
     // wsNgramFeatures(util_->mapString(util_->getTypeString(sent.chars)), feats, typePrefixes_, config_->getTypeN());
-    vector<FeatSum> scores(sent.chars.length()-1, wsFeatLookup_->getBias());
-    wsFeatLookup_->addNgramScores(wsFeatLookup_->getCharDict(), 
-                                  sent.chars, config_->getCharWindow(), 
-                                  scores);
-    wsFeatLookup_->addNgramScores(wsFeatLookup_->getTypeDict(), 
-                                  util_->mapString(util_->getTypeString(sent.chars)), 
-                                  config_->getTypeWindow(), scores);
-    if(wsFeatLookup_->getDictVector())
-        wsFeatLookup_->addDictionaryScores(
+    vector<FeatSum> scores(sent.chars.length()-1, wsModel_->getBias());
+    FeatureLookup * featLookup = wsModel_->getFeatureLookup();
+    featLookup->addNgramScores(featLookup->getCharDict(), 
+                               sent.chars, config_->getCharWindow(), 
+                               scores);
+    featLookup->addNgramScores(featLookup->getTypeDict(), 
+                               util_->mapString(util_->getTypeString(sent.chars)), 
+                               config_->getTypeWindow(), scores);
+    if(featLookup->getDictVector())
+        featLookup->addDictionaryScores(
             dict_->match(sent.chars),
             dict_->getNumDicts(), config_->getDictionaryN(),
             scores);
 
     // Update values, but only ones that are not already sure
     for(unsigned i = 0; i < sent.wsConfs.size(); i++)
-        if(abs(sent.wsConfs[i]) <= config_->getConfidence())
-            sent.wsConfs[i] = scores[i]*wsFeatLookup_->getMultiplier();
+        if(abs(sent.wsConfs[i]) <= config_->getConfidence()) {
+            sent.wsConfs[i] = scores[i]*wsModel_->getMultiplier();
+        }
 
     sent.refreshWS(config_->getConfidence());
 
@@ -985,8 +991,8 @@ void Kytea::calculateTags(KyteaSentence & sent, int lev) {
             if(tagMod == 0)
                 word.setTag(lev, KyteaTag((*tags)[0],(KyteaModel::isProbabilistic(config_->getSolverType())?1:100)));
             else {        
-                tagCharFeatures(charStr, feat, charPrefixes_, tagMod, config_->getCharN(), startPos-1, finPos);
-                tagCharFeatures(typeStr, feat, typePrefixes_, tagMod, config_->getTypeN(), startPos-1, finPos);
+                tagNgramFeatures(charStr, feat, charPrefixes_, tagMod, config_->getCharN(), startPos-1, finPos);
+                tagNgramFeatures(typeStr, feat, typePrefixes_, tagMod, config_->getTypeN(), startPos-1, finPos);
                 if(useSelf) {
                     tagSelfFeatures(word.surf, feat, kssx, tagMod);
                     tagSelfFeatures(util_->mapString(util_->getTypeString(word.surf)), feat, ksst, tagMod);
@@ -1098,7 +1104,7 @@ void Kytea::analyze() {
         }
     }
     // sanity checks
-    if(config_->getDoWS() && wsFeatLookup_ == NULL)
+    if(config_->getDoWS() && wsModel_ == NULL)
         THROW_ERROR("Word segmentation cannot be performed with this model. A new model must be retrained without the -nows option.");
 
     if(config_->getDebug() > 0)    

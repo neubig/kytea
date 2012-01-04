@@ -71,24 +71,75 @@ public:
         return bad ? 0 : 1;
     }
 
-    FeatureLookup * makeFeatureLookup(StringUtil * util) {
+    int testTagNgramFeatures() {
+        StringUtilUtf8 util;
+        Kytea kytea;
+        kytea.setWSModel(new KyteaModel());
+        KyteaString str = util.mapString("漢カひ単語。１A");
+        vector<KyteaString> exp, act;
+        exp.push_back(util.mapString("X-2漢"));
+        exp.push_back(util.mapString("X-1カ"));
+        exp.push_back(util.mapString("X0ひ"));
+        exp.push_back(util.mapString("X1。"));
+        exp.push_back(util.mapString("X2１"));
+        exp.push_back(util.mapString("X3A"));
+        exp.push_back(util.mapString("X-2漢カ"));
+        exp.push_back(util.mapString("X-1カひ"));
+        exp.push_back(util.mapString("X0ひ。"));
+        exp.push_back(util.mapString("X1。１"));
+        exp.push_back(util.mapString("X2１A"));
+        vector<KyteaString> charPrefixes_;
+        for(int i = -2; i <= 3; i++) {
+            ostringstream oss; oss << "X" << i;
+            charPrefixes_.push_back(util.mapString(oss.str()));
+        }
+        vector<unsigned> act_feats;
+        kytea.tagNgramFeatures(str, act_feats, charPrefixes_, kytea.getWSModel(), 2, 2, 5);
+        for(int i = 0; i < (int)act_feats.size(); i++)
+            act.push_back(kytea.getWSModel()->showFeat(act_feats[i]));
+        sort(exp.begin(), exp.end());
+        sort(act.begin(), act.end());
+        bool bad = false;
+        if(exp.size() != act.size()) {
+            bad = true;
+            cout << "Sizes exp.size()=="<<exp.size()<<", act.size()=="<<act.size()<<endl;
+        }
+        for(int i = 0; !bad && i < (int)exp.size(); i++) 
+            if(exp[i] != act[i])
+                bad = true;
+        if(bad) {
+            cout << "EXP:";
+            for(int i = 0; i < (int)exp.size(); i++)
+                cout << " " << util.showString(exp[i]);
+            cout << endl << "ACT:";
+            for(int i = 0; i < (int)act.size(); i++)
+                cout << " " << util.showString(act[i]);
+            cout << endl; 
+        }
+        return bad ? 0 : 1;
+    }
+
+    KyteaModel * makeFeatureLookup(StringUtil * util, int classes) {
         // Make the feature values
         const int SIZE = 14;
         const char* featStrs[SIZE] = 
             { "X-2漢", "X-1カ", "X0ひ", "X1。", "X2１", "X3A",
               "X-2漢カ", "X-1カひ", "X0ひ。", "X1。１", "X2１A",
               "D0L1", "D0I5", "D1R5"};
-        KyteaModel mod;
-        mod.setNumClasses(2);
-        mod.setLabel(0, 1);
-        mod.setLabel(1, -1);
+        KyteaModel * mod = new KyteaModel;
+        mod->setNumClasses(classes);
+        mod->setLabel(0, 1);
+        mod->setLabel(1, -1);
         int lastFeat = -1;
         for(int i = 0; i < SIZE; i++)
-            lastFeat = mod.mapFeat(util->mapString(featStrs[i]));
-        mod.initializeWeights(1, lastFeat+1);
+            lastFeat = mod->mapFeat(util->mapString(featStrs[i]));
+        int actual_classes = (classes == 2 ? 1 : classes);
+        mod->initializeWeights(actual_classes, lastFeat+1);
         for(int i = 0; i < lastFeat; i++)
-            mod.setWeight(i, 0, i+1);
-        return mod.toFeatureLookup(util, 3, 3, 2, 5);
+            for(int j = 0; j < actual_classes; j++)
+                mod->setWeight(i, j, (i+1)*(j+1));
+        mod->buildFeatureLookup(util, 3, 3, 2, 5);
+        return mod;
     }
 
     int testModelToLookup() {
@@ -107,7 +158,8 @@ public:
         Dictionary<vector<FeatVal> > exp(&util);
         exp.buildIndex(wm);
         // Convert the model to a feature lookup
-        FeatureLookup * look = makeFeatureLookup(&util);
+        KyteaModel * mod = makeFeatureLookup(&util, 2);
+        FeatureLookup * look = mod->getFeatureLookup();
         // Check the n-gram values
         const Dictionary<vector<FeatVal> > * act = look->getCharDict();
         int ret = 1;
@@ -160,7 +212,8 @@ public:
 
     int testFeatureLookup() {
         StringUtilUtf8 util;
-        FeatureLookup * feat = makeFeatureLookup(&util);
+        KyteaModel * mod = makeFeatureLookup(&util, 2);
+        FeatureLookup * feat = mod->getFeatureLookup();
         KyteaString str = util.mapString("漢カひ。１A");
         vector<FeatSum> act(5,0);
         feat->addNgramScores(feat->getCharDict(), str, 3, act);
@@ -193,7 +246,7 @@ public:
         }
     }
 
-    int testFeatureLookupMatchesModel() {
+    int testWSLookupMatchesModel() {
         // Make the full model
         StringUtilUtf8 util;
         Kytea kytea;
@@ -222,13 +275,14 @@ public:
             mod.setWeight(i, 0, i);
         }
         // Make the feature lookup
-        FeatureLookup * feat = mod.toFeatureLookup(&util, 3, 3, 2, 5);
+        mod.buildFeatureLookup(&util, 3, 3, 2, 5);
+        FeatureLookup * feat = mod.getFeatureLookup();
         // Get the score matrix for lookup
         vector<FeatSum> act(5,0);
         feat->addNgramScores(feat->getCharDict(), str, 3, act);
         feat->addNgramScores(feat->getTypeDict(), typeStr, 3, act);
         for(int i = 0; i < 5; i++)
-            act[i] += feat->getBias();
+            act[i] += feat->getBias(0);
         // Calculate the n-gram features
         Kytea::SentenceFeatures sentFeats(5);
         vector<KyteaString> charPrefixes, typePrefixes;
@@ -243,13 +297,77 @@ public:
                 ret = 0;
             }
         }
-        delete feat;
+        return ret;
+    }
+    
+    int testTagLookupMatchesModel() {
+        // Make the full model
+        StringUtilUtf8 util;
+        Kytea kytea;
+        kytea.setWSModel(new KyteaModel());
+        KyteaModel & mod = *kytea.getWSModel();
+        mod.setNumClasses(3);
+        mod.setLabel(0, 1);
+        mod.setLabel(1, 2);
+        mod.setLabel(2, 3);
+        int id = 0;
+        KyteaString str = util.mapString("漢カひ単語。１A");
+        KyteaString typeStr = util.mapString(util.getTypeString(str));
+        for(int i = 0; i < (int)str.length(); i++) {
+            for(int j = 1; j <= 3; j++) {
+                if(i+j > (int)str.length()) break;
+                for(int k = -2; k <= 4-j; k++) {
+                    ostringstream oss1; oss1 << "X" << k << util.showString(str.substr(i,j));
+                    id = mod.mapFeat(util.mapString(oss1.str()));
+                    ostringstream oss2; oss2 << "T" << k << util.showString(typeStr.substr(i,j));
+                    id = mod.mapFeat(util.mapString(oss2.str()));
+                }
+            }
+        }
+        mod.initializeWeights(3, id+1);
+        for(int i = 0; i <= id; i++)
+            for(int j = 0; j < 3; j++)
+                mod.setWeight(i, j, i*3+j);
+        mod.setAddFeatures(false);
+        // Make the feature lookup
+        mod.buildFeatureLookup(&util, 3, 3, 2, 5);
+        FeatureLookup * feat = mod.getFeatureLookup();
+        // Calculate the n-gram features
+        Kytea::SentenceFeatures sentFeats(5);
+        vector<KyteaString> charPrefixes, typePrefixes;
+        makePrefixes(charPrefixes, typePrefixes, &util);
+        int ret = 1;
+        for(int i = 0; i < 5; i++) {
+            // Get the score matrix for lookup
+            vector<FeatSum> act(3,0);
+            feat->addTagNgrams(str, feat->getCharDict(), act, 3, i, i+2);
+            feat->addTagNgrams(typeStr, feat->getTypeDict(), act, 3, i, i+2);
+            for(int j = 0; j < 3; j++) 
+                act[j] += feat->getBias(j);
+            // Make with the model
+            vector<unsigned> feats;
+            kytea.tagNgramFeatures(str, feats, charPrefixes, &mod, 3, i-1, i+2);
+            kytea.tagNgramFeatures(typeStr, feats, typePrefixes, &mod, 3, i-1, i+2);
+            vector< pair<int,double> > answers = mod.runClassifier(feats);
+            // Convert to margin
+            double secondBest = act[answers[1].first-1];
+            for(int j = 0; j < (int)answers.size(); j++) {
+                if(answers[j].first-1 >= (int)act.size())
+                    THROW_ERROR("answers[j].first too big "<<answers[j].first-1<<", act.size() == "<<act.size());
+                act[answers[j].first-1] -= secondBest;
+                if(answers[j].second != act[answers[j].first-1]) {
+                    cerr << "model["<<i<<"]["<<answers[j].first-1<<"]="<<answers[j].second<<", act["<<i<<"]["<<answers[j].first-1<<"]="<<act[answers[j].first-1]<<endl;
+                    ret = 0;
+                }
+            }
+        }
         return ret;
     }
 
     int testFeatureLookupDictionary() {
         StringUtilUtf8 util;
-        FeatureLookup * look = makeFeatureLookup(&util);
+        KyteaModel * mod = makeFeatureLookup(&util, 2);
+        FeatureLookup * look = mod->getFeatureLookup();
         KyteaString str = util.mapString("漢カひ。１A");
         Kytea kytea;
         // Dictionary
@@ -283,9 +401,11 @@ public:
         int done = 0, succeeded = 0;
         done++; cout << "testGetTypeString()" << endl; if(testGetTypeString()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testWSNgramFeatures()" << endl; if(testWSNgramFeatures()) succeeded++; else cout << "FAILED!!!" << endl;
+        done++; cout << "testTagNgramFeatures()" << endl; if(testTagNgramFeatures()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testModelToLookup()" << endl; if(testModelToLookup()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testFeatureLookup()" << endl; if(testFeatureLookup()) succeeded++; else cout << "FAILED!!!" << endl;
-        done++; cout << "testFeatureLookupMatchesModel()" << endl; if(testFeatureLookupMatchesModel()) succeeded++; else cout << "FAILED!!!" << endl;
+        done++; cout << "testWSLookupMatchesModel()" << endl; if(testWSLookupMatchesModel()) succeeded++; else cout << "FAILED!!!" << endl;
+        done++; cout << "testTagLookupMatchesModel()" << endl; if(testTagLookupMatchesModel()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testFeatureLookupDictionary()" << endl; if(testFeatureLookupDictionary()) succeeded++; else cout << "FAILED!!!" << endl;
         cout << "Finished with "<<succeeded<<"/"<<done<<" tests succeeding"<<endl;
         return (done == succeeded);

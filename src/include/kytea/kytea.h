@@ -46,7 +46,6 @@ private:
 
     // Values for the word segmentation models
     KyteaModel* wsModel_;
-    FeatureLookup * wsFeatLookup_;
 
     Dictionary<ProbTagEntry>* subwordDict_;
     std::vector<KyteaLM*> subwordModels_;
@@ -106,8 +105,7 @@ public:
     void init() { 
         util_ = config_->getStringUtil();
         // dict_ = new Dictionary(util_);
-        dict_ = 0; wsModel_ = 0;
-        wsFeatLookup_ = 0; subwordDict_ = 0;
+        dict_ = 0; wsModel_ = 0; subwordDict_ = 0;
     }
 
     Kytea() : config_(new KyteaConfig()) { init(); }
@@ -117,7 +115,6 @@ public:
         if(dict_) delete dict_;
         if(subwordDict_) delete subwordDict_;
         if(wsModel_) delete wsModel_;
-        if(wsFeatLookup_) delete wsFeatLookup_;
         if(config_) delete config_;
         for(int i = 0; i < (int)subwordModels_.size(); i++) {
             if(subwordModels_[i] != 0) delete subwordModels_[i];
@@ -128,8 +125,6 @@ public:
             delete *it;
         
     }
-
-protected:
 
     KyteaModel* getWSModel() { return wsModel_; }
     void setWSModel(KyteaModel* model) { wsModel_ = model; }
@@ -156,7 +151,7 @@ private:
     // functions for tagging
     void trainLocalTags(int lev);
     void trainGlobalTags(int lev);
-    unsigned tagCharFeatures(const KyteaString & chars, std::vector<unsigned> & feat, const std::vector<KyteaString> & prefixes, KyteaModel * model, int n, int sc, int ec);
+    unsigned tagNgramFeatures(const KyteaString & chars, std::vector<unsigned> & feat, const std::vector<KyteaString> & prefixes, KyteaModel * model, int n, int sc, int ec);
     unsigned tagSelfFeatures(const KyteaString & self, std::vector<unsigned> & feat, const KyteaString & pref, KyteaModel * model);
     unsigned tagDictFeatures(const KyteaString & surf, int lev, std::vector<unsigned> & myFeats, KyteaModel * model);
 

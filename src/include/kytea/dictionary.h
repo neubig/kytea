@@ -17,8 +17,8 @@
 #ifndef KYTEA_DICTIONARY_H_
 #define KYTEA_DICTIONARY_H_
 
-#include "kytea-string.h"
-#include "kytea-model.h"
+#include "kytea/kytea-string.h"
+#include "kytea/kytea-model.h"
 #include <map>
 #include <deque>
 
