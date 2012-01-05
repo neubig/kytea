@@ -96,7 +96,7 @@ public:
         // Ignore old names, they are not really important
         checkVecEqual(labels_, rhs.labels_);
         checkVecEqual(weights_, rhs.weights_);
-        if(abs((multiplier_ - rhs.multiplier_)/multiplier_) > 0.01) THROW_ERROR("multipliers don't match: "<<multiplier_ << " != " << rhs.multiplier_);
+        if(std::abs((multiplier_ - rhs.multiplier_)/multiplier_) > 0.01) THROW_ERROR("multipliers don't match: "<<multiplier_ << " != " << rhs.multiplier_);
         if(bias_ != rhs.bias_) THROW_ERROR("biass don't match: "<<bias_ << " != " << rhs.bias_);
         if(solver_ != rhs.solver_) THROW_ERROR("solvers don't match: "<<solver_ << " != " << rhs.solver_);
         if(numW_ != rhs.numW_) THROW_ERROR("numWs don't match: "<<numW_ << " != " << rhs.numW_);
