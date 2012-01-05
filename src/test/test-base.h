@@ -26,6 +26,33 @@ protected:
         }
         return ok;
     }
+    
+    int checkTags(const KyteaSentence & sent, const vector<KyteaString> & toks, int pos, StringUtil * util) {
+        const KyteaSentence::Words & words =  sent.words;
+        int ok = (words.size() == toks.size() ? 1 : 0);
+        KyteaString noneString = util->mapString("NONE");
+        for(int i = 0; i < (int)max(words.size(), toks.size()); i++) {
+            // Find the proper tag
+            KyteaString myTag;
+            if(i >= (int)words.size())
+                myTag = util->mapString("NULL");
+            else if(pos >= (int)words[i].tags.size() || 0 == (int)words[i].tags[pos].size())
+                myTag = util->mapString("NONE");
+            else
+                myTag = words[i].tags[pos][0].first;
+            // If they don't match return
+            if(i >= (int)toks.size() || myTag != toks[i]) {
+                ok = 0;
+                cout << "words["<<i<<"] != toks["<<i<<"] ("<<
+                    util->showString(myTag)
+                    <<" != "<<
+                    (i >= (int)toks.size() ? "NULL" : util->showString(toks[i]))
+                    <<")"<<endl;
+            }
+        }
+        return ok;
+    }
+
 
     template<class T>
     int checkVector(const vector<T> & exp, const vector<T> & act) {

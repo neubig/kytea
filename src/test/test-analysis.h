@@ -48,6 +48,28 @@ public:
         return checkWordSeg(sentence,toks,util);
     }
 
+    int testGlobalTagging() {
+        // Do the analysis (This is very close to the training data, so it
+        // should work perfectly)
+        KyteaSentence sentence(util->mapString("これは学習データです。"));
+        kytea->calculateWS(sentence);
+        kytea->calculateTags(sentence,0);
+        // Make the correct tags
+        KyteaString::Tokens toks = util->mapString("代名詞 助詞 名詞 名詞 助動詞 語尾 補助記号").tokenize(util->mapString(" "));
+        return checkTags(sentence,toks,0,util);
+    }
+
+    int testLocalTagging() {
+        // Do the analysis (This is very close to the training data, so it
+        // should work perfectly)
+        KyteaSentence sentence(util->mapString("これは学習データです。"));
+        kytea->calculateWS(sentence);
+        kytea->calculateTags(sentence,1);
+        // Make the correct tags
+        KyteaString::Tokens toks = util->mapString("これ は がくしゅう でーた で す 。").tokenize(util->mapString(" "));
+        return checkTags(sentence,toks,1,util);
+    }
+
     int testPartialSegmentation() {
         // Read in a partially annotated sentence
         stringstream instr;
@@ -64,7 +86,6 @@ public:
 
     int testConfidentInput() {
         // This is currently aborting, make sure it fails but continue
-        if(true) return 0;
         string confident_text = "これ/代名詞/これ は/助詞/は 信頼/名詞/しんらい 度/接尾辞/ど の/助詞/の 高/形容詞/たか い/語尾/い 入力/名詞/にゅうりょく で/助動詞/で す/語尾/す 。/補助記号/。\n";
         // Read in a partially annotated sentence
         stringstream instr;
@@ -80,6 +101,7 @@ public:
         FullCorpusIO outfcio(util, outstr, true);
         outfcio.writeSentence(sent);
         string actual_text = outstr.str();
+        delete sent;
         if(actual_text != confident_text) {
             cout << "actual_text != confident_text"<<endl<<" "<<actual_text<<endl<<" "<<confident_text<<endl;
             return 0;
@@ -97,6 +119,7 @@ public:
         TextModelIO inio(util, instr, false);
         KyteaModel * inmod = inio.readModel();
         inmod->checkEqual(*kytea->getWSModel());
+        delete inmod;
         return 1;
     }
 
@@ -109,17 +132,20 @@ public:
         BinaryModelIO inio(util, instr, false);
         KyteaModel * inmod = inio.readModel();
         inmod->checkEqual(*kytea->getWSModel());
+        delete inmod;
         return 1;
     }
 
     bool runTest() {
         int done = 0, succeeded = 0;
         done++; cout << "testWordSegmentation()" << endl; if(testWordSegmentation()) succeeded++; else cout << "FAILED!!!" << endl;
+        done++; cout << "testGlobalTagging()" << endl; if(testGlobalTagging()) succeeded++; else cout << "FAILED!!!" << endl;
+        done++; cout << "testLocalTagging()" << endl; if(testLocalTagging()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testPartialSegmentation()" << endl; if(testPartialSegmentation()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testTextIO()" << endl; if(testTextIO()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testBinaryIO()" << endl; if(testBinaryIO()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testConfidentInput()" << endl; if(testConfidentInput()) succeeded++; else cout << "FAILED!!!" << endl;
-        cout << "Finished with "<<succeeded<<"/"<<done<<" tests succeeding"<<endl;
+        cout << "#### TestAnalysis Finished with "<<succeeded<<"/"<<done<<" tests succeeding ####"<<endl;
         return done == succeeded;
     }
 

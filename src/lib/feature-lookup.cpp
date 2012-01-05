@@ -9,6 +9,7 @@ FeatureLookup::~FeatureLookup() {
     if(charDict_) delete charDict_;
     if(typeDict_) delete typeDict_;
     if(dictVector_) delete dictVector_;
+    if(biases_) delete biases_;
 }
 
 void FeatureLookup::addNgramScores(const Dictionary<FeatVec> * dict, 
