@@ -31,13 +31,15 @@ public:
         // Build the expectations
         vector<double> exp(8,0.0);
         exp[0] = 100; exp[1] = -100; exp[6] = -100;
-        return checkVector(exp, sent->wsConfs); 
+        bool ret = checkVector(exp, sent->wsConfs); 
+        delete sent;
+        return ret;
     }
 
     bool runTest() {
         int done = 0, succeeded = 0;
         done++; cout << "testWordSegConf()" << endl; if(testWordSegConf()) succeeded++; else cout << "FAILED!!!" << endl;
-        cout << "Finished with "<<succeeded<<"/"<<done<<" tests succeeding"<<endl;
+        cout << "#### TestCorpusIO Finished with "<<succeeded<<"/"<<done<<" tests succeeding ####"<<endl;
         return done == succeeded;
     }
 

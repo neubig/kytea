@@ -847,10 +847,6 @@ void Kytea::readModel(const char* fileName) {
 void Kytea::calculateWS(KyteaSentence & sent) {
     
     // // get the features for the sentence
-    // SentenceFeatures feats(sent.wsConfs.size());
-    // wsDictionaryFeatures(sent.chars, feats);
-    // wsNgramFeatures(sent.chars, feats, charPrefixes_, config_->getCharN());
-    // wsNgramFeatures(util_->mapString(util_->getTypeString(sent.chars)), feats, typePrefixes_, config_->getTypeN());
     vector<FeatSum> scores(sent.chars.length()-1, wsModel_->getBias());
     FeatureLookup * featLookup = wsModel_->getFeatureLookup();
     featLookup->addNgramScores(featLookup->getCharDict(), 
@@ -922,7 +918,7 @@ vector< KyteaTag > Kytea::generateTagCandidates(const KyteaString & str, int lev
 }
 void Kytea::calculateUnknownTag(KyteaWord & word, int lev) {
     // cerr << "calculateUnknownTag("<<util_->showString(word.surf)<<")"<<endl;
-    if(subwordModels_[lev] == 0) return;
+    if(lev >= (int)subwordModels_.size() || subwordModels_[lev] == 0) return;
     if(word.surf.length() > 256) {
         cerr << "WARNING: skipping pronunciation estimation for extremely long unknown word of length "
             <<word.surf.length()<<" starting with '"
@@ -960,6 +956,10 @@ void Kytea::calculateTags(KyteaSentence & sent, int lev) {
     string defTag = config_->getDefaultTag();
     for(unsigned i = 0; i < sent.words.size(); i++) {
         KyteaWord & word = sent.words[i];
+        if((int)word.tags.size() > lev
+            && (int)word.tags[lev].size() > 0
+            && abs(word.tags[lev][0].second) > config_->getConfidence())
+                continue;
         startPos = finPos;
         finPos = startPos+word.surf.length();
         ModelTagEntry* ent = dict_->findEntry(word.surf);
@@ -968,7 +968,7 @@ void Kytea::calculateTags(KyteaSentence & sent, int lev) {
         vector<KyteaString> * tags = 0;
         KyteaModel * tagMod = 0;
         bool useSelf = false;
-        if(globalMods_[lev] != 0) {
+        if(lev < (int)globalMods_.size() && globalMods_[lev] != 0) {
             tagMod = globalMods_[lev];
             tags = &globalTags_[lev];
             useSelf = true;

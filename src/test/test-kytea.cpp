@@ -20,6 +20,7 @@
 #include "test-kytea.h"
 #include "test-analysis.h"
 #include "test-corpusio.h"
+#include "test-sentence.h"
 
 using namespace std;
 
@@ -27,9 +28,11 @@ int main(int argv, char **argc) {
     kytea::KyteaTest test_kytea;
     kytea::TestAnalysis test_analysis;
     kytea::TestCorpusIO test_corpusio;
+    kytea::TestSentence test_sentence;
     if(!(
         test_kytea.runTest() &
         test_analysis.runTest() &
+        test_sentence.runTest() &
         test_corpusio.runTest())) {
         cout << "**** FAILED!!! ****" << endl;
     } else {

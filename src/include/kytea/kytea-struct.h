@@ -107,19 +107,34 @@ public:
     }
 
     void refreshWS(double confidence) {
-        words = Words();
+        Words newWords;
+        // In order to keep track of new words, use the start and end
+        int nextWord = 0, nextEnd = 0, nextStart = -1;
         if(chars.length() != 0) {
-            unsigned last = 0;
-            for(unsigned i = 0; i < wsConfs.size(); i++) {
+            int last = 0;
+            for(int i = 0; i < (int)wsConfs.size(); i++) {
                 if(wsConfs[i] > confidence) {
-                    KyteaWord w(chars.substr(last, i-last+1));
-                    words.push_back(w);
+                    // Catch up to the current word
+                    while(nextWord < (int)words.size() && nextEnd < i+1) {
+                        nextStart = nextEnd;
+                        nextEnd += words[nextWord].surf.length();
+                        nextWord++;
+                    }
+                    // If both the beginning and end match, use the current word
+                    if(last == nextStart && i+1 == nextEnd)
+                        newWords.push_back(words[nextWord-1]);
+                    else {
+                        KyteaWord w(chars.substr(last, i-last+1));
+                        newWords.push_back(w);
+                    }
+                    // Update the start of the next word
                     last = i+1;
                 }
             }
             KyteaWord w(chars.substr(last, wsConfs.size()-last+1));
-            words.push_back(w);
+            newWords.push_back(w);
         }
+        words = newWords;
     }
 
 };

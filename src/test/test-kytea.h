@@ -206,7 +206,7 @@ public:
                 }
             }
         }
-        delete look;
+        delete mod;
         return ret;
     }
 
@@ -228,6 +228,7 @@ public:
                 ret = 0;
             }
         }
+        delete mod;
         return ret;
     }
 
@@ -394,6 +395,7 @@ public:
                 ret = 0;
             }
         }
+        delete mod;
         return ret;
     }
 
@@ -407,7 +409,7 @@ public:
         done++; cout << "testWSLookupMatchesModel()" << endl; if(testWSLookupMatchesModel()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testTagLookupMatchesModel()" << endl; if(testTagLookupMatchesModel()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testFeatureLookupDictionary()" << endl; if(testFeatureLookupDictionary()) succeeded++; else cout << "FAILED!!!" << endl;
-        cout << "Finished with "<<succeeded<<"/"<<done<<" tests succeeding"<<endl;
+        cout << "#### TestKytea Finished with "<<succeeded<<"/"<<done<<" tests succeeding ####"<<endl;
         return (done == succeeded);
     }
 
