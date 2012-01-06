@@ -31,7 +31,56 @@
 #include "kytea-string.h"
 #include "config.h"
 
+// maps for use with various classes
+#ifdef HAVE_TR1_UNORDERED_MAP
+#   include <tr1/unordered_map>
+    template <class T>
+    class StringMap : public std::tr1::unordered_map<std::string,T> { };
+    template <class T>
+    class KyteaStringMap : public std::tr1::unordered_map<kytea::KyteaString,T,kytea::KyteaStringHash> { };
+#elif HAVE_EXT_HASH_MAP
+#   include <ext/hash_map>
+    namespace __gnu_cxx {
+    template <>
+    struct hash<std::string> {
+        size_t operator() (const std::string& x) const { return hash<const char*>()(x.c_str()); }
+    };
+    }
+    template <class T>
+    class StringMap : public __gnu_cxx::hash_map<std::string,T> { };
+    template <class T>
+    class KyteaStringMap : public __gnu_cxx::hash_map<kytea::KyteaString,T,kytea::KyteaStringHash> { };
+#else
+#   include <map>
+    template <class T>
+    class StringMap : public std::map<std::string,T> { };
+    template <class T>
+    class KyteaStringMap : public std::map<kytea::KyteaString,T> { };
+#endif
+
 namespace kytea  {
+
+// Vector equality checking function
+template <class T>
+void checkVecEqual(const std::vector<T> & a, const std::vector<T> & b) {
+    if(a.size() != b.size()) THROW_ERROR("Vector sizes don't match: "<<a.size()<<" != "<<b.size());
+    for(int i = 0; i < (int)a.size(); i++)
+        if(a[i] != b[i]) THROW_ERROR("Vectors don't match at "<<i);
+}
+
+// Map equality checking function
+template <class T>
+void checkMapEqual(const KyteaStringMap<T> & a, const KyteaStringMap<T> & b) {
+    if(a.size() != b.size())
+        THROW_ERROR("checkMapEqual a.size() != b.size() ("<<a.size()<<", "<<b.size());
+    for(typename KyteaStringMap<T>::const_iterator ait = a.begin();
+        ait != a.end();
+        ait++) {
+        typename KyteaStringMap<T>::const_iterator bit = b.find(ait->first);
+        if(bit == b.end() || ait->second != bit->second)
+            THROW_ERROR("Values don't match in map");
+    }
+}
 
 // KyteaTag
 //  a single scored tag candidate
@@ -140,33 +189,6 @@ public:
 };
 
 }
-
-// maps for use with various classes
-#ifdef HAVE_TR1_UNORDERED_MAP
-#   include <tr1/unordered_map>
-    template <class T>
-    class StringMap : public std::tr1::unordered_map<std::string,T> { };
-    template <class T>
-    class KyteaStringMap : public std::tr1::unordered_map<kytea::KyteaString,T,kytea::KyteaStringHash> { };
-#elif HAVE_EXT_HASH_MAP
-#   include <ext/hash_map>
-    namespace __gnu_cxx {
-    template <>
-    struct hash<std::string> {
-        size_t operator() (const std::string& x) const { return hash<const char*>()(x.c_str()); }
-    };
-    }
-    template <class T>
-    class StringMap : public __gnu_cxx::hash_map<std::string,T> { };
-    template <class T>
-    class KyteaStringMap : public __gnu_cxx::hash_map<kytea::KyteaString,T,kytea::KyteaStringHash> { };
-#else
-#   include <map>
-    template <class T>
-    class StringMap : public std::map<std::string,T> { };
-    template <class T>
-    class KyteaStringMap : public std::map<kytea::KyteaString,T> { };
-#endif
 
 typedef StringMap<kytea::KyteaChar> StringCharMap;
 typedef KyteaStringMap<unsigned> KyteaUnsignedMap;

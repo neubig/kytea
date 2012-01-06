@@ -619,7 +619,6 @@ void Kytea::trainUnk(int lev) {
         if((int)myDictEntry->tags.size() <= lev) continue;
         for(unsigned p = 0; p < myDictEntry->tags[lev].size(); p++) {
             const KyteaString & tag = myDictEntry->tags[lev][p];
-            // stacks[endposition][hypothesis][sequencepos].first = word, .second = tag
             vector< vector< AlignHyp > > stacks(wordLen+1, vector< AlignHyp >());
             stacks[0].push_back(AlignHyp(1,pair<unsigned,unsigned>(0,0)));
             // find matches in the word
@@ -637,7 +636,6 @@ void Kytea::trainUnk(int lev) {
                         const KyteaString & pstr = mySubEntry->tags[lev][k];
                         const unsigned pend = pstart+pstr.length();
                         if(pend <= tag.length() && tag.substr(pstart,pend-pstart) == pstr) {
-                            // cerr << "adding p="<<p<<", i="<<i<<", j="<<j<<", k="<<k<<", pstr="<<util_->showString(pstr)<<", cend="<<cend<<", pend="<<pend<<endl;
                             AlignHyp nextHyp = myHyp;
                             nextHyp.push_back( pair<unsigned,unsigned>(cend,pend) );
                             stacks[cend].push_back(nextHyp);
@@ -654,7 +652,6 @@ void Kytea::trainUnk(int lev) {
                         KyteaString subChar = word.substr(myHyp[j-1].first,myHyp[j].first-myHyp[j-1].first);
                         KyteaString subTag = tag.substr(myHyp[j-1].second,myHyp[j].second-myHyp[j-1].second);
                         ProbTagEntry* mySubEntry = subwordDict_->findEntry(subChar);
-                        // cerr << "incrementing i="<<i<<", j="<<j<<", subChar="<<util_->showString(subChar)<<", subTag="<<util_->showString(subTag)<<endl;
                         mySubEntry->incrementProb(subTag,lev);
                         addTag<ProbTagEntry>(tagMap,subTag,lev,&subTag,0);
                     }
@@ -700,7 +697,6 @@ void Kytea::trainUnk(int lev) {
         if(denomCounts.size() < it->second.first) 
             denomCounts.resize(it->second.first,vector<unsigned>());
         collectCounts(denomCounts[it->second.first-1],it->second.second);
-        // cerr << "uniqueTags["<<util_->showString(it->first)<<"]==" << it->second.first << ", totalTags==" << it->second.second << endl;
     }
     // maximize the alpha using Newton's method
     double alpha = 0.0001, maxAlpha = 100, changeCutoff = 0.0000001, change = 1;
@@ -721,7 +717,6 @@ void Kytea::trainUnk(int lev) {
             }
         }
         change = -1*der1/der2;
-        // cerr << "der1="<<der1<<", der2="<<der2<<", lik="<<lik<<", change="<<change<<", alpha="<<alpha<<endl;
         alpha += change;
     }
     if(alpha > maxAlpha) {
@@ -748,7 +743,6 @@ void Kytea::trainUnk(int lev) {
             double origCount = mySubEntry->probs[lev][p];
             pair<unsigned,unsigned> myTagCounts = tagCounts[tag];
             // get the smoothed TM probability
-            // cerr << "mySubEntry->[" << util_->showString(mySubEntry->word) << "/" << util_->showString(tag) << "] == (" << mySubEntry->probs[p] << "+" << alpha << ") / ("<<myTagCounts.second<<"+"<<alpha<<"*"<<myTagCounts.first<<")"<<endl;
             mySubEntry->probs[lev][p] = (mySubEntry->probs[lev][p]+alpha) / 
                                    (myTagCounts.second+alpha*myTagCounts.first);
             // adjust it with the segmentation probability (if existing)
@@ -757,8 +751,6 @@ void Kytea::trainUnk(int lev) {
             else if (origCount != 0.0) 
                 THROW_ERROR("FATAL: Numerator found but denominator not in TM calculation");
             mySubEntry->probs[lev][p] = log(mySubEntry->probs[lev][p]);
-            // cerr << "mySubEntry->[" << util_->showString(mySubEntry->word) << "/" << util_->showString(tag) << "] == " << mySubEntry->probs[p] << endl;
-            
         }
     }
     

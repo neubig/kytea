@@ -59,6 +59,23 @@ public:
         return checkTags(sentence,toks,0,util);
     }
 
+    int testGlobalSelf() {
+        KyteaString::Tokens words = util->mapString("これ は 学習 データ どうぞ 。").tokenize(util->mapString(" "));
+        KyteaString::Tokens tags = util->mapString("代名詞 助詞 名詞 名詞 副詞 補助記号").tokenize(util->mapString(" "));
+        KyteaString::Tokens singleTag(1);
+        if(words.size() != tags.size()) THROW_ERROR("words.size() != tags.size() in testGlobalSelf");
+        int ok = 1;
+        for(int i = 0; i < (int)words.size(); i++) {
+            KyteaSentence sent(words[i]);
+            sent.refreshWS(1);
+            if(sent.words.size() != 1) THROW_ERROR("Bad segmentation in testGlobalSelf");
+            kytea->calculateTags(sent,0);
+            singleTag[0] = tags[i];
+            ok = (checkTags(sent,singleTag,0,util) ? ok : 0);
+        }
+        return ok;
+    }
+
     int testLocalTagging() {
         // Do the analysis (This is very close to the training data, so it
         // should work perfectly)
@@ -140,6 +157,7 @@ public:
         int done = 0, succeeded = 0;
         done++; cout << "testWordSegmentation()" << endl; if(testWordSegmentation()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testGlobalTagging()" << endl; if(testGlobalTagging()) succeeded++; else cout << "FAILED!!!" << endl;
+        done++; cout << "testGlobalSelf()" << endl; if(testGlobalSelf()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testLocalTagging()" << endl; if(testLocalTagging()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testPartialSegmentation()" << endl; if(testPartialSegmentation()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testTextIO()" << endl; if(testTextIO()) succeeded++; else cout << "FAILED!!!" << endl;
