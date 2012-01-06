@@ -72,14 +72,6 @@ protected:
     bool addFeat_;
     FeatureLookup * featLookup_;
 
-    template <class T>
-    void checkVecEqual(const std::vector<T> & a, const std::vector<T> & b) {
-        if(a.size() != b.size()) THROW_ERROR("Vector sizes don't match: "<<a.size()<<" != "<<b.size());
-        for(int i = 0; i < (int)a.size(); i++)
-            if(a[i] != b[i]) THROW_ERROR("Vectors don't match at "<<i);
-    }
-
-
 public:
     KyteaModel() : multiplier_(1.0f), bias_(1.0f), solver_(1), addFeat_(true), featLookup_(NULL) {
         KyteaString str;
@@ -87,21 +79,9 @@ public:
     }
     ~KyteaModel();
 
-    void checkEqual(const KyteaModel & rhs) {
-        for(KyteaUnsignedMap::const_iterator it = ids_.begin(); it != ids_.end(); it++) {
-            KyteaUnsignedMap::const_iterator rit = rhs.ids_.find(it->first);
-            if(rit == rhs.ids_.end() || it->second != rit->second) THROW_ERROR("Ids don't match");
-        }
-        checkVecEqual(names_, rhs.names_);
-        // Ignore old names, they are not really important
-        checkVecEqual(labels_, rhs.labels_);
-        checkVecEqual(weights_, rhs.weights_);
-        if(std::abs((multiplier_ - rhs.multiplier_)/multiplier_) > 0.01) THROW_ERROR("multipliers don't match: "<<multiplier_ << " != " << rhs.multiplier_);
-        if(bias_ != rhs.bias_) THROW_ERROR("biass don't match: "<<bias_ << " != " << rhs.bias_);
-        if(solver_ != rhs.solver_) THROW_ERROR("solvers don't match: "<<solver_ << " != " << rhs.solver_);
-        if(numW_ != rhs.numW_) THROW_ERROR("numWs don't match: "<<numW_ << " != " << rhs.numW_);
-        if(addFeat_ != rhs.addFeat_) THROW_ERROR("addFeats don't match: "<<addFeat_ << " != " << rhs.addFeat_);
-    }
+    // Check that two models are equal, and throw an error if they aren't
+    // Mainly used for making sure that model IO is working properly
+    void checkEqual(const KyteaModel & rhs);
 
     // feature functions
     inline unsigned mapFeat(const KyteaString & str) {

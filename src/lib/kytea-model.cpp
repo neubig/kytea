@@ -343,6 +343,28 @@ void KyteaModel::buildFeatureLookup(StringUtil * util, int charw, int typew, int
 }
 
 
+void KyteaModel::checkEqual(const KyteaModel & rhs) {
+    checkMapEqual(ids_, rhs.ids_);
+    checkVecEqual(names_, rhs.names_);
+    // Ignore old names, they are not really important
+    checkVecEqual(labels_, rhs.labels_);
+    checkVecEqual(weights_, rhs.weights_);
+    if(abs((double)(multiplier_ - rhs.multiplier_)/multiplier_) > 0.01) THROW_ERROR("multipliers don't match: "<<multiplier_ << " != " << rhs.multiplier_);
+    if(bias_ != rhs.bias_) THROW_ERROR("biass don't match: "<<bias_ << " != " << rhs.bias_);
+    if(solver_ != rhs.solver_) THROW_ERROR("solvers don't match: "<<solver_ << " != " << rhs.solver_);
+    if(numW_ != rhs.numW_) THROW_ERROR("numWs don't match: "<<numW_ << " != " << rhs.numW_);
+    if(addFeat_ != rhs.addFeat_) THROW_ERROR("addFeats don't match: "<<addFeat_ << " != " << rhs.addFeat_);
+    if(featLookup_ == NULL) {
+        if(rhs.featLookup_ != NULL)
+            THROW_ERROR("featLookup_ == NULL, rhs.featLookup_ != NULL");
+    } else {
+        if(rhs.featLookup_ == NULL)
+            THROW_ERROR("featLookup_ != NULL, rhs.featLookup_ == NULL");
+        featLookup_->checkEqual(*rhs.featLookup_);
+    }
+}
+
+
 KyteaModel::~KyteaModel() {
     if(featLookup_) delete featLookup_;
 }

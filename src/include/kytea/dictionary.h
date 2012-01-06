@@ -199,6 +199,18 @@ public:
     unsigned char getNumDicts() const { return numDicts_; }
     void setNumDicts(unsigned char numDicts) { numDicts_ = numDicts; }
 
+    // This is only a light check to make sure the number of states
+    // and entries are identical for now, if necessary expand to check
+    // the values as well
+    void checkEqual(const Dictionary<Entry> & rhs) const {
+        if(states_.size() != rhs.states_.size())
+            THROW_ERROR("states_.size() != rhs.states_.size() ("<<states_.size()<<" != "<<rhs.states_.size());
+        if(entries_.size() != rhs.entries_.size())
+            THROW_ERROR("entries_.size() != rhs.entries_.size() ("<<entries_.size()<<" != "<<rhs.entries_.size());
+        if(numDicts_ != rhs.numDicts_)
+            THROW_ERROR("numDicts_ != rhs.numDicts_ ("<<numDicts_<<" != "<<rhs.numDicts_);
+    }
+
 };
 
 template <class Entry>

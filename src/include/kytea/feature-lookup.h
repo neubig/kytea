@@ -10,9 +10,43 @@ class FeatureLookup {
 protected:
     Dictionary<FeatVec> *charDict_, *typeDict_;
     FeatVec *dictVector_, *biases_;
+    KyteaStringMap<FeatVec> *charSelf_, *typeSelf_;
 public:
-    FeatureLookup() : charDict_(NULL), typeDict_(NULL), dictVector_(NULL), biases_(NULL) { }
+    FeatureLookup() : charDict_(NULL), typeDict_(NULL), dictVector_(NULL), biases_(NULL), charSelf_(NULL), typeSelf_(NULL) { }
     ~FeatureLookup();
+
+    void checkEqual(const FeatureLookup & rhs) const {
+        if((charDict_ == NULL) != (rhs.charDict_ == NULL)) {
+            THROW_ERROR("only one charDict_ is NULL");
+        } else if(charDict_ != NULL) {
+            charDict_->checkEqual(*rhs.charDict_);
+        }
+        if((typeDict_ == NULL) != (rhs.typeDict_ == NULL)) {
+            THROW_ERROR("only one typeDict_ is NULL");
+        } else if(typeDict_ != NULL) {
+            typeDict_->checkEqual(*rhs.typeDict_);
+        }
+        if((dictVector_ == NULL || dictVector_->size() == 0) != (rhs.dictVector_ == NULL || rhs.dictVector_->size() == 0)) {
+            THROW_ERROR("only one dictVector_ is NULL");
+        } else if(dictVector_ != NULL && dictVector_->size() > 0) {
+            checkVecEqual(*dictVector_, *rhs.dictVector_);
+        }
+        if((biases_ == NULL || biases_->size() == 0) != (rhs.biases_ == NULL || biases_->size() == 0)) {
+            THROW_ERROR("only one biases_ is NULL");
+        } else if(biases_ != NULL && biases_->size() > 0) {
+            checkVecEqual(*biases_, *rhs.biases_);
+        }
+        if((charSelf_ == NULL) != (rhs.charSelf_ == NULL)) {
+            THROW_ERROR("only one charSelf_ is NULL");
+        } else if(charSelf_ != NULL) {
+            checkMapEqual(*charSelf_, *rhs.charSelf_);
+        }
+        if((typeSelf_ == NULL) != (rhs.typeSelf_ == NULL)) {
+            THROW_ERROR("only one typeSelf_ is NULL");
+        } else if(typeSelf_ != NULL) {
+            checkMapEqual(*typeSelf_, *rhs.typeSelf_);
+        }
+    }
 
     // Getters
     const Dictionary<FeatVec> * getCharDict() const {
