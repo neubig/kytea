@@ -14,6 +14,9 @@
 * limitations under the License.
 */
 
+// Turn this on to make KyTea do boundary checking (useful for development)
+#define KYTEA_SAFE
+
 #ifndef KYTEA_STRING_H__
 #define KYTEA_STRING_H__
 
@@ -22,9 +25,6 @@
 #include <cstring>
 #include <sstream>
 #include <iostream>
-
-// will boundary check when defined
-// #define KYTEA_STRING_SAFE
 
 namespace kytea {
 
@@ -109,7 +109,7 @@ public:
         const unsigned l = str.length();
         if(!l) 
             return;
-#ifdef KYTEA_STRING_SAFE
+#ifdef KYTEA_SAFE
         if(pos+l > length())
             throw std::runtime_error("KyteaString splice index out of bounds");
 #endif
@@ -118,7 +118,7 @@ public:
 
     KyteaString substr(unsigned s) const {
         const unsigned l = length()-s;
-#ifdef KYTEA_STRING_SAFE
+#ifdef KYTEA_SAFE
         if(s+l > length())
             throw std::runtime_error("KyteaString substr index out of bounds");
 #endif
@@ -128,7 +128,7 @@ public:
     }
 
     KyteaString substr(unsigned s, unsigned l) const {
-#ifdef KYTEA_STRING_SAFE
+#ifdef KYTEA_SAFE
         if(s+l > length())
             throw std::runtime_error("substr out of bounds");
 #endif
@@ -138,7 +138,7 @@ public:
     }
     
     inline KyteaChar & operator[](int i) {
-#ifdef KYTEA_STRING_SAFE
+#ifdef KYTEA_SAFE
         if(impl_ == 0 || i < 0 || (unsigned)i >= impl_->length_)
             throw std::runtime_error("string index out of bounds");
 #endif
@@ -146,7 +146,7 @@ public:
     }
     
     inline const KyteaChar & operator[](int i) const {
-#ifdef KYTEA_STRING_SAFE
+#ifdef KYTEA_SAFE
         if(impl_ == 0 || i < 0 || (unsigned)i >= impl_->length_)
             throw std::runtime_error("string index out of bounds");
 #endif

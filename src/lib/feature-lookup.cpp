@@ -62,7 +62,7 @@ void FeatureLookup::addTagNgrams(const KyteaString & chars,
         FeatVal* vec = &((*res[i].second)[pos]);
         // Now add up all the values in the feature vector
         for(int j = 0; j < (int)scores.size(); j++) {
-#ifdef SAFE_MODEL
+#ifdef KYTEA_SAFE
             if(j+pos >= (int)res[i].second->size() || j+pos < 0)
                 THROW_ERROR("j+pos "<<j<<"+"<<pos<<" too big for res[i].second->size() "<<res[i].second->size()<<", window="<<window);
 #endif
@@ -131,9 +131,13 @@ void FeatureLookup::addTagDictWeights(const std::vector<pair<int,int> > & exists
             for(int i = 0; i < (int)scores.size(); i++)
                 scores[i] += (*tagUnkVector_)[i];
     } else {
-        if(tagDictVector_)
-            for(int j = 0; j < (int)exists.size(); j++)
+        if(tagDictVector_) {
+            int tags = scores.size();
+            for(int j = 0; j < (int)exists.size(); j++) {
+                int base = exists[j].first*tags*tags+exists[j].second*tags;
                 for(int i = 0; i < (int)scores.size(); i++)
-                    scores[i] += getTagDictFeat(exists[j].first, exists[j].second, i);
+                    scores[i] += (*tagDictVector_)[base+i];
+            }
+        }
     }
 }

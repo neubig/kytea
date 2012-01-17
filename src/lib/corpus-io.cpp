@@ -45,7 +45,7 @@ CorpusIO * CorpusIO::createIO(iostream & file, Format form, const KyteaConfig & 
 
 
 KyteaSentence * FullCorpusIO::readSentence() {
-#ifdef KYTEA_IO_SAFE
+#ifdef KYTEA_SAFE
     if(out_ || !str_) 
         THROW_ERROR("Attempted to read a sentence from an closed or output object");
 #endif
@@ -149,7 +149,7 @@ KyteaString mapList(const vector<KyteaChar> & lst) {
     return ret;
 }
 KyteaSentence * PartCorpusIO::readSentence() {
-#ifdef KYTEA_IO_SAFE
+#ifdef KYTEA_SAFE
     if(out_ || !str_) 
         THROW_ERROR("Attempted to read a sentence from an closed or output object");
 #endif
@@ -251,7 +251,7 @@ void PartCorpusIO::writeSentence(const KyteaSentence * sent, double conf)  {
 }
 
 KyteaSentence * ProbCorpusIO::readSentence() {
-#ifdef KYTEA_IO_SAFE
+#ifdef KYTEA_SAFE
     if(out_ || !str_) 
         THROW_ERROR("Attempted to read a sentence from an closed or output object");
 #endif
@@ -320,7 +320,7 @@ void ProbCorpusIO::writeSentence(const KyteaSentence * sent, double conf)  {
 }
 
 KyteaSentence * RawCorpusIO::readSentence() {
-#ifdef KYTEA_IO_SAFE
+#ifdef KYTEA_SAFE
     if(out_ || !str_) 
         THROW_ERROR("Attempted to read a sentence from an closed or output object");
 #endif

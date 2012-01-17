@@ -128,28 +128,26 @@ public:
     }
 
     int testTextIO() {
-        stringstream outstr;
-        TextModelIO outio(util, outstr, true);
-        outio.writeModel(kytea->getWSModel());
-        stringstream instr;
-        instr << outstr.str();
-        TextModelIO inio(util, instr, false);
-        KyteaModel * inmod = inio.readModel();
-        inmod->checkEqual(*kytea->getWSModel());
-        delete inmod;
+        // Write the model
+        kytea->getConfig()->setModelFormat(ModelIO::FORMAT_TEXT);
+        kytea->writeModel("/tmp/kytea-model.txt");
+        // Read the model
+        Kytea actKytea;
+        actKytea.readModel("/tmp/kytea-model.txt");
+        // Check that they are equal
+        kytea->checkEqual(actKytea);
         return 1;
     }
 
     int testBinaryIO() {
-        stringstream outstr;
-        BinaryModelIO outio(util, outstr, true);
-        outio.writeModel(kytea->getWSModel());
-        stringstream instr;
-        instr << outstr.str();
-        BinaryModelIO inio(util, instr, false);
-        KyteaModel * inmod = inio.readModel();
-        inmod->checkEqual(*kytea->getWSModel());
-        delete inmod;
+        // Write the model
+        kytea->getConfig()->setModelFormat(ModelIO::FORMAT_BINARY);
+        kytea->writeModel("/tmp/kytea-model.bin");
+        // Read the model
+        Kytea actKytea;
+        actKytea.readModel("/tmp/kytea-model.bin");
+        // Check that they are equal
+        kytea->checkEqual(actKytea);
         return 1;
     }
 

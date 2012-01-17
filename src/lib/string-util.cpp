@@ -36,7 +36,7 @@ KyteaChar StringUtilUtf8::mapChar(const string & str, bool add) {
 }
 
 string StringUtilUtf8::showChar(KyteaChar c) {
-#ifdef STRING_UTIL_SAFE
+#ifdef KYTEA_SAFE
     if(c >= charNames_.size())
         THROW_ERROR("FATAL: Index out of bounds in showChar");
 #endif 
@@ -152,14 +152,14 @@ KyteaChar StringUtilEuc::mapChar(const string & str, bool add) {
     unsigned len = str.length();
     KyteaChar ret;
     if(len == 1) {
-#ifdef STRING_UTIL_SAFE
+#ifdef KYTEA_SAFE
         if(str[0] & maskl1)
             THROW_ERROR("Expected EUC file but found non-EUC string (specify the proper encoding with -encode utf8/euc/sjis): "<<str);
 #endif
         ret = eucm(0,str[0]);
     }
     else if(len == 2) {
-#ifdef STRING_UTIL_SAFE
+#ifdef KYTEA_SAFE
         if(!(maskl1 & str[0] & str[1]))
             THROW_ERROR("Expected EUC file but found non-EUC string (specify the proper encoding with -encode utf8/euc/sjis): "<<str);
 #endif
@@ -260,7 +260,7 @@ KyteaChar StringUtilSjis::mapChar(const string & str, bool add) {
     unsigned len = str.length();
     KyteaChar ret;
     if(len == 1) {
-#ifdef STRING_UTIL_SAFE
+#ifdef KYTEA_SAFE
         const unsigned char first = (unsigned char)str[0];
         if((first & maskl1) && !(first >= 0xA0 && first <= 0xDF))
             THROW_ERROR("Expected SJIS file but found non-SJIS string (specify the proper encoding with -encode utf8/euc/sjis): "<<str);
@@ -268,7 +268,7 @@ KyteaChar StringUtilSjis::mapChar(const string & str, bool add) {
         ret = sjism(0,str[0]);
     }
     else if(len == 2) {
-#ifdef STRING_UTIL_SAFE
+#ifdef KYTEA_SAFE
         const unsigned char first = (unsigned char)str[0];
         if(!(first & maskl1) || (first >= 0xA0 && first <= 0xDF))
             THROW_ERROR("Expected SJIS file but found non-SJIS string (specify the proper encoding with -encode utf8/euc/sjis): "<<str);
