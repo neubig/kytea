@@ -574,49 +574,19 @@ void BinaryModelIO::readConfig(KyteaConfig & config) {
 }
 
 void BinaryModelIO::writeModel(const KyteaModel * mod) {
-    
-    // print the number of features+1, zero for empty models
+
+    // Write the number of classes, or 0 if there is no model
     if(mod == 0 || mod->getNumClasses() < 2) { 
-        writeBinary((uint32_t)0);
+        writeBinary((int32_t)0);
         return;
     }
 
-    // print the feature names
-    const FeatNameVec & names = mod->getNames();
-    writeBinary((uint32_t)names.size());
-    for(unsigned i = 1; i < names.size(); i++)
-        writeString(names[i]);
-
-    int i;
-    int nr_feature=mod->getNumFeatures();
-    int n;
-
-    if(mod->getBias()>0)
-    	n=nr_feature+1;
-    else
-    	n=nr_feature;
-    int w_size = n;
-
-    int nr_w = mod->getNumWeights();
-
-    writeBinary((char)mod->getSolver());
     writeBinary((int32_t)mod->getNumClasses());
-    for(i=0; i<(int)mod->getNumClasses(); i++)
+    writeBinary((char)mod->getSolver());
+    for(int i=0; i<(int)mod->getNumClasses(); i++)
         writeBinary((int32_t)mod->getLabel(i));
-
-    writeBinary((int32_t)nr_feature);
-
     writeBinary(mod->getBias()>=0);
     writeBinary(mod->getMultiplier());
-
-    for(i=0; i<w_size; i++)
-    {
-    	int j;
-    	for(j=0; j<nr_w; j++) {
-            writeBinary(mod->getWeight(i,j));
-        }
-    }
-
     writeFeatureLookup(mod->getFeatureLookup());
 
 }
@@ -654,46 +624,21 @@ void BinaryModelIO::writeLM(const KyteaLM * lm) {
 
 KyteaModel * BinaryModelIO::readModel() {
 
-	unsigned i = readBinary<uint32_t>();
-    if(i == 0)
-        return 0;
-
-	int nr_feature;
-	int n;
-	int nr_class;
+    // Read the number of classes
+	int numC = readBinary<int32_t>();
+    if(numC == 0) return NULL;
     KyteaModel * mod = new KyteaModel();
-
-    for( ; i > 1; i--) {
-        KyteaString myStr = readKyteaString();
-        mod->mapFeat(myStr);
-    }
-    
+    mod->setAddFeatures(false);
+    mod->setNumClasses(numC);
+    // Read the solver
     mod->setSolver(readBinary<char>());
-    nr_class = readBinary<int32_t>();
-    mod->setNumClasses(nr_class);
-	for(i=0;(int)i<nr_class;i++)
+    // Read the class labels
+	for(int i=0;(int)i<numC;i++)
         mod->setLabel(i, readBinary<int32_t>());
-
-    nr_feature = readBinary<int32_t>();
-
+    // Read the bias and multiplier
     mod->setBias(readBinary<bool>()?1.0:-1.0);
     mod->setMultiplier(readBinary<double>());
-
-	mod->setNumFeatures(nr_feature);
-	if(mod->getBias()>=0)
-		n=nr_feature+1;
-	else
-		n=nr_feature;
-	int w_size = n;
-	int nr_w = mod->getNumWeights();
-
-	mod->initializeWeights(w_size,nr_w);
-	for(i=0; (int)i<w_size; i++) 
-		for(int j=0; j<nr_w; j++) 
-            mod->setWeight(i,j,readBinary<FeatVal>()); 
-    
-    // read models shouldn't add any additional features
-    mod->setAddFeatures(false);
+    // Read the feature lookup
     mod->setFeatureLookup(readFeatureLookup());
 
     return mod;
