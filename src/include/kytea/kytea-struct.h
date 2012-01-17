@@ -147,9 +147,10 @@ public:
         // In order to keep track of new words, use the start and end
         int nextWord = 0, nextEnd = 0, nextStart = -1;
         if(chars.length() != 0) {
-            int last = 0;
-            for(int i = 0; i < (int)wsConfs.size(); i++) {
-                if(wsConfs[i] > confidence) {
+            int last = 0, i;
+            for(i = 0; i <= (int)wsConfs.size(); i++) {
+                double myConf = (i == (int)wsConfs.size()) ? 100.0 : wsConfs[i];
+                if(myConf > confidence) {
                     // Catch up to the current word
                     while(nextWord < (int)words.size() && nextEnd < i+1) {
                         nextStart = nextEnd;
@@ -167,8 +168,6 @@ public:
                     last = i+1;
                 }
             }
-            KyteaWord w(chars.substr(last, wsConfs.size()-last+1));
-            newWords.push_back(w);
         }
         words = newWords;
     }

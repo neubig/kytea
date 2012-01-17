@@ -102,25 +102,34 @@ public:
     }
 
     int testConfidentInput() {
-        // This is currently aborting, make sure it fails but continue
         string confident_text = "これ/代名詞/これ は/助詞/は 信頼/名詞/しんらい 度/接尾辞/ど の/助詞/の 高/形容詞/たか い/語尾/い 入力/名詞/にゅうりょく で/助動詞/で す/語尾/す 。/補助記号/。\n";
         // Read in a partially annotated sentence
         stringstream instr;
         instr << confident_text;
         FullCorpusIO infcio(util, instr, false);
         KyteaSentence * sent = infcio.readSentence();
-        // Calculate the tags
+        // Calculate the WS
         kytea->calculateWS(*sent);
+        // Write out the sentence
+        stringstream outstr1;
+        FullCorpusIO outfcio1(util, outstr1, true);
+        outfcio1.writeSentence(sent);
+        string actual_text = outstr1.str();
+        if(actual_text != confident_text) {
+            cout << "WS: actual_text != confident_text"<<endl<<" "<<actual_text<<endl<<" "<<confident_text<<endl;
+            return 0;
+        }
+        // Calculate the tags
         kytea->calculateTags(*sent,0);
         kytea->calculateTags(*sent,1);
         // Write out the sentence
-        stringstream outstr;
-        FullCorpusIO outfcio(util, outstr, true);
-        outfcio.writeSentence(sent);
-        string actual_text = outstr.str();
+        stringstream outstr2;
+        FullCorpusIO outfcio2(util, outstr2, true);
+        outfcio2.writeSentence(sent);
+        actual_text = outstr2.str();
         delete sent;
         if(actual_text != confident_text) {
-            cout << "actual_text != confident_text"<<endl<<" "<<actual_text<<endl<<" "<<confident_text<<endl;
+            cout << "Tag: actual_text != confident_text"<<endl<<" "<<actual_text<<endl<<" "<<confident_text<<endl;
             return 0;
         } else {
             return 1;
