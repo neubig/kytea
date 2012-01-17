@@ -41,7 +41,6 @@ private:
     StringUtil* util_;
     KyteaConfig* config_;
     Dictionary<ModelTagEntry> * dict_;
-    unsigned char numDicts_;
     Sentences sentences_;
 
     // Values for the word segmentation models
@@ -127,7 +126,16 @@ public:
     }
 
     KyteaModel* getWSModel() { return wsModel_; }
+
+    // Set the word segmentation model and take control of it
     void setWSModel(KyteaModel* model) { wsModel_ = model; }
+
+    // Set the dictionary and take control of it
+    template <class Entry>
+    void setDictionary(Dictionary<Entry> * dict) {
+        if(dict_ != 0) delete dict_;
+        dict_ = dict;
+    }
 
 private:
 
@@ -154,6 +162,11 @@ private:
     unsigned tagNgramFeatures(const KyteaString & chars, std::vector<unsigned> & feat, const std::vector<KyteaString> & prefixes, KyteaModel * model, int n, int sc, int ec);
     unsigned tagSelfFeatures(const KyteaString & self, std::vector<unsigned> & feat, const KyteaString & pref, KyteaModel * model);
     unsigned tagDictFeatures(const KyteaString & surf, int lev, std::vector<unsigned> & myFeats, KyteaModel * model);
+
+    // Get matches of the dictionary for a single word in the form of
+    // { <x_1, y_1>, <x_2, y_2> }
+    // where x is the dictionary and y is the tag that exists in the dicitonary
+    std::vector<std::pair<int,int> > getDictionaryMatches(const KyteaString & str, int lev);
 
 
     template <class Entry>

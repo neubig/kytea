@@ -8,8 +8,10 @@ using namespace std;
 FeatureLookup::~FeatureLookup() {
     if(charDict_) delete charDict_;
     if(typeDict_) delete typeDict_;
+    if(selfDict_) delete selfDict_;
     if(dictVector_) delete dictVector_;
     if(biases_) delete biases_;
+    if(tagDictVector_) delete tagDictVector_;
 }
 
 void FeatureLookup::addNgramScores(const Dictionary<FeatVec> * dict, 
@@ -69,6 +71,18 @@ void FeatureLookup::addTagNgrams(const KyteaString & chars,
     }
 }
 
+// Add weights corresponding to the "self" features
+// word is the word we are interested in looking up, scores is the output,
+// and featIdx is the index of the features
+void FeatureLookup::addSelfWeights(const KyteaString & word, 
+                                   vector<FeatSum> & scores,
+                                   int featIdx) {
+    FeatVec * entry = selfDict_->findEntry(word);
+    int base = featIdx * scores.size();
+    for(int i = 0; i < (int)scores.size(); i++)
+        scores[i] += (*entry)[base+i];
+}
+
 void FeatureLookup::addDictionaryScores(const Dictionary<ModelTagEntry>::MatchResult & matches, int numDicts, int max, vector<FeatSum> & score) {
     if(dictVector_ == NULL || dictVector_->size() == 0 || matches.size() == 0) return;
     const int len = score.size(), dictLen = len*3*max;
@@ -107,5 +121,19 @@ void FeatureLookup::addDictionaryScores(const Dictionary<ModelTagEntry>::MatchRe
                 val += myOn[j]*myScore[j];
             }
         }
+    }
+}
+
+void FeatureLookup::addTagDictWeights(const std::vector<pair<int,int> > & exists, 
+                                      std::vector<FeatSum> & scores) {
+    if(!exists.size()) {
+        if(tagUnkVector_)
+            for(int i = 0; i < (int)scores.size(); i++)
+                scores[i] += (*tagUnkVector_)[i];
+    } else {
+        if(tagDictVector_)
+            for(int j = 0; j < (int)exists.size(); j++)
+                for(int i = 0; i < (int)scores.size(); i++)
+                    scores[i] += getTagDictFeat(exists[j].first, exists[j].second, i);
     }
 }

@@ -59,6 +59,8 @@ public:
         return solver == 0 || solver == 6 || solver == 7;
     }
 
+    static int featuresAdded_;
+
 protected:
 
     KyteaUnsignedMap ids_;
@@ -162,7 +164,7 @@ public:
 
     void buildFeatureLookup(StringUtil * util, int charw, int typew, int numDicts, int maxLen);
     Dictionary<std::vector<FeatVal> > * 
-        makeDictionaryFromPrefixes(const std::vector<KyteaString> & prefs, StringUtil* util);
+        makeDictionaryFromPrefixes(const std::vector<KyteaString> & prefs, StringUtil* util, bool adjustPos);
     
 
 };

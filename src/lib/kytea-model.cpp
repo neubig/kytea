@@ -14,6 +14,8 @@ using namespace std;
 
 #define SAFE_MODEL
 
+int KyteaModel::featuresAdded_ = 0;
+
 template <class A, class B>
 class secondmore {
 public:
@@ -267,7 +269,7 @@ void KyteaModel::setNumClasses(unsigned v) {
     numW_ = (v==2 && solver_ != MCSVM_CS?1:v);
 }
 
-Dictionary<vector<FeatVal> > * KyteaModel::makeDictionaryFromPrefixes(const vector<KyteaString> & prefs, StringUtil* util) {
+Dictionary<vector<FeatVal> > * KyteaModel::makeDictionaryFromPrefixes(const vector<KyteaString> & prefs, StringUtil* util, bool adjustPos) {
     typedef Dictionary<vector<FeatVal> >::WordMap WordMap;
     WordMap wm;
     int pos;
@@ -275,15 +277,21 @@ Dictionary<vector<FeatVal> > * KyteaModel::makeDictionaryFromPrefixes(const vect
         const KyteaString & str = names_[i];
         for(pos = 0; pos < (int)prefs.size() && !str.beginsWith(prefs[pos]); pos++);
         if(pos != (int)prefs.size()) {
+            featuresAdded_++;
             KyteaString name = str.substr(prefs[pos].length());
             WordMap::iterator it = wm.find(name);
             if(it == wm.end()) {
                 pair<WordMap::iterator, bool> p = wm.insert(WordMap::value_type(name,new vector<FeatVal>(prefs.size()*numW_)));
                 it = p.first;
             }
-            int id = (prefs.size()-pos-name.length())*numW_;
+            // If this is an n-gram dictionary, adjust the position according to
+            // n-gram length, otherwise just use the location of th eprefix
+            int id = (adjustPos ?
+                (prefs.size()-pos-name.length())*numW_ :
+                pos*numW_
+            );
             for(int j = 0; j < numW_; j++) {
-                // cerr << "adding for "<<util->showString(str)<<" @ "<<util->showString(name) << " ["<<id<<"]"<<"/"<<(*it->second).size()<<" == "<<getWeight(i,j)<<"/"<<weights_.size()<<endl;
+                // cerr << "adding for "<<util->showString(str)<<" @ "<<util->showString(name) << " ["<<id<<"]"<<"/"<<(*it->second).size()<<" == "<<getWeight(i,j)<<"/"<<weights_.size()<< " == " <<getWeight(i-1,j) * labels_[0]<<endl;
                 (*it->second)[id+j] = getWeight(i-1,j) * labels_[0];
             }
         }
@@ -299,47 +307,94 @@ Dictionary<vector<FeatVal> > * KyteaModel::makeDictionaryFromPrefixes(const vect
 void KyteaModel::buildFeatureLookup(StringUtil * util, int charw, int typew, int numDicts, int maxLen) {
     if(featLookup_) delete featLookup_;
     featLookup_ = new FeatureLookup;
+    featuresAdded_ = 0;
     // Make the character values
-    vector<KyteaString> charPref, typePref, dictPref;
+    vector<KyteaString> charPref, typePref, selfPref, dictPref;
     for(int i = 1-charw; i <= charw; i++) {
         ostringstream oss; oss << "X" << i;
         charPref.push_back(util->mapString(oss.str()));
     }
-    featLookup_->setCharDict(makeDictionaryFromPrefixes(charPref, util));
+    featLookup_->setCharDict(makeDictionaryFromPrefixes(charPref, util, true));
     // Make the type values
     for(int i = 1-typew; i <= typew; i++) {
         ostringstream oss; oss << "T" << i;
         typePref.push_back(util->mapString(oss.str()));
     }
-    featLookup_->setTypeDict(makeDictionaryFromPrefixes(typePref, util));
+    featLookup_->setTypeDict(makeDictionaryFromPrefixes(typePref, util, true));
+    // Make the self prefixes
+    selfPref.push_back(util->mapString("SX"));
+    selfPref.push_back(util->mapString("ST"));
+    featLookup_->setSelfDict(makeDictionaryFromPrefixes(selfPref, util, false));
     // Get the bias feature
     int bias = getBiasId();
-    if(bias != -1)
+    if(bias != -1) {
+        featuresAdded_++;
         for(int j = 0; j < numW_; j++)
             featLookup_->setBias(getWeight(bias-1, j) * labels_[0], j);
-    // Make the dictionary values, note that this will only work on
-    // the word segmentation dictionary (for now)
+    }    
+    bool prevAddFeat = addFeat_;
+    addFeat_ = false;
+    // Make the dictionary values
     if(numDicts*maxLen > 0) {
-        bool prevAddFeat = addFeat_;
-        addFeat_ = false;
         vector<FeatVal> * dictFeats = new vector<FeatVal>(numDicts*maxLen*3,0);
         int id = 0;
         for(int i = 0; i < numDicts; i++) {
             for(int j = 1; j <= maxLen; j++) {
                 ostringstream oss1; oss1 << "D" << i << "R" << j;
                 unsigned id1 = mapFeat(util->mapString(oss1.str()));
-                if(id1 != 0) (*dictFeats)[id] = getWeight(id1-1, 0) * labels_[0]; id++;
+                if(id1 != 0) {
+                    (*dictFeats)[id] = getWeight(id1-1, 0) * labels_[0];
+                    featuresAdded_++;
+                }
+                id++;
                 ostringstream oss2; oss2 << "D" << i << "I" << j;
                 unsigned id2 = mapFeat(util->mapString(oss2.str()));
-                if(id2 != 0) (*dictFeats)[id] = getWeight(id2-1, 0) * labels_[0]; id++;
+                if(id2 != 0) {
+                    featuresAdded_++;
+                    (*dictFeats)[id] = getWeight(id2-1, 0) * labels_[0];
+                }
+                id++;
                 ostringstream oss3; oss3 << "D" << i << "L" << j;
                 unsigned id3 = mapFeat(util->mapString(oss3.str()));
-                if(id3 != 0) (*dictFeats)[id] = getWeight(id3-1, 0) * labels_[0]; id++;
+                if(id3 != 0) {
+                    featuresAdded_++;
+                    (*dictFeats)[id] = getWeight(id3-1, 0) * labels_[0];
+                }
+                id++;
             }
         }
-        addFeat_ = prevAddFeat;
         featLookup_->setDictVector(dictFeats);
     }
+    // Make the dictionary values
+    if(numDicts > 0) {
+        vector<FeatVal> * tagDictFeats = new vector<FeatVal>(numDicts*labels_.size()*labels_.size(),0);
+        int id = 0;
+        for(int i = 0; i <= numDicts; i++) {
+            for(int j = 0; j < (int)labels_.size(); j++) {
+                ostringstream oss1; oss1 << "D" << i << "T" << j;
+                unsigned id1 = mapFeat(util->mapString(oss1.str()));
+                if(id1 != 0) {
+                    for(int k = 0; k < (int)labels_.size(); k++)
+                        (*tagDictFeats)[id+k] = getWeight(id1-1, k) * labels_[0];
+                    featuresAdded_++;
+                }
+                id += labels_.size();
+            }
+        }
+        featLookup_->setTagDictVector(tagDictFeats, labels_.size());
+        // Make the unknown vector
+        unsigned id1 = mapFeat(util->mapString("UNK"));
+        if(id1 != 0) {
+            vector<FeatVal> * tagUnkFeats = new vector<FeatVal>(labels_.size(),0);
+            featuresAdded_++;
+            for(int k = 0; k < (int)labels_.size(); k++)
+                (*tagUnkFeats)[k] = getWeight(id1-1, k) * labels_[0];
+            featLookup_->setTagUnkVector(tagUnkFeats);
+        }
+    }
+    addFeat_ = prevAddFeat;
+    if(featuresAdded_ != (int)names_.size())
+        THROW_ERROR("Did not add all the features to the feature lookup ("<<featuresAdded_<<" != "<<names_.size()<<")");
 }
 
 
