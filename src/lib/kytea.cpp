@@ -237,7 +237,6 @@ unsigned Kytea::wsNgramFeatures(const KyteaString & chars, SentenceFeatures & fe
     const int featSize = (int)features.size(), 
             charLength = (int)chars.length(),
             w = (int)prefixes.size()/2;
-    // cerr << "featSize=="<<featSize<<", charLength="<<chars.length()<<", w="<<w<<endl;
     // int rightBound, nextRight;
     unsigned ret = 0, thisFeat;
     for(int i = 0; i < featSize; i++) {
@@ -324,10 +323,6 @@ void Kytea::trainWS() {
         fts += wsNgramFeatures(util_->mapString(str), feats, typePrefixes_, config_->getTypeN());
         for(unsigned i = 0; i < feats.size(); i++) {
             if(abs(sent->wsConfs[i]) > config_->getConfidence()) {
-                // cerr << "feats["<<i<<"] =";
-                // for(int j = 0; j < (int)feats[i].size(); j++)
-                //     cerr << " "<<util_->showString(wsModel_->showFeat(feats[i][j]));
-                // cerr << endl;
                 xs.push_back(feats[i]);
                 ys.push_back(sent->wsConfs[i]>1?1:-1);
             }
@@ -473,12 +468,6 @@ void Kytea::trainLocalTags(int lev) {
         myEntry = entries[i];
         if((int)myEntry->tags.size() > lev && (myEntry->tags[lev].size() > 1 || config_->getWriteFeatures())) {
             TagTriplet * trip = fio_.getFeatures(featId+myEntry->word,true);
-            // trip->first = vector< vector<unsigned> >();
-            // trip->second = vector<int>();
-            // if((int)myEntry->tagMods.size() <= lev)
-            //     myEntry->tagMods.resize(lev+1,0);
-            // if(myEntry->tagMods[lev])
-            //     delete myEntry->tagMods[lev];
             if((int)myEntry->tagMods.size() <= lev)
                 myEntry->tagMods.resize(lev+1,0);
             myEntry->tagMods[lev] = (trip->third ? trip->third : new KyteaModel());
@@ -518,7 +507,6 @@ void Kytea::trainLocalTags(int lev) {
         if((int)myEntry->tags.size() > lev && (myEntry->tags[lev].size() > 1 || config_->getWriteFeatures())) {
             TagTriplet * trip = fio_.getFeatures(featId+myEntry->word,false);
             if(!trip) THROW_ERROR("FATAL: Unbuilt model in entry table");
-            // cerr << "Training local model for "<<util_->showString(myEntry->word) << endl;
             vector< vector<unsigned> > & xs = trip->first;
             vector<int> & ys = trip->second;
             
@@ -994,28 +982,26 @@ void Kytea::calculateTags(KyteaSentence & sent, int lev) {
             if(tagMod == 0)
                 word.setTag(lev, KyteaTag((*tags)[0],(KyteaModel::isProbabilistic(config_->getSolverType())?1:100)));
             else {        
-                tagNgramFeatures(charStr, feat, charPrefixes_, tagMod, config_->getCharN(), startPos-1, finPos);
-                tagNgramFeatures(typeStr, feat, typePrefixes_, tagMod, config_->getTypeN(), startPos-1, finPos);
+                FeatureLookup * feat = tagMod->getFeatureLookup();
+#ifdef KYTEA_SAFE
+                if(feat == NULL) THROW_ERROR("null feature lookup during analysis");
+#endif
+                vector<FeatSum> scores(tagMod->getNumWeights(), 0);
+                feat->addTagNgrams(charStr, feat->getCharDict(), scores, config_->getCharN(), startPos, finPos);
+                feat->addTagNgrams(typeStr, feat->getTypeDict(), scores, config_->getTypeN(), startPos, finPos);
                 if(useSelf) {
-                    tagSelfFeatures(word.surf, feat, kssx, tagMod);
-                    tagSelfFeatures(util_->mapString(util_->getTypeString(word.surf)), feat, ksst, tagMod);
-                    tagDictFeatures(word.surf, lev, feat, tagMod);
+                    feat->addSelfWeights(charStr.substr(startPos,finPos-startPos), scores, 0);
+                    feat->addSelfWeights(typeStr.substr(startPos,finPos-startPos), scores, 1);
+                    feat->addTagDictWeights(getDictionaryMatches(charStr.substr(startPos,finPos-startPos), 0), scores);
                 }
-                vector< pair<int,double> > answer = tagMod->runClassifier(feat);
+                for(int j = 0; j < (int)scores.size(); j++)
+                    scores[j] += feat->getBias(j);
+                if(scores.size() == 1)
+                    scores.push_back(KyteaModel::isProbabilistic(config_->getSolverType())?-1*scores[0]:0);
                 word.clearTags(lev);
-                for(unsigned j = 0; j < answer.size(); j++)
-                    word.addTag(lev, KyteaTag((*tags)[answer[j].first-1],answer[j].second));
-            }
-            // print feature info
-            if(config_->getDebug() >= 2) {
-                cerr << "Tag "<<i+1<<" ("<<util_->showString(sent.words[i].surf)<<"->";
-                for(int i = 0; i < (int)(*tags).size(); i++) {
-                    if(i != 0) cerr << "/";
-                    cerr << util_->showString((*tags)[i]);
-                }
-                cerr << ")";
-                if(tagMod) { cerr << ": "; tagMod->printClassifier(feat,util_); }
-                cerr << endl;
+                for(int i = 0; i < (int)scores.size(); i++)
+                    word.addTag(lev, KyteaTag((*tags)[i],scores[i]*tagMod->getMultiplier()));
+                sort(word.tags[lev].begin(), word.tags[lev].end(), kyteaTagMore);
             }
         }
         if(!word.hasTag(lev) && defTag.length())
