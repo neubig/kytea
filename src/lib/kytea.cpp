@@ -857,8 +857,8 @@ void Kytea::readModel(const char* fileName) {
 void Kytea::calculateWS(KyteaSentence & sent) {
     
     // // get the features for the sentence
-    vector<FeatSum> scores(sent.chars.length()-1, (FeatSum)wsModel_->getBias());
     FeatureLookup * featLookup = wsModel_->getFeatureLookup();
+    vector<FeatSum> scores(sent.chars.length()-1, featLookup->getBias(0));
     featLookup->addNgramScores(featLookup->getCharDict(), 
                                sent.chars, config_->getCharWindow(), 
                                scores);
@@ -1013,7 +1013,7 @@ void Kytea::calculateTags(KyteaSentence & sent, int lev) {
                     feat->addSelfWeights(typeStr.substr(startPos,finPos-startPos), scores, 1);
                     feat->addTagDictWeights(getDictionaryMatches(charStr.substr(startPos,finPos-startPos), 0), scores);
                 }
-                for(int j = 0; j < (int)scores.size(); j++)
+                for(int j = 0; j < (int)scores.size(); j++) 
                     scores[j] += feat->getBias(j);
                 if(scores.size() == 1)
                     scores.push_back(KyteaModel::isProbabilistic(config_->getSolverType())?-1*scores[0]:0);
