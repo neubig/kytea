@@ -11,8 +11,8 @@ class TestAnalysis : public TestBase {
 
 private:
 
-    Kytea * kytea;
-    StringUtil * util;
+    Kytea *kytea, *kyteaLogist;
+    StringUtil *util, *utilLogist;
 
 public:
 
@@ -24,23 +24,35 @@ public:
                                "京都/名詞/きょうと に/助詞/に 行/動詞/い っ/語尾/っ た/助動詞/た\n";
         ofstream ofs("/tmp/kytea-toy-corpus.txt"); 
         ofs << toy_text; ofs.close();
-        // Train the KyTea model
-        const char* toy_cmd[7] = {"", "-model", "/tmp/kytea-toy-model.bin", "-full", "/tmp/kytea-toy-corpus.txt", "-global", "1"};
+        // Train the KyTea model with SVMs
+        const char* toyCmd[7] = {"", "-model", "/tmp/kytea-svm-model.bin", "-full", "/tmp/kytea-toy-corpus.txt", "-global", "1"};
         KyteaConfig * config = new KyteaConfig;
         config->setDebug(0);
         config->setOnTraining(true);
-        config->parseTrainCommandLine(7, toy_cmd);
+        config->parseTrainCommandLine(7, toyCmd);
         kytea = new Kytea(config);
         kytea->trainAll();
         util = kytea->getStringUtil();
         config->setOnTraining(false);
+        // Train the KyTea model with logistic regression
+        const char* toyCmdLogist[9] = {"", "-model", "/tmp/kytea-logist-model.bin", "-full", "/tmp/kytea-toy-corpus.txt", "-global", "1", "-solver", "0"};
+        KyteaConfig * configLogist = new KyteaConfig;
+        configLogist->setDebug(0);
+        configLogist->setTagMax(0);
+        configLogist->setOnTraining(true);
+        configLogist->parseTrainCommandLine(9, toyCmdLogist);
+        kyteaLogist = new Kytea(configLogist);
+        kyteaLogist->trainAll();
+        utilLogist = kyteaLogist->getStringUtil();
+        configLogist->setOnTraining(false);
     }
 
     ~TestAnalysis() {
         delete kytea;
+        delete kyteaLogist;
     }
 
-    int testWordSegmentation() {
+    int testWordSegmentationSVM() {
         // Do the analysis (This is very close to the training data, so it
         // should work perfectly)
         KyteaSentence sentence(util->mapString("これは学習データです。"));
@@ -50,7 +62,26 @@ public:
         return checkWordSeg(sentence,toks,util);
     }
 
-    int testGlobalTagging() {
+    int testWordSegmentationLogistic() {
+        // Do the analysis (This is very close to the training data, so it
+        // should work perfectly)
+        KyteaSentence sentence(utilLogist->mapString("これは学習データです。"));
+        kyteaLogist->calculateWS(sentence);
+        // Make the correct words
+        KyteaString::Tokens toks = utilLogist->mapString("これ は 学習 データ で す 。").tokenize(utilLogist->mapString(" "));
+        int correct = checkWordSeg(sentence,toks,utilLogist);
+        if(correct) {
+            for(int i = 0; i < (int)sentence.wsConfs.size(); i++) {
+                if(sentence.wsConfs[i] < 0.0 || sentence.wsConfs[i] > 1.0) {
+                    cerr << "Confidience for logistic WS "<<i<<" is not probability: " << sentence.wsConfs[i] << endl;
+                    correct = 0;
+                }
+            }
+        }
+        return correct;
+    }
+
+    int testGlobalTaggingSVM() {
         // Do the analysis (This is very close to the training data, so it
         // should work perfectly)
         KyteaSentence sentence(util->mapString("これは学習データです。"));
@@ -58,7 +89,43 @@ public:
         kytea->calculateTags(sentence,0);
         // Make the correct tags
         KyteaString::Tokens toks = util->mapString("代名詞 助詞 名詞 名詞 助動詞 語尾 補助記号").tokenize(util->mapString(" "));
-        return checkTags(sentence,toks,0,util);
+        int correct = checkTags(sentence,toks,0,util);
+        if(correct) {
+            // Check the confidences for the SVM, the second candidate should
+            // always be zero
+            for(int i = 0; i < (int)sentence.words.size(); i++) {
+                if(sentence.words[i].tags[0][1].second != 0.0) {
+                    cerr << "Margin on word "<<i<<" is not 0.0 (== "<<sentence.words[i].tags[0][1].second<<")"<<endl;
+                    correct = false;
+                }
+            }
+        }
+        return correct;
+    }
+
+    int testGlobalTaggingLogistic() {
+        // Do the analysis (This is very close to the training data, so it
+        // should work perfectly)
+        KyteaSentence sentence(utilLogist->mapString("これは学習データです。"));
+        kyteaLogist->calculateWS(sentence);
+        kyteaLogist->calculateTags(sentence,0);
+        // Make the correct tags
+        KyteaString::Tokens toks = utilLogist->mapString("代名詞 助詞 名詞 名詞 助動詞 語尾 補助記号").tokenize(util->mapString(" "));
+        int correct = checkTags(sentence,toks,0,utilLogist);
+        if(correct) {
+            // Check the confidences for the SVM, the second candidate should
+            // always be zero
+            for(int i = 0; i < (int)sentence.words.size(); i++) {
+                double sum = 0.0;
+                for(int j = 0; j < (int)sentence.words[i].tags[0].size(); j++)
+                    sum += sentence.words[i].tags[0][j].second;
+                if(abs(1.0-sum) > 0.01) {
+                    cerr << "Probability on word "<<i<<" is not close to 1 (== "<<sum<<")"<<endl;
+                    correct = false;
+                }
+            }
+        }
+        return correct;
     }
 
     int testGlobalSelf() {
@@ -164,8 +231,10 @@ public:
 
     bool runTest() {
         int done = 0, succeeded = 0;
-        done++; cout << "testWordSegmentation()" << endl; if(testWordSegmentation()) succeeded++; else cout << "FAILED!!!" << endl;
-        done++; cout << "testGlobalTagging()" << endl; if(testGlobalTagging()) succeeded++; else cout << "FAILED!!!" << endl;
+        done++; cout << "testWordSegmentationSVM()" << endl; if(testWordSegmentationSVM()) succeeded++; else cout << "FAILED!!!" << endl;
+        done++; cout << "testWordSegmentationLogistic()" << endl; if(testWordSegmentationLogistic()) succeeded++; else cout << "FAILED!!!" << endl;
+        done++; cout << "testGlobalTaggingSVM()" << endl; if(testGlobalTaggingSVM()) succeeded++; else cout << "FAILED!!!" << endl;
+        done++; cout << "testGlobalTaggingLogistic()" << endl; if(testGlobalTaggingLogistic()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testGlobalSelf()" << endl; if(testGlobalSelf()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testLocalTagging()" << endl; if(testLocalTagging()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testPartialSegmentation()" << endl; if(testPartialSegmentation()) succeeded++; else cout << "FAILED!!!" << endl;
