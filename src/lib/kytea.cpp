@@ -78,10 +78,10 @@ void Kytea::scanDictionaries(const vector<string> & dict, typename Dictionary<En
     KyteaString word;
     unsigned char numDicts = 0;
     for(vector<string>::const_iterator it = dict.begin(); it != dict.end(); it++) {
-        if(config->getDebug())
+        if(config_->getDebug())
             cerr << "Reading dictionary from " << *it << " ";
         CorpusIO * io = CorpusIO::createIO(it->c_str(), CORP_FORMAT_FULL, *config, false, util);
-        io->setNumTags(config->getNumTags());
+        io->setNumTags(config_->getNumTags());
         ifstream dis(it->c_str());
         KyteaSentence* next;
         int lines = 0;
@@ -107,7 +107,7 @@ void Kytea::scanDictionaries(const vector<string> & dict, typename Dictionary<En
         }
         delete io;
         numDicts++;
-        if(config->getDebug() > 0) {
+        if(config_->getDebug() > 0) {
             if(lines)
                 cerr << " done (" << lines  << " entries)" << endl;
             else
@@ -546,28 +546,38 @@ void Kytea::trainLocalTags(int lev) {
         cerr << "done!" << endl;
 }
 
-unsigned Kytea::tagDictFeatures(const KyteaString & surf, int lev, vector<unsigned> & myFeats, KyteaModel * model) {
+vector<pair<int,int> > Kytea::getDictionaryMatches(const KyteaString & surf, int lev) {
+    vector<pair<int,int> > ret;
+    if(!dict_) return ret;
     const ModelTagEntry* ent = dict_->findEntry(surf);
-    if(ent == 0 || ent->inDict == 0 || (int)ent->tagInDicts.size() <= lev) { 
+    if(ent == 0 || ent->inDict == 0 || (int)ent->tagInDicts.size() <= lev)
+        return ret;
+    // For each tag
+    const vector<unsigned char> & tid = ent->tagInDicts[lev];
+    for(int i = 0; i < (int)tid.size(); i++) {
+        // For each dictionary
+        for(int j = 0; j < dict_->getNumDicts(); j++)
+            if(ModelTagEntry::isInDict(tid[i],j)) 
+                ret.push_back(pair<int,int>(j,i));
+    }
+    return ret;
+}
+
+unsigned Kytea::tagDictFeatures(const KyteaString & surf, int lev, vector<unsigned> & myFeats, KyteaModel * model) {
+    vector<pair<int,int> > matches = getDictionaryMatches(surf,lev);
+    if(matches.size() == 0) {
         unsigned thisFeat = model->mapFeat(util_->mapString("UNK"));
         if(thisFeat) { myFeats.push_back(thisFeat); return 1; }
         return 0;
     }
-    KyteaString ksd = util_->mapString("D");
-    const vector<unsigned char> & tid = ent->tagInDicts[lev];
     int ret = 0;
-    for(int i = 0; i < (int)tid.size(); i++) {
-        for(int j = 0; j < 8; j++) {
-            if(ModelTagEntry::isInDict(tid[i],j)) {
-                ostringstream oss; oss << "-" << j;
-                KyteaString ks = ksd+ent->tags[lev][i]+util_->mapString(oss.str());
-                unsigned thisFeat = model->mapFeat(ks);
-                if(thisFeat != 0) {
-                    myFeats.push_back(thisFeat);
-                    ret++;
-                }
-            }
-        }
+    for(int i = 0; i < (int)matches.size(); i++) {
+        ostringstream oss; oss << "D" << matches[i].first << "T" << matches[i].second;
+        unsigned thisFeat = model->mapFeat(util_->mapString(oss.str()));
+        if(thisFeat != 0) {
+            myFeats.push_back(thisFeat);
+            ret++;
+        } 
     }
     return ret;
 }
@@ -607,7 +617,8 @@ void Kytea::trainUnk(int lev) {
 
     // 2. align the pronunciation strings, count subword/tag pairs,
     //     create dictionary of pronunciations to count, collect counts
-    cerr << " Aligning pronunciation strings" << endl;
+    if(config_->getDebug() > 0)
+        cerr << " Aligning pronunciation strings" << endl;
     typedef vector< pair<unsigned,unsigned> > AlignHyp;
     const vector<ModelTagEntry*> & dictEntries = dict_->getEntries();
     Dictionary<ProbTagEntry>::WordMap tagMap;
@@ -721,7 +732,8 @@ void Kytea::trainUnk(int lev) {
     }
     if(alpha > maxAlpha) {
         alpha = 1;
-        cerr << "WARNING: Alpha maximization exploded, reverting to alpha="<<alpha<<endl;
+        if(config_->getDebug() > 0)
+            cerr << "WARNING: Alpha maximization exploded, reverting to alpha="<<alpha<<endl;
     }
     
 
@@ -755,7 +767,8 @@ void Kytea::trainUnk(int lev) {
     }
     
     // 6. make the language model
-    cerr << " Calculating LM" << endl;
+    if(config_->getDebug() > 0)
+        cerr << " Calculating LM" << endl;
     if((int)subwordModels_.size() <= lev) subwordModels_.resize(lev+1,0);
     subwordModels_[lev] = new KyteaLM(config_->getUnkN());
     subwordModels_[lev]->train(tagCorpus);
@@ -781,6 +794,11 @@ void Kytea::writeModel(const char* fileName) {
     // write the global models
     for(int i = 0; i < config_->getNumTags(); i++) {
         modout->writeWordList(i >= (int)globalTags_.size()?vector<KyteaString>():globalTags_[i]);
+        if(i < (int)globalMods_.size() && globalMods_[i]) {
+            globalMods_[i]->buildFeatureLookup(util_, 
+                                               config_->getCharWindow(), config_->getTypeWindow(),
+                                               dict_->getNumDicts(), config_->getDictionaryN());
+        }
         modout->writeModel(i >= (int)globalMods_.size()?0:globalMods_[i]);
     }
     modout->writeModelDictionary(dict_);
@@ -1143,4 +1161,3 @@ void Kytea::analyze() {
         cerr << "done!" << endl;
 
 }
-

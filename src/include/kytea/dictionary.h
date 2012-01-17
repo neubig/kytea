@@ -22,6 +22,8 @@
 #include <map>
 #include <deque>
 
+#define DICTIONARY_SAFE
+
 namespace kytea  {
 
 class KyteaModel;
@@ -108,22 +110,6 @@ public:
     Gotos gotos;
     std::vector< unsigned > output;
     bool isBranch;
-
-    // inline unsigned step(KyteaChar input) {
-    //     unsigned ret=0,l=0,r=gotos.size(),m;
-    //     KyteaChar check;
-    //     while(r != l) {
-    //         m=(r+l)/2;
-    //         check = gotos[m].first;
-    //         if(input<check) r=m;
-    //         else if(input>check) l=m+1;
-    //         else {
-    //             ret = gotos[m].second;
-    //             break;
-    //         }
-    //     }
-    //     return ret;
-    // }
 
     inline unsigned step(KyteaChar input) {
         Gotos::const_iterator l=gotos.begin(), r=gotos.end(), m;
@@ -330,6 +316,12 @@ Entry * Dictionary<Entry>::findEntry(KyteaString str) {
     if(str.length() == 0) return 0;
     unsigned state = 0, lev = 0;
     do {
+#ifdef DICTIONARY_SAFE
+        if(state >= states_.size())
+            THROW_ERROR("Accessing state "<<state<<" that is larger than states_ ("<<states_.size()<<")");
+        if(states_[state] == 0)
+            THROW_ERROR("Accessing null state "<<state);
+#endif
         state = states_[state]->step(str[lev++]);
     } while (state != 0 && lev < str.length());
     if(states_[state]->output.size() == 0) return 0;
