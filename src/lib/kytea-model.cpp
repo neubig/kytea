@@ -397,11 +397,15 @@ void KyteaModel::buildFeatureLookup(StringUtil * util, int charw, int typew, int
 
 
 void KyteaModel::checkEqual(const KyteaModel & rhs) const {
-    checkMapEqual(ids_, rhs.ids_);
-    checkValueVecEqual(names_, rhs.names_);
+    // If the features are already encoded in the feature lookup, ignore
+    // the feature hash
+    if(featLookup_ == NULL) {
+        checkMapEqual(ids_, rhs.ids_);
+        checkValueVecEqual(names_, rhs.names_);
+        checkValueVecEqual(weights_, rhs.weights_);
+    }
     // Ignore old names, they are not really important
     checkValueVecEqual(labels_, rhs.labels_);
-    checkValueVecEqual(weights_, rhs.weights_);
     if(abs((double)(multiplier_ - rhs.multiplier_)/multiplier_) > 0.01) THROW_ERROR("multipliers don't match: "<<multiplier_ << " != " << rhs.multiplier_);
     if(bias_ != rhs.bias_) THROW_ERROR("biases don't match: "<<bias_ << " != " << rhs.bias_);
     if(solver_ != rhs.solver_) THROW_ERROR("solvers don't match: "<<solver_ << " != " << rhs.solver_);
