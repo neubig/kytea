@@ -77,10 +77,15 @@ void FeatureLookup::addTagNgrams(const KyteaString & chars,
 void FeatureLookup::addSelfWeights(const KyteaString & word, 
                                    vector<FeatSum> & scores,
                                    int featIdx) {
+#ifdef KYTEA_SAFE
+    if(selfDict_ == NULL) THROW_ERROR("Trying to add self weights when no self is present");
+#endif
     FeatVec * entry = selfDict_->findEntry(word);
-    int base = featIdx * scores.size();
-    for(int i = 0; i < (int)scores.size(); i++)
-        scores[i] += (*entry)[base+i];
+    if(entry) {
+        int base = featIdx * scores.size();
+        for(int i = 0; i < (int)scores.size(); i++)
+            scores[i] += (*entry)[base+i];
+    }
 }
 
 void FeatureLookup::addDictionaryScores(const Dictionary<ModelTagEntry>::MatchResult & matches, int numDicts, int max, vector<FeatSum> & score) {

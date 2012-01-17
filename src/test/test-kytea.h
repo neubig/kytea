@@ -398,7 +398,7 @@ public:
             kytea.tagDictFeatures(str.substr(i,2), 0, feats, &mod);
             vector< pair<int,double> > answers = mod.runClassifier(feats);
             // Convert to margin
-            double secondBest = act[answers[1].first-1];
+            FeatSum secondBest = act[answers[1].first-1];
             for(int j = 0; j < (int)answers.size(); j++) {
                 if(answers[j].first-1 >= (int)act.size())
                     THROW_ERROR("answers[j].first too big "<<answers[j].first-1<<", act.size() == "<<act.size());
