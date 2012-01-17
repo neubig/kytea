@@ -327,8 +327,10 @@ void KyteaModel::buildFeatureLookup(StringUtil * util, int charw, int typew, int
     int bias = getBiasId();
     if(bias != -1) {
         featuresAdded_++;
-        for(int j = 0; j < numW_; j++)
+        for(int j = 0; j < numW_; j++) {
+            cerr << "Setting bias of " << j << " to " << getWeight(bias-1, j) << endl;
             featLookup_->setBias(getWeight(bias-1, j) * labels_[0], j);
+        }
     }    
     bool prevAddFeat = addFeat_;
     addFeat_ = false;
