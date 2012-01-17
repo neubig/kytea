@@ -19,7 +19,9 @@ public:
     TestAnalysis() {
         // Print the corpus
         const char* toy_text = "これ/代名詞/これ は/助詞/は 学習/名詞/がくしゅう データ/名詞/でーた で/助動詞/で す/語尾/す 。/補助記号/。\n"
-                               "どうぞ/副詞/どうぞ モデル/名詞/もでる を/助詞/を 学習/名詞/がくしゅう し/動詞/し て/助詞/て くださ/動詞/くださ い/語尾/い ！/補助記号/！\n";
+                               "どうぞ/副詞/どうぞ モデル/名詞/もでる を/助詞/を 学習/名詞/がくしゅう し/動詞/し て/助詞/て くださ/動詞/くださ い/語尾/い ！/補助記号/！\n"
+                               "処理/名詞/しょり を/助詞/を 行/動詞/おこな っ/語尾/っ た/助動詞/た\n"
+                               "京都/名詞/きょうと に/助詞/に 行/動詞/い っ/語尾/っ た/助動詞/た\n";
         ofstream ofs("/tmp/kytea-toy-corpus.txt"); 
         ofs << toy_text; ofs.close();
         // Train the KyTea model
@@ -60,8 +62,8 @@ public:
     }
 
     int testGlobalSelf() {
-        KyteaString::Tokens words = util->mapString("これ は 学習 データ どうぞ 。").tokenize(util->mapString(" "));
-        KyteaString::Tokens tags = util->mapString("代名詞 助詞 名詞 名詞 副詞 補助記号").tokenize(util->mapString(" "));
+        KyteaString::Tokens words = util->mapString("これ 京都 学習 データ どうぞ 。").tokenize(util->mapString(" "));
+        KyteaString::Tokens tags = util->mapString("代名詞 名詞 名詞 名詞 副詞 補助記号").tokenize(util->mapString(" "));
         KyteaString::Tokens singleTag(1);
         if(words.size() != tags.size()) THROW_ERROR("words.size() != tags.size() in testGlobalSelf");
         int ok = 1;
@@ -79,11 +81,11 @@ public:
     int testLocalTagging() {
         // Do the analysis (This is very close to the training data, so it
         // should work perfectly)
-        KyteaSentence sentence(util->mapString("これは学習データです。"));
+        KyteaSentence sentence(util->mapString("東京に行った。"));
         kytea->calculateWS(sentence);
         kytea->calculateTags(sentence,1);
         // Make the correct tags
-        KyteaString::Tokens toks = util->mapString("これ は がくしゅう でーた で す 。").tokenize(util->mapString(" "));
+        KyteaString::Tokens toks = util->mapString("UNK に い っ た 。").tokenize(util->mapString(" "));
         return checkTags(sentence,toks,1,util);
     }
 
