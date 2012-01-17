@@ -760,26 +760,45 @@ void Kytea::trainUnk(int lev) {
 // IO functions //
 //////////////////
 
-void Kytea::writeModel(const char* fileName) {
-
-    if(config_->getDebug() > 0)    
-        cerr << "Printing model to " << fileName;
-    
-    ModelIO * modout = ModelIO::createIO(fileName,config_->getModelFormat(), true, *config_);
-    modout->writeConfig(*config_);
+void Kytea::buildFeatureLookups() {
     // Write out the word segmentation features
     wsModel_->buildFeatureLookup(util_, 
                                  config_->getCharWindow(), config_->getTypeWindow(),
                                  dict_->getNumDicts(), config_->getDictionaryN());
+    for(int i = 0; i < (int)globalMods_.size(); i++)
+        if(globalMods_[i])
+            globalMods_[i]->buildFeatureLookup(util_, 
+                                               config_->getCharWindow(), config_->getTypeWindow(),
+                                               dict_->getNumDicts(), config_->getDictionaryN());
+    // Build the entries for the local models
+    vector<ModelTagEntry*> & localEntries = dict_->getEntries();
+    for(int i = 0; i < (int)localEntries.size(); i++) {
+        if(localEntries[i]) {
+            for(int j = 0; j < (int)localEntries[i]->tagMods.size(); j++) {
+                if(localEntries[i]->tagMods[j]) {
+                    localEntries[i]->tagMods[j]->buildFeatureLookup(util_, 
+                                                       config_->getCharWindow(), config_->getTypeWindow(),
+                                                       dict_->getNumDicts(), config_->getDictionaryN());    
+                }
+            }
+        }
+    }
+
+}
+
+void Kytea::writeModel(const char* fileName) {
+
+    if(config_->getDebug() > 0)    
+        cerr << "Printing model to " << fileName;
+    // Build the feature lookups before printing
+    buildFeatureLookups();
+
+    ModelIO * modout = ModelIO::createIO(fileName,config_->getModelFormat(), true, *config_);
+    modout->writeConfig(*config_);
     modout->writeModel(wsModel_);
     // write the global models
     for(int i = 0; i < config_->getNumTags(); i++) {
         modout->writeWordList(i >= (int)globalTags_.size()?vector<KyteaString>():globalTags_[i]);
-        if(i < (int)globalMods_.size() && globalMods_[i]) {
-            globalMods_[i]->buildFeatureLookup(util_, 
-                                               config_->getCharWindow(), config_->getTypeWindow(),
-                                               dict_->getNumDicts(), config_->getDictionaryN());
-        }
         modout->writeModel(i >= (int)globalMods_.size()?0:globalMods_[i]);
     }
     modout->writeModelDictionary(dict_);

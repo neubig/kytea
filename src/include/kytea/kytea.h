@@ -182,6 +182,7 @@ private:
 
     // functions for unknown word PE
     void trainUnk(int lev);
+    void buildFeatureLookups();
 
     void analyzeInput();
     
