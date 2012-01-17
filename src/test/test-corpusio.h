@@ -63,16 +63,16 @@ public:
         instr << confident_text;
         FullCorpusIO infcio(util, instr, false);
         KyteaSentence * sent = infcio.readSentence();
+        int ret = 1;
         if(sent->words.size() != 11) {
             cerr << "Did not get expected sentence size of 11: " << sent->words.size() << endl;
-            return 0;
-        }
-        if(sent->words[10].tags.size() != 2) {
+            ret = 0;
+        } else if(sent->words[10].tags.size() != 2) {
             cerr << "Did not get two levels of tags for final word: " << sent->words[10].tags.size() << endl;
-            return 0;
+            ret = 0;
         }
-
-        return 1;
+        delete sent;
+        return ret;
     }
 
     bool runTest() {

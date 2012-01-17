@@ -873,12 +873,13 @@ void Kytea::calculateWS(KyteaSentence & sent) {
 
     // Update values, but only ones that are not already sure
     for(unsigned i = 0; i < sent.wsConfs.size(); i++)
-        if(abs(sent.wsConfs[i]) <= config_->getConfidence()) {
+        if(abs(sent.wsConfs[i]) <= config_->getConfidence())
             sent.wsConfs[i] = scores[i]*wsModel_->getMultiplier();
-        }
-
     sent.refreshWS(config_->getConfidence());
-
+    if(KyteaModel::isProbabilistic(config_->getSolverType())) {
+        for(unsigned i = 0; i < sent.wsConfs.size(); i++)
+            sent.wsConfs[i] = 1/(1.0+exp(-abs(sent.wsConfs[i])));
+    }
 }
 
 // generate candidates with TM scores
@@ -1021,6 +1022,21 @@ void Kytea::calculateTags(KyteaSentence & sent, int lev) {
                 for(int i = 0; i < (int)scores.size(); i++)
                     word.addTag(lev, KyteaTag((*tags)[i],scores[i]*tagMod->getMultiplier()));
                 sort(word.tags[lev].begin(), word.tags[lev].end(), kyteaTagMore);
+                // Convert to a proper margin or probability
+                if(KyteaModel::isProbabilistic(config_->getSolverType())) {
+                    double sum = 0;
+                    for(int i = 0; i < (int)word.tags[lev].size(); i++) {
+                        word.tags[lev][i].second = exp(word.tags[lev][i].second);
+                        sum += word.tags[lev][i].second;
+                    }
+                    for(int i = 0; i < (int)word.tags[lev].size(); i++) {
+                        word.tags[lev][i].second /= sum;
+                    }
+                } else {
+                    double secondBest = word.tags[lev][1].second;
+                    for(int i = 0; i < (int)word.tags[lev].size(); i++)
+                        word.tags[lev][i].second -= secondBest;
+                }
             }
         }
         if(!word.hasTag(lev) && defTag.length())

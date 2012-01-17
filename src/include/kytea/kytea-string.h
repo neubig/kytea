@@ -15,7 +15,7 @@
 */
 
 // Turn this on to make KyTea do boundary checking (useful for development)
-// #define KYTEA_SAFE
+#define KYTEA_SAFE
 
 #ifndef KYTEA_STRING_H__
 #define KYTEA_STRING_H__
