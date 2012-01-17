@@ -76,13 +76,17 @@ void TextModelIO::writeConfig(const KyteaConfig & config) {
     if(!config.getDoTags()) *str_ << "-notags" << endl;
     *str_ << "-numtags " << numTags_ << endl;
     if(config.getBias()<0) *str_ << "-nobias" << endl;
-    *str_ << "-charw " << (int)config.getCharWindow() << endl;
-    *str_ << "-charn " << (int)config.getCharN() << endl;
-    *str_ << "-typew " << (int)config.getTypeWindow() << endl;
-    *str_ << "-typen " << (int)config.getTypeN() << endl;
-    *str_ << "-dicn "  << (int)config.getDictionaryN() << endl;
-    *str_ << "-eps " << config.getEpsilon() << endl;
-    *str_ << "-solver " << config.getSolverType() << endl;
+    *str_ << "-charw " << (int)config.getCharWindow() << endl
+          << "-charn " << (int)config.getCharN() << endl
+          << "-typew " << (int)config.getTypeWindow() << endl
+          << "-typen " << (int)config.getTypeN() << endl
+          << "-dicn "  << (int)config.getDictionaryN() << endl
+          << "-eps " << config.getEpsilon() << endl
+          << "-solver " << config.getSolverType() << endl << endl;
+
+    // write the character map
+    *str_ << "characters" << endl
+          << config.getStringUtil()->serialize() << endl;
 
     *str_ << endl;
 
@@ -98,6 +102,12 @@ void TextModelIO::readConfig(KyteaConfig & config) {
         config.parseTrainArg(s1.c_str(), (s2.length()==0?0:s2.c_str()));
     }
     numTags_ = config.getNumTags();
+    
+    getline(*str_,line); // check the header
+    if(line != "characters") THROW_ERROR("Badly formatted file, expected 'characters', got '" << line << "'");
+    getline(*str_, line); // get the serialized string util
+    config.getStringUtil()->unserialize(line);
+    getline(*str_, line); // check the last line
 }
 
 void TextModelIO::writeModel(const KyteaModel * mod) {
@@ -821,8 +831,11 @@ void TextModelIO::writeFeatureLookup(const FeatureLookup* featLookup) {
     *str_ << "lookup" << endl;
     writeVectorDictionary(featLookup->getCharDict());
     writeVectorDictionary(featLookup->getTypeDict());
+    writeVectorDictionary(featLookup->getSelfDict());
     writeFeatVec(featLookup->getDictVector());
     writeFeatVec(featLookup->getBiases());
+    writeFeatVec(featLookup->getTagDictVector());
+    writeFeatVec(featLookup->getTagUnkVector());
 }
 
 FeatureLookup * TextModelIO::readFeatureLookup() {
@@ -835,8 +848,11 @@ FeatureLookup * TextModelIO::readFeatureLookup() {
     FeatureLookup * look = new FeatureLookup;
     look->setCharDict(readVectorDictionary());
     look->setTypeDict(readVectorDictionary());
+    look->setSelfDict(readVectorDictionary());
     look->setDictVector(readFeatVec());
     look->setBiases(readFeatVec());
+    look->setTagDictVector(readFeatVec());
+    look->setTagUnkVector(readFeatVec());
     return look;
 }
 
@@ -845,8 +861,11 @@ void BinaryModelIO::writeFeatureLookup(const FeatureLookup * featLookup) {
        writeBinary<char>(1);
        writeVectorDictionary(featLookup->getCharDict());
        writeVectorDictionary(featLookup->getTypeDict());
+       writeVectorDictionary(featLookup->getSelfDict());
        writeFeatVec(featLookup->getDictVector());
        writeFeatVec(featLookup->getBiases());
+       writeFeatVec(featLookup->getTagDictVector());
+       writeFeatVec(featLookup->getTagUnkVector());
     } else {
         writeBinary<char>(0);
     }
@@ -859,8 +878,11 @@ FeatureLookup * BinaryModelIO::readFeatureLookup() {
         look = new FeatureLookup;
         look->setCharDict(readVectorDictionary());
         look->setTypeDict(readVectorDictionary());
+        look->setSelfDict(readVectorDictionary());
         look->setDictVector(readFeatVec());
         look->setBiases(readFeatVec());
+        look->setTagDictVector(readFeatVec());
+        look->setTagUnkVector(readFeatVec());
     }
     return look;
 }

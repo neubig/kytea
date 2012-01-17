@@ -24,9 +24,6 @@
 #include <vector>
 #include <cstdlib>
 
-// enforces boundary checking
-#define STRING_UTIL_SAFE
-
 namespace kytea {
 
 // a class for turning std::strings into internal representation
@@ -80,6 +77,17 @@ public:
     // transform to or from a character std::string
     virtual void unserialize(const std::string & str) = 0;
     virtual std::string serialize() const = 0;
+
+    // Check that these are equal by serializing them
+    void checkEqual(const StringUtil & rhs) const {
+        std::string me = serialize();
+        std::string you = rhs.serialize();
+        if(me != you) {
+            THROW_ERROR("String utils don't match" << std::endl 
+                        << " --- lhs --- " << std::endl << me << std::endl
+                        << " --- rhs --- " << std::endl << you);
+        }
+    }
 
     // parse an integer or float
     int parseInt(const char* str) {

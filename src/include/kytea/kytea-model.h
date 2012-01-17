@@ -17,8 +17,6 @@
 #ifndef KYTEA_MODEL_H__
 #define KYTEA_MODEL_H__
 
-#define MODEL_SAFE
-
 #include <vector>
 #include <iostream>
 #include <stdint.h>
@@ -39,8 +37,6 @@ typedef std::vector<FeatVal> FeatVec;
 #include "kytea/kytea-struct.h"
 #include "kytea/kytea-string.h"
 #include "kytea/string-util.h"
-
-#define MODEL_SAFE
 
 #define SIG_CUTOFF 1E-6
 
@@ -83,7 +79,7 @@ public:
 
     // Check that two models are equal, and throw an error if they aren't
     // Mainly used for making sure that model IO is working properly
-    void checkEqual(const KyteaModel & rhs);
+    void checkEqual(const KyteaModel & rhs) const;
 
     // feature functions
     inline unsigned mapFeat(const KyteaString & str) {
@@ -100,7 +96,7 @@ public:
         return ret;
     }
     inline KyteaString showFeat(unsigned val) {
-#ifdef MODEL_SAFE
+#ifdef KYTEA_SAFE
         if(val >= names_.size())
             THROW_ERROR("FATAL: Array index out of bounds in showFeat ("<<val<<" >= "<<names_.size()<<")");
 #endif
@@ -122,6 +118,7 @@ public:
     void trainModel(const std::vector< std::vector<unsigned> > & xs, std::vector<int> & ys, double bias, int solver, double epsilon, double cost);
     void trimModel();
 
+    inline const KyteaUnsignedMap & getIds() const { return ids_; }
     inline const unsigned getNumFeatures() const { return names_.size()-1; }
     inline const double getBias() const { return bias_; }
     inline const unsigned getNumWeights() const { return numW_; }
@@ -131,7 +128,7 @@ public:
     inline FeatureLookup * getFeatureLookup() const { return featLookup_; }
     inline const FeatVal getWeight(unsigned i, unsigned j) const {
         int id = i*numW_+j;
-#ifdef MODEL_SAFE
+#ifdef KYTEA_SAFE
         if(id >= (int)weights_.size())
             THROW_ERROR("weight out of bounds: size="<<weights_.size()<<" id="<<id);
 #endif
@@ -154,7 +151,7 @@ public:
     void initializeWeights(unsigned i, unsigned j) { weights_.resize(i*j,0); }
     void setWeight(unsigned i, unsigned j, FeatVal w) { 
         int id = i*numW_+j;
-#ifdef MODEL_SAFE
+#ifdef KYTEA_SAFE
         if(id >= (int)weights_.size())
             THROW_ERROR("weight out of bounds: size="<<weights_.size()<<" id="<<id);
 #endif

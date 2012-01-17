@@ -12,8 +12,6 @@ using namespace std;
 #define SIG_CUTOFF 1E-6
 #define SHORT_MAX 32767
 
-#define SAFE_MODEL
-
 int KyteaModel::featuresAdded_ = 0;
 
 template <class A, class B>
@@ -365,8 +363,8 @@ void KyteaModel::buildFeatureLookup(StringUtil * util, int charw, int typew, int
         }
         featLookup_->setDictVector(dictFeats);
     }
-    // Make the dictionary values
     if(numDicts > 0) {
+        // Make the tag dictionary values
         vector<FeatVal> * tagDictFeats = new vector<FeatVal>(numDicts*labels_.size()*labels_.size(),0);
         int id = 0;
         for(int i = 0; i <= numDicts; i++) {
@@ -381,16 +379,16 @@ void KyteaModel::buildFeatureLookup(StringUtil * util, int charw, int typew, int
                 id += labels_.size();
             }
         }
-        featLookup_->setTagDictVector(tagDictFeats, labels_.size());
-        // Make the unknown vector
-        unsigned id1 = mapFeat(util->mapString("UNK"));
-        if(id1 != 0) {
-            vector<FeatVal> * tagUnkFeats = new vector<FeatVal>(labels_.size(),0);
-            featuresAdded_++;
-            for(int k = 0; k < (int)labels_.size(); k++)
-                (*tagUnkFeats)[k] = getWeight(id1-1, k) * labels_[0];
-            featLookup_->setTagUnkVector(tagUnkFeats);
-        }
+        featLookup_->setTagDictVector(tagDictFeats);
+    }
+    // Make the unknown vector
+    unsigned id1 = mapFeat(util->mapString("UNK"));
+    if(id1 != 0) {
+        vector<FeatVal> * tagUnkFeats = new vector<FeatVal>(labels_.size(),0);
+        featuresAdded_++;
+        for(int k = 0; k < (int)labels_.size(); k++)
+            (*tagUnkFeats)[k] = getWeight(id1-1, k) * labels_[0];
+        featLookup_->setTagUnkVector(tagUnkFeats);
     }
     addFeat_ = prevAddFeat;
     if(featuresAdded_ != (int)names_.size())
@@ -398,25 +396,18 @@ void KyteaModel::buildFeatureLookup(StringUtil * util, int charw, int typew, int
 }
 
 
-void KyteaModel::checkEqual(const KyteaModel & rhs) {
+void KyteaModel::checkEqual(const KyteaModel & rhs) const {
     checkMapEqual(ids_, rhs.ids_);
-    checkVecEqual(names_, rhs.names_);
+    checkValueVecEqual(names_, rhs.names_);
     // Ignore old names, they are not really important
-    checkVecEqual(labels_, rhs.labels_);
-    checkVecEqual(weights_, rhs.weights_);
+    checkValueVecEqual(labels_, rhs.labels_);
+    checkValueVecEqual(weights_, rhs.weights_);
     if(abs((double)(multiplier_ - rhs.multiplier_)/multiplier_) > 0.01) THROW_ERROR("multipliers don't match: "<<multiplier_ << " != " << rhs.multiplier_);
-    if(bias_ != rhs.bias_) THROW_ERROR("biass don't match: "<<bias_ << " != " << rhs.bias_);
+    if(bias_ != rhs.bias_) THROW_ERROR("biases don't match: "<<bias_ << " != " << rhs.bias_);
     if(solver_ != rhs.solver_) THROW_ERROR("solvers don't match: "<<solver_ << " != " << rhs.solver_);
     if(numW_ != rhs.numW_) THROW_ERROR("numWs don't match: "<<numW_ << " != " << rhs.numW_);
     if(addFeat_ != rhs.addFeat_) THROW_ERROR("addFeats don't match: "<<addFeat_ << " != " << rhs.addFeat_);
-    if(featLookup_ == NULL) {
-        if(rhs.featLookup_ != NULL)
-            THROW_ERROR("featLookup_ == NULL, rhs.featLookup_ != NULL");
-    } else {
-        if(rhs.featLookup_ == NULL)
-            THROW_ERROR("featLookup_ != NULL, rhs.featLookup_ == NULL");
-        featLookup_->checkEqual(*rhs.featLookup_);
-    }
+    checkPointerEqual(featLookup_, rhs.featLookup_);
 }
 
 

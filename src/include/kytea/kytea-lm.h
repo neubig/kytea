@@ -45,6 +45,16 @@ public:
     const KyteaDoubleMap & getProbs() const { return probs_; }
     const KyteaDoubleMap & getFallbacks() const { return fallbacks_; }
 
+    void checkEqual(const KyteaLM & rhs) const {
+        if(n_ != rhs.n_)
+            THROW_ERROR("KyteaLM n_ don't match: " << n_ << " != " << rhs.n_);
+        if(vocabSize_ != rhs.vocabSize_)
+            THROW_ERROR("KyteaLM vocabSize_ don't match: " << vocabSize_ << " != " << rhs.vocabSize_);
+        checkMapEqual(probs_, rhs.probs_);
+        checkMapEqual(fallbacks_, rhs.fallbacks_);
+    }
+
+
 };
 
 }

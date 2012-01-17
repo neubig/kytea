@@ -20,14 +20,9 @@
 #include <stdexcept>
 #include <iostream>
 
-#define THROW_ERROR(msg) do {                   \
-    std::ostringstream oss;                     \
-    oss << msg;                                 \
-    throw std::runtime_error(oss.str()); }       \
-  while (0);
-
 #include <vector>
 #include <algorithm>
+#include "kytea-util.h"
 #include "kytea-string.h"
 #include "config.h"
 
@@ -59,14 +54,6 @@
 #endif
 
 namespace kytea  {
-
-// Vector equality checking function
-template <class T>
-void checkVecEqual(const std::vector<T> & a, const std::vector<T> & b) {
-    if(a.size() != b.size()) THROW_ERROR("Vector sizes don't match: "<<a.size()<<" != "<<b.size());
-    for(int i = 0; i < (int)a.size(); i++)
-        if(a[i] != b[i]) THROW_ERROR("Vectors don't match at "<<i);
-}
 
 // Map equality checking function
 template <class T>

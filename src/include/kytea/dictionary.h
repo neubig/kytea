@@ -22,8 +22,6 @@
 #include <map>
 #include <deque>
 
-#define DICTIONARY_SAFE
-
 namespace kytea  {
 
 class KyteaModel;
@@ -197,11 +195,12 @@ public:
             THROW_ERROR("numDicts_ != rhs.numDicts_ ("<<numDicts_<<" != "<<rhs.numDicts_);
     }
 
+
 };
 
 template <class Entry>
 void Dictionary<Entry>::buildGoto(wm_const_iterator start, wm_const_iterator end, unsigned lev, unsigned nid) {
-#ifdef DICTIONARY_SAFE
+#ifdef KYTEA_SAFE
     if(start == end) return;
     if(nid >= states_.size())
         THROW_ERROR("Out of bounds node in buildGoto ("<<nid<<" >= "<<states_.size()<<")");
@@ -316,7 +315,7 @@ Entry * Dictionary<Entry>::findEntry(KyteaString str) {
     if(str.length() == 0) return 0;
     unsigned state = 0, lev = 0;
     do {
-#ifdef DICTIONARY_SAFE
+#ifdef KYTEA_SAFE
         if(state >= states_.size())
             THROW_ERROR("Accessing state "<<state<<" that is larger than states_ ("<<states_.size()<<")");
         if(states_[state] == 0)

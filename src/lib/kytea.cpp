@@ -22,8 +22,6 @@
 #include <kytea/model-io.h>
 #include <kytea/dictionary.h>
 
-#define KYTEA_SAFE
-
 using namespace kytea;
 using namespace std;
 
@@ -403,11 +401,6 @@ void Kytea::trainGlobalTags(int lev) {
     preparePrefixes();
     wsModel_->setAddFeatures(wsAdd);
 
-    // find words that need to be modeled
-    if((int)globalMods_.size() <= lev) {
-        globalMods_.resize(lev+1,0);
-        globalTags_.resize(lev+1, vector<KyteaString>());
-    }
     ostringstream oss; oss << "T "<<lev<<" G";
     KyteaString featId = util_->mapString(oss.str());
     TagTriplet * trip = fio_.getFeatures(featId,true);
@@ -1059,8 +1052,12 @@ void Kytea::trainAll() {
     if(config_->getDoWS())
         trainWS();
     
-    // train the pronunciation estimator
+    // train the taggers
     if(config_->getDoTags()) {
+        if((int)globalMods_.size() <= config_->getNumTags()) {
+            globalMods_.resize(config_->getNumTags(),0);
+            globalTags_.resize(config_->getNumTags(), vector<KyteaString>());
+        }
         for(int i = 0; i < config_->getNumTags(); i++) {
             if(config_->getGlobal(i))
                 trainGlobalTags(i);
@@ -1160,4 +1157,16 @@ void Kytea::analyze() {
     if(config_->getDebug() > 0)    
         cerr << "done!" << endl;
 
+}
+
+void Kytea::checkEqual(const Kytea & rhs) {
+    checkPointerEqual(util_, rhs.util_);
+    // checkPointerEqual(config_, rhs.config_);
+    checkPointerEqual(dict_, rhs.dict_);
+    checkPointerEqual(wsModel_, rhs.wsModel_);
+    checkPointerEqual(subwordDict_, rhs.subwordDict_);
+    checkPointerVecEqual(subwordModels_, rhs.subwordModels_);
+    checkPointerVecEqual(globalMods_, rhs.globalMods_);
+    checkValueVecEqual(globalTags_, rhs.globalTags_);
+    checkValueVecEqual(dictFeats_, rhs.dictFeats_);
 }
