@@ -25,7 +25,7 @@ using namespace kytea;
 // trains a KyTea model
 int main(int argv, const char **argc) {
 
-    try {
+    // try {
         KyteaConfig * config = new KyteaConfig;
         config->setDebug(1);
         config->setOnTraining(true);
@@ -34,10 +34,10 @@ int main(int argv, const char **argc) {
         Kytea kytea(config);
         kytea.trainAll();
         return 0;
-    } catch (exception &e) {
-        cerr << endl;
-        cerr << " KyTea Error: " << e.what() << endl;
-        return 1;
-    }
+    // } catch (exception &e) {
+    //     cerr << endl;
+    //     cerr << " KyTea Error: " << e.what() << endl;
+    //     return 1;
+    // }
 
 }

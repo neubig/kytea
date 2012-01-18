@@ -303,7 +303,13 @@ Dictionary<vector<FeatVal> > * KyteaModel::makeDictionaryFromPrefixes(const vect
 }
 
 void KyteaModel::buildFeatureLookup(StringUtil * util, int charw, int typew, int numDicts, int maxLen) {
-    if(featLookup_) delete featLookup_;
+    if(featLookup_) {
+        delete featLookup_;
+        featLookup_ = 0;
+    }
+    // Do not build the feature lookup if there are no features to use
+    if(names_.size() == 0 || labels_.size() < 2)
+        return;
     featLookup_ = new FeatureLookup;
     featuresAdded_ = 0;
     // Make the character values
