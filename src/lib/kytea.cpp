@@ -386,10 +386,10 @@ unsigned Kytea::tagSelfFeatures(const KyteaString & self, vector<unsigned> & fea
 }
 
 void Kytea::trainGlobalTags(int lev) {
-    if(config_->getDebug() > 0)
-        cerr << "Creating tagging features (tag "<<lev+1<<") ";
     if(dict_ == 0)
         return;
+    if(config_->getDebug() > 0)
+        cerr << "Creating tagging features (tag "<<lev+1<<") ";
 
     // prepare prefixes
     bool wsAdd = wsModel_->getAddFeatures(); wsModel_->setAddFeatures(false);
@@ -433,10 +433,12 @@ void Kytea::trainGlobalTags(int lev) {
     if(config_->getDebug() > 0)
         cerr << "done!" << endl << "Training global tag classifiers ";
 
+
     trip->third->trainModel(trip->first,trip->second,config_->getBias(),config_->getSolverType(),config_->getEpsilon(),config_->getCost());
     globalTags_[lev] = trip->fourth;
     if(config_->getDebug() > 0)
-        cerr << "done!" << endl;
+        cerr << "done with " << globalTags_[lev].size() << " labels and " << 
+                trip->third->getNumFeatures() << " features!" << endl;
 
     fio_.printFeatures(featId,util_);
 }
