@@ -24,7 +24,9 @@ using namespace kytea;
 // trains a pronunciation estimation model using a corpus and a dictionary
 int main(int argv, const char **argc) {
 
+#ifndef KYTEA_SAFE
     try {
+#endif
         KyteaConfig * config = new KyteaConfig;
         config->setDebug(0);
         config->setOnTraining(false);
@@ -33,9 +35,11 @@ int main(int argv, const char **argc) {
         Kytea kytea(config);
         kytea.analyze();
         return 0;
+#ifndef KYTEA_SAFE
     } catch (exception &e) {
         cerr << endl;
         cerr << " KyTea Error: " << e.what() << endl;
         return 1;
     }
+#endif
 }

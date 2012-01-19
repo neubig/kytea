@@ -434,7 +434,8 @@ void Kytea::trainGlobalTags(int lev) {
         cerr << "done!" << endl << "Training global tag classifiers ";
 
 
-    trip->third->trainModel(trip->first,trip->second,config_->getBias(),config_->getSolverType(),config_->getEpsilon(),config_->getCost());
+    trip->third->trainModel(trip->first,trip->second,config_->getBias(),config_->getSolverType(),config_->getEpsilon(),config_->getCost()); 
+
     globalTags_[lev] = trip->fourth;
     if(config_->getDebug() > 0)
         cerr << "done with " << globalTags_[lev].size() << " labels and " << 
@@ -968,6 +969,7 @@ void Kytea::calculateTags(KyteaSentence & sent, int lev) {
     KyteaString kssx = util_->mapString("SX"), ksst = util_->mapString("ST");
     string defTag = config_->getDefaultTag();
     for(unsigned i = 0; i < sent.words.size(); i++) {
+        cerr << "Calculating tag word="<<util_->showString(sent.words[i].surf)<<", lev="<<lev<<endl;
         KyteaWord & word = sent.words[i];
         if((int)word.tags.size() > lev
             && (int)word.tags[lev].size() > 0
@@ -1001,23 +1003,23 @@ void Kytea::calculateTags(KyteaSentence & sent, int lev) {
         // calculate known tags
         else {
             vector<unsigned> feat;
-            if(tagMod == 0)
+            FeatureLookup * look;
+            if(tagMod == 0 || (look = tagMod->getFeatureLookup()) == NULL)
                 word.setTag(lev, KyteaTag((*tags)[0],(KyteaModel::isProbabilistic(config_->getSolverType())?1:100)));
             else {        
-                FeatureLookup * feat = tagMod->getFeatureLookup();
 #ifdef KYTEA_SAFE
-                if(feat == NULL) THROW_ERROR("null feature lookup during analysis");
+                if(look == NULL) THROW_ERROR("null lookure lookup during analysis");
 #endif
                 vector<FeatSum> scores(tagMod->getNumWeights(), 0);
-                feat->addTagNgrams(charStr, feat->getCharDict(), scores, config_->getCharN(), startPos, finPos);
-                feat->addTagNgrams(typeStr, feat->getTypeDict(), scores, config_->getTypeN(), startPos, finPos);
+                look->addTagNgrams(charStr, look->getCharDict(), scores, config_->getCharN(), startPos, finPos);
+                look->addTagNgrams(typeStr, look->getTypeDict(), scores, config_->getTypeN(), startPos, finPos);
                 if(useSelf) {
-                    feat->addSelfWeights(charStr.substr(startPos,finPos-startPos), scores, 0);
-                    feat->addSelfWeights(typeStr.substr(startPos,finPos-startPos), scores, 1);
-                    feat->addTagDictWeights(getDictionaryMatches(charStr.substr(startPos,finPos-startPos), 0), scores);
+                    look->addSelfWeights(charStr.substr(startPos,finPos-startPos), scores, 0);
+                    look->addSelfWeights(typeStr.substr(startPos,finPos-startPos), scores, 1);
+                    look->addTagDictWeights(getDictionaryMatches(charStr.substr(startPos,finPos-startPos), 0), scores);
                 }
                 for(int j = 0; j < (int)scores.size(); j++) 
-                    scores[j] += feat->getBias(j);
+                    scores[j] += look->getBias(j);
                 if(scores.size() == 1)
                     scores.push_back(KyteaModel::isProbabilistic(config_->getSolverType())?-1*scores[0]:0);
                 word.clearTags(lev);

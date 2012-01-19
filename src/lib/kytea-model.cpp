@@ -308,7 +308,7 @@ void KyteaModel::buildFeatureLookup(StringUtil * util, int charw, int typew, int
         featLookup_ = 0;
     }
     // Do not build the feature lookup if there are no features to use
-    if(names_.size() == 0 || labels_.size() < 2)
+    if(names_.size() == 0 || getNumClasses() < 2)
         return;
     featLookup_ = new FeatureLookup;
     featuresAdded_ = 0;
