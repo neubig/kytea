@@ -969,7 +969,6 @@ void Kytea::calculateTags(KyteaSentence & sent, int lev) {
     KyteaString kssx = util_->mapString("SX"), ksst = util_->mapString("ST");
     string defTag = config_->getDefaultTag();
     for(unsigned i = 0; i < sent.words.size(); i++) {
-        cerr << "Calculating tag word="<<util_->showString(sent.words[i].surf)<<", lev="<<lev<<endl;
         KyteaWord & word = sent.words[i];
         if((int)word.tags.size() > lev
             && (int)word.tags[lev].size() > 0
