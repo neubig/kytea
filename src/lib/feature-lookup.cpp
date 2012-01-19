@@ -41,6 +41,7 @@ void FeatureLookup::addTagNgrams(const KyteaString & chars,
                                  const Dictionary<FeatVec> * dict, 
                                  vector<FeatSum> & scores,
                                  int window, int startChar, int endChar) {
+    if(!dict) return;
     // Create a substring that exactly covers the window that we are interested
     // in of up to -window characters before, and +window characters after
     int myStart = max(startChar-window,0);
