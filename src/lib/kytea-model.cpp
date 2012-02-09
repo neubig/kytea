@@ -244,15 +244,31 @@ void KyteaModel::trainModel(const vector< vector<unsigned> > & xs, vector<int> &
             myMax = max(abs(mod_->w[i*numW_+j]),myMax);
         if(myMax>SIG_CUTOFF) {
             mapFeat(oldNames_[i+1]);
+            // If the number of weights is two, push the difference
+            if(numW_ == 2) {
+                weights_.push_back((FeatVal)
+                        ((mod_->w[i*numW_]-mod_->w[i*numW_+1])/multiplier_));
+            // Otherwise, keep the number of weights as-is, and push all
+            } else {
+                for(j = 0; j < numW_; j++)
+                    weights_.push_back((FeatVal)(mod_->w[i*numW_+j]/multiplier_));
+            }
+        }
+    }
+    if(bias_>=0) {
+        // If the number of weights is two, push the difference
+        if(numW_ == 2) {
+            weights_.push_back((FeatVal)
+                    ((mod_->w[i*numW_]-mod_->w[i*numW_+1])/multiplier_));
+        // Otherwise push all
+        } else {
             for(j = 0; j < numW_; j++)
                 weights_.push_back((FeatVal)(mod_->w[i*numW_+j]/multiplier_));
         }
     }
-    if(bias_>=0) {
-        for(j = 0; j < numW_; j++) {
-            weights_.push_back((FeatVal)(mod_->w[i*numW_+j]/multiplier_));
-        }
-    }
+
+    // If the number of weights was two, we've converted to one
+    if(numW_ == 2) numW_ = 1;
 
     free_and_destroy_model(&mod_);
     // When we're done with training, no more adding features
