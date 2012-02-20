@@ -859,7 +859,11 @@ void Kytea::readModel(const char* fileName) {
 
 void Kytea::calculateWS(KyteaSentence & sent) {
     
-    // // get the features for the sentence
+    // Skip empty sentences
+    if(sent.chars.length() == 0)
+        return;
+
+    // get the features for the sentence
     FeatureLookup * featLookup = wsModel_->getFeatureLookup();
     vector<FeatSum> scores(sent.chars.length()-1, featLookup->getBias(0));
     featLookup->addNgramScores(featLookup->getCharDict(), 
