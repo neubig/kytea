@@ -66,6 +66,16 @@ public:
         delete kyteaLogist;
     }
 
+    int testWordSegmentationEmpty() {
+        // Do the analysis (This is very close to the training data, so it
+        // should work perfectly)
+        KyteaSentence sentence(util->mapString(""));
+        kytea->calculateWS(sentence);
+        // Make the correct words
+        KyteaString::Tokens toks = util->mapString("").tokenize(util->mapString(" "));
+        return checkWordSeg(sentence,toks,util);
+    }
+
     int testWordSegmentationSVM() {
         // Do the analysis (This is very close to the training data, so it
         // should work perfectly)
@@ -278,6 +288,7 @@ public:
     bool runTest() {
         int done = 0, succeeded = 0;
         done++; cout << "testWordSegmentationSVM()" << endl; if(testWordSegmentationSVM()) succeeded++; else cout << "FAILED!!!" << endl;
+        done++; cout << "testWordSegmentationEmpty()" << endl; if(testWordSegmentationEmpty()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testWordSegmentationLogistic()" << endl; if(testWordSegmentationLogistic()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testWordSegmentationMCSVM()" << endl; if(testWordSegmentationMCSVM()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testGlobalTaggingSVM()" << endl; if(testGlobalTaggingSVM()) succeeded++; else cout << "FAILED!!!" << endl;
