@@ -36,6 +36,19 @@ public:
         return ret;
     }
 
+    int testPartEmptyLines() {
+        // Build the string
+        stringstream instr;
+        instr << "" << endl;
+        PartCorpusIO io(util, instr, false);
+        KyteaSentence * sent = io.readSentence();
+        // Build the expectations
+        vector<double> exp(0,0.0);
+        bool ret = checkVector(exp, sent->wsConfs); 
+        delete sent;
+        return ret;
+    }
+
     int testFullTagConf() {
         // Build the string
         stringstream instr;
@@ -78,6 +91,7 @@ public:
     bool runTest() {
         int done = 0, succeeded = 0;
         done++; cout << "testWordSegConf()" << endl; if(testWordSegConf()) succeeded++; else cout << "FAILED!!!" << endl;
+        done++; cout << "testPartEmptyLines()" << endl; if(testPartEmptyLines()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testFullTagConf()" << endl; if(testFullTagConf()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testLastValue()" << endl; if(testLastValue()) succeeded++; else cout << "FAILED!!!" << endl;
         cout << "#### TestCorpusIO Finished with "<<succeeded<<"/"<<done<<" tests succeeding ####"<<endl;
