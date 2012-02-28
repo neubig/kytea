@@ -5,7 +5,7 @@ KYTH = test-kytea.h test-analysis.h test-base.h test-corpusio.h test-sentence.h
 
 AM_CPPFLAGS = -I$(srcdir)/../include -DPKGDATADIR='"$(pkgdatadir)"'
 
-bin_PROGRAMS = test-kytea
+noinst_PROGRAMS = test-kytea
 
 test_kytea_SOURCES = test-kytea.cpp ${KYTH}
 test_kytea_LDADD = ../lib/libkytea.la
