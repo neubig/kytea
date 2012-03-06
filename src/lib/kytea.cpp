@@ -883,6 +883,10 @@ void Kytea::calculateWS(KyteaSentence & sent) {
         if(abs(sent.wsConfs[i]) <= config_->getConfidence())
             sent.wsConfs[i] = scores[i]*wsModel_->getMultiplier();
     sent.refreshWS(config_->getConfidence());
+    for(int i = 0; i < (int)sent.words.size(); i++) {
+        KyteaWord & word = sent.words[i];
+        word.setUnknown(dict_->findEntry(word.surf) == 0);
+    }
     if(KyteaModel::isProbabilistic(config_->getSolverType())) {
         for(unsigned i = 0; i < sent.wsConfs.size(); i++)
             sent.wsConfs[i] = 1/(1.0+exp(-abs(sent.wsConfs[i])));
@@ -981,7 +985,6 @@ void Kytea::calculateTags(KyteaSentence & sent, int lev) {
         startPos = finPos;
         finPos = startPos+word.surf.length();
         ModelTagEntry* ent = dict_->findEntry(word.surf);
-        word.setUnknown(ent == 0);
         // choose whether to do local or global estimation
         vector<KyteaString> * tags = 0;
         KyteaModel * tagMod = 0;

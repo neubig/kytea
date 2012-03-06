@@ -76,6 +76,21 @@ public:
         return checkWordSeg(sentence,toks,util);
     }
 
+    int testWordSegmentationUnk() {
+        // Do the analysis (This is very close to the training data, so it
+        // should work perfectly)
+        KyteaSentence sentence(util->mapString("これは学習デエタです。"));
+        kytea->calculateWS(sentence);
+        // Make the correct words
+        KyteaString::Tokens toks = util->mapString("これ は 学習 デエタ で す 。").tokenize(util->mapString(" "));
+        if(!checkWordSeg(sentence,toks,util)) { return 0; }
+        vector<bool> unk_exp(6, false), unk_act(6);
+        unk_exp[3] = true;
+        for(int i = 0; i < 6; i++)
+            unk_act[i] = sentence.words[i].getUnknown();
+        return checkVector(unk_exp, unk_act);
+    }
+
     int testWordSegmentationSVM() {
         // Do the analysis (This is very close to the training data, so it
         // should work perfectly)
@@ -289,6 +304,7 @@ public:
         int done = 0, succeeded = 0;
         done++; cout << "testWordSegmentationSVM()" << endl; if(testWordSegmentationSVM()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testWordSegmentationEmpty()" << endl; if(testWordSegmentationEmpty()) succeeded++; else cout << "FAILED!!!" << endl;
+        done++; cout << "testWordSegmentationUnk()" << endl; if(testWordSegmentationUnk()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testWordSegmentationLogistic()" << endl; if(testWordSegmentationLogistic()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testWordSegmentationMCSVM()" << endl; if(testWordSegmentationMCSVM()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testGlobalTaggingSVM()" << endl; if(testGlobalTaggingSVM()) succeeded++; else cout << "FAILED!!!" << endl;
