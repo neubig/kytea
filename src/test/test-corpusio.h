@@ -87,6 +87,27 @@ public:
         delete sent;
         return ret;
     }
+    
+    int testUnkIO() {
+        string input = "これ/代名詞/これ は/助詞/は 未知/名詞/みち\n";
+        // Read in a partially annotated sentence
+        stringstream instr;
+        instr << input;
+        FullCorpusIO infcio(util, instr, false);
+        KyteaSentence * sent = infcio.readSentence();
+        sent->words[2].setUnknown(true);
+        string exp = "これ/代名詞/これ は/助詞/は 未知/名詞/みち/UNK\n";
+        stringstream outstr;
+        FullCorpusIO outfcio(util, outstr, true);
+        outfcio.setUnkTag("/UNK");
+        outfcio.writeSentence(sent);
+        string act = outstr.str();
+        if(exp != act) {
+            cerr << "exp: "<<exp<<endl<<"act: "<<act<<endl;
+            return 0;
+        }
+        return 1;
+    }
 
     bool runTest() {
         int done = 0, succeeded = 0;
@@ -94,6 +115,7 @@ public:
         done++; cout << "testPartEmptyLines()" << endl; if(testPartEmptyLines()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testFullTagConf()" << endl; if(testFullTagConf()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testLastValue()" << endl; if(testLastValue()) succeeded++; else cout << "FAILED!!!" << endl;
+        done++; cout << "testUnkIO()" << endl; if(testUnkIO()) succeeded++; else cout << "FAILED!!!" << endl;
         cout << "#### TestCorpusIO Finished with "<<succeeded<<"/"<<done<<" tests succeeding ####"<<endl;
         return done == succeeded;
     }
