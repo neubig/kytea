@@ -101,7 +101,7 @@ public:
 
     void openFile(const char* file, bool out, bool bin) {
         std::fstream::openmode mode = (out?std::fstream::out:std::fstream::in);
-        if(bin) out = out | std::fstream::binary;
+        if(bin) mode = mode | std::fstream::binary;
         std::fstream * str = new std::fstream(file, mode);
         if(str->fail()) 
             THROW_ERROR("Couldn't open file '"<<file<<"' for "<<(out?"output":"input"));

@@ -80,7 +80,6 @@ void Kytea::scanDictionaries(const vector<string> & dict, typename Dictionary<En
             cerr << "Reading dictionary from " << *it << " ";
         CorpusIO * io = CorpusIO::createIO(it->c_str(), CORP_FORMAT_FULL, *config, false, util);
         io->setNumTags(config_->getNumTags());
-        ifstream dis(it->c_str());
         KyteaSentence* next;
         int lines = 0;
         while((next = io->readSentence())) {
