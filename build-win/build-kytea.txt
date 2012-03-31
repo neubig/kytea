@@ -1,0 +1,11 @@
+Download and install Visual Studio 2010 Express:
+> http://www.microsoft.com/japan/msdn/vstudio/express/
+
+Download and install depot_tools:
+> http://dev.chromium.org/developers/how-tos/install-depot-tools
+
+Set DEPOT_TOOLS to the depot_tools top directory:
+> set DEPOT_TOOLS=c:\Path\To\depot_tools
+
+Checkout and build:
+> %DEPOT_TOOLS%\gclient config https://github.com/neubig/kytea.git
