@@ -11,8 +11,8 @@ class TestAnalysis : public TestBase {
 
 private:
 
-    Kytea *kytea, *kyteaLogist, *kyteaMCSVM;
-    StringUtil *util, *utilLogist, *utilMCSVM;
+    Kytea *kytea, *kyteaLogist, *kyteaMCSVM, *kyteaNoWS;
+    StringUtil *util, *utilLogist, *utilMCSVM, *utilNoWS;
 
 public:
 
@@ -59,11 +59,24 @@ public:
         kyteaMCSVM->trainAll();
         utilMCSVM = kyteaMCSVM->getStringUtil();
         configMCSVM->setOnTraining(false);
+        // Train the KyTea model with logistic regression
+        const char* toyCmdNoWS[9] = {"", "-model", "/tmp/kytea-logist-model.bin", "-full", "/tmp/kytea-toy-corpus.txt", "-global", "1", "-nows"};
+        KyteaConfig * configNoWS = new KyteaConfig;
+        configNoWS->setDebug(0);
+        configNoWS->setTagMax(0);
+        configNoWS->setOnTraining(true);
+        configNoWS->parseTrainCommandLine(9, toyCmdNoWS);
+        kyteaNoWS = new Kytea(configNoWS);
+        kyteaNoWS->trainAll();
+        utilNoWS = kyteaNoWS->getStringUtil();
+        configNoWS->setOnTraining(false);
     }
 
     ~TestAnalysis() {
         delete kytea;
         delete kyteaLogist;
+        delete kyteaMCSVM;
+        delete kyteaNoWS;
     }
 
     int testWordSegmentationEmpty() {
