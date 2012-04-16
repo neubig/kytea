@@ -60,12 +60,12 @@ public:
         utilMCSVM = kyteaMCSVM->getStringUtil();
         configMCSVM->setOnTraining(false);
         // Train the KyTea model with logistic regression
-        const char* toyCmdNoWS[9] = {"", "-model", "/tmp/kytea-logist-model.bin", "-full", "/tmp/kytea-toy-corpus.txt", "-global", "1", "-nows"};
+        const char* toyCmdNoWS[8] = {"", "-model", "/tmp/kytea-logist-model.bin", "-full", "/tmp/kytea-toy-corpus.txt", "-global", "1", "-nows"};
         KyteaConfig * configNoWS = new KyteaConfig;
         configNoWS->setDebug(0);
         configNoWS->setTagMax(0);
         configNoWS->setOnTraining(true);
-        configNoWS->parseTrainCommandLine(9, toyCmdNoWS);
+        configNoWS->parseTrainCommandLine(8, toyCmdNoWS);
         kyteaNoWS = new Kytea(configNoWS);
         kyteaNoWS->trainAll();
         utilNoWS = kyteaNoWS->getStringUtil();
@@ -174,6 +174,31 @@ public:
         // Make the correct tags
         KyteaString::Tokens toks = utilMCSVM->mapString("代名詞 助詞 名詞 名詞 助動詞 語尾 補助記号").tokenize(utilMCSVM->mapString(" "));
         int correct = checkTags(sentence,toks,0,utilMCSVM);
+        if(correct) {
+            // Check the confidences for the SVM, the second candidate should
+            // always be zero
+            for(int i = 0; i < (int)sentence.words.size(); i++) {
+                if(sentence.words[i].tags[0][1].second != 0.0) {
+                    cerr << "Margin on word "<<i<<" is not 0.0 (== "<<sentence.words[i].tags[0][1].second<<")"<<endl;
+                    correct = false;
+                }
+            }
+        }
+        return correct;
+    }
+
+    int testGlobalTaggingNoWS() {
+        // Do the analysis (This is very close to the training data, so it
+        // should work perfectly)
+        KyteaSentence sentence(utilNoWS->mapString("これは学習データです。"));
+        sentence.wsConfs[0] = -1; sentence.wsConfs[1] = 1; sentence.wsConfs[2] = 1;
+        sentence.wsConfs[3] = -1; sentence.wsConfs[4] = 1; sentence.wsConfs[5] = -1;
+        sentence.wsConfs[6] = -1; sentence.wsConfs[7] = 1; sentence.wsConfs[8] = 1; sentence.wsConfs[9] = 1;
+        sentence.refreshWS(0);
+        kyteaNoWS->calculateTags(sentence,0);
+        // Make the correct tags
+        KyteaString::Tokens toks = utilNoWS->mapString("代名詞 助詞 名詞 名詞 助動詞 語尾 補助記号").tokenize(utilNoWS->mapString(" "));
+        int correct = checkTags(sentence,toks,0,utilNoWS);
         if(correct) {
             // Check the confidences for the SVM, the second candidate should
             // always be zero
@@ -323,6 +348,7 @@ public:
         done++; cout << "testGlobalTaggingSVM()" << endl; if(testGlobalTaggingSVM()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testGlobalTaggingLogistic()" << endl; if(testGlobalTaggingLogistic()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testGlobalTaggingMCSVM()" << endl; if(testGlobalTaggingMCSVM()) succeeded++; else cout << "FAILED!!!" << endl;
+        done++; cout << "testGlobalTaggingNoWS()" << endl; if(testGlobalTaggingNoWS()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testGlobalSelf()" << endl; if(testGlobalSelf()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testLocalTagging()" << endl; if(testLocalTagging()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testPartialSegmentation()" << endl; if(testPartialSegmentation()) succeeded++; else cout << "FAILED!!!" << endl;

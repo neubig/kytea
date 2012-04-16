@@ -391,9 +391,14 @@ void Kytea::trainGlobalTags(int lev) {
         cerr << "Creating tagging features (tag "<<lev+1<<") ";
 
     // prepare prefixes
-    bool wsAdd = wsModel_->getAddFeatures(); wsModel_->setAddFeatures(false);
+    bool wsAdd = false;
+    if(wsModel_) {
+        wsAdd = wsModel_->getAddFeatures();
+        wsModel_->setAddFeatures(false);
+    }
     preparePrefixes();
-    wsModel_->setAddFeatures(wsAdd);
+    if(wsModel_)
+        wsModel_->setAddFeatures(wsAdd);
 
     ostringstream oss; oss << "T "<<lev<<" G";
     KyteaString featId = util_->mapString(oss.str());
@@ -460,9 +465,14 @@ void Kytea::trainLocalTags(int lev) {
     // prepare prefixes
     ostringstream oss; oss << "T "<<lev<<" L ";
     KyteaString featId = util_->mapString(oss.str());
-    bool wsAdd = wsModel_->getAddFeatures(); wsModel_->setAddFeatures(false);
+    bool wsAdd = false;
+    if(wsModel_) {
+        wsAdd = wsModel_->getAddFeatures();
+        wsModel_->setAddFeatures(false);
+    }
     preparePrefixes();
-    wsModel_->setAddFeatures(wsAdd);
+    if(wsModel_)
+        wsModel_->setAddFeatures(wsAdd);
     // find words that need to be modeled
     vector<ModelTagEntry*> & entries = dict_->getEntries();
     ModelTagEntry* myEntry = 0;
@@ -764,9 +774,11 @@ void Kytea::trainUnk(int lev) {
 
 void Kytea::buildFeatureLookups() {
     // Write out the word segmentation features
-    wsModel_->buildFeatureLookup(util_, 
-                                 config_->getCharWindow(), config_->getTypeWindow(),
-                                 dict_->getNumDicts(), config_->getDictionaryN());
+    if(wsModel_) {
+        wsModel_->buildFeatureLookup(util_, 
+                                     config_->getCharWindow(), config_->getTypeWindow(),
+                                     dict_->getNumDicts(), config_->getDictionaryN());
+    }
     for(int i = 0; i < (int)globalMods_.size(); i++)
         if(globalMods_[i])
             globalMods_[i]->buildFeatureLookup(util_, 
@@ -857,6 +869,8 @@ void Kytea::readModel(const char* fileName) {
 ////////////////////////
 
 void Kytea::calculateWS(KyteaSentence & sent) {
+    if(!wsModel_)
+        THROW_ERROR("This model cannot be used for word segmentation.");
     
     // Skip empty sentences
     if(sent.chars.length() == 0)
