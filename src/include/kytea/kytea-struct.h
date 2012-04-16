@@ -28,7 +28,11 @@
 
 // maps for use with various classes
 #ifdef HAVE_TR1_UNORDERED_MAP
+#if _MSC_VER >=1600
+#   include <unordered_map>
+#else
 #   include <tr1/unordered_map>
+#endif
     template <class T>
     class StringMap : public std::tr1::unordered_map<std::string,T> { };
     template <class T>
