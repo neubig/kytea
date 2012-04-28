@@ -184,7 +184,7 @@ public:
     const std::vector<CorpForm> & getCorpusFormats() const { return corpusFormats_; }
     const std::vector<std::string> & getDictionaryFiles() const { return dicts_; }
     const std::vector<std::string> & getSubwordDictFiles() const { return subwordDicts_; }
-    const std::string & getModelFile() const { return model_; }
+    const std::string & getModelFile();
     const char getModelFormat() const { return modelForm_; }
     const unsigned getDebug() const { return debug_; }
     StringUtil * getStringUtil() { return util_; }

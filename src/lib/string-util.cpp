@@ -15,10 +15,62 @@
 */
 
 #include <kytea/string-util.h>
+#include <kytea/string-util-map-utf8.h>
+#include <kytea/string-util-map-euc.h>
+#include <kytea/string-util-map-sjis.h>
 #include <iostream>
 
 using namespace kytea;
 using namespace std;
+
+StringUtilUtf8::StringUtilUtf8() {
+    const char * initial[7] = { "", "K", "T", "H", "R", "D", "O" };
+    for(unsigned i = 0; i < 7; i++) {
+        charIds_.insert(std::pair<std::string,KyteaChar>(initial[i], i));
+        charTypes_.push_back(i==0?6:4); // first is other, rest romaji
+        charNames_.push_back(initial[i]);
+    }
+}
+
+GenericMap<KyteaChar,KyteaChar> * StringUtilUtf8::getNormMap() {
+    if(normMap_ == NULL) {
+        normMap_ = new GenericMap<KyteaChar,KyteaChar>;
+        KyteaString orig = mapString(STRING_UTIL_ORIG_UTF8);
+        KyteaString norm = mapString(STRING_UTIL_NORM_UTF8);
+        if(orig.length() != norm.length())
+            THROW_ERROR("FATAL ERROR: unmatched strings in string-util.cpp : StringUtilUtf8");
+        for(int i = 0; i < (int)orig.length(); i++)
+            normMap_->insert(pair<KyteaChar,KyteaChar>(orig[i], norm[i]));
+    }
+    return normMap_;
+}
+
+GenericMap<KyteaChar,KyteaChar> * StringUtilSjis::getNormMap() {
+    if(normMap_ == NULL) {
+        normMap_ = new GenericMap<KyteaChar,KyteaChar>;
+        KyteaString orig = mapString(STRING_UTIL_ORIG_SJIS);
+        KyteaString norm = mapString(STRING_UTIL_NORM_SJIS);
+        if(orig.length() != norm.length())
+            THROW_ERROR("FATAL ERROR: unmatched strings in string-util.cpp : StringUtilSjis");
+        for(int i = 0; i < (int)orig.length(); i++)
+            normMap_->insert(pair<KyteaChar,KyteaChar>(orig[i], norm[i]));
+    }
+    return normMap_;
+}
+
+GenericMap<KyteaChar,KyteaChar> * StringUtilEuc::getNormMap() {
+    if(normMap_ == NULL) {
+        normMap_ = new GenericMap<KyteaChar,KyteaChar>;
+        KyteaString orig = mapString(STRING_UTIL_ORIG_EUC);
+        KyteaString norm = mapString(STRING_UTIL_NORM_EUC);
+        if(orig.length() != norm.length())
+            THROW_ERROR("FATAL ERROR: unmatched strings in string-util.cpp : StringUtilEuc");
+        for(int i = 0; i < (int)orig.length(); i++)
+            normMap_->insert(pair<KyteaChar,KyteaChar>(orig[i], norm[i]));
+    }
+    return normMap_;
+}
+
 
 // map a string to a character
 KyteaChar StringUtilUtf8::mapChar(const string & str, bool add) {
@@ -346,6 +398,18 @@ StringUtil::CharType StringUtilSjis::findType(KyteaChar c) {
         return KANJI;
     }
     return OTHER;
+}
+
+KyteaString StringUtil::normalize(const KyteaString & str) {
+    // std::cerr << showString(str) << std::endl;
+    KyteaString ret(str.length());
+    GenericMap<KyteaChar,KyteaChar> * normMap = getNormMap();
+    for(int i = 0; i < (int)str.length(); i++) {
+        GenericMap<KyteaChar,KyteaChar>::const_iterator it = normMap->find(str[i]);
+        ret[i] = (it == normMap->end()) ? str[i] : it->second;
+        // std::cerr << "  " << str[i] << "-->" << ret[i] << std::endl;
+    }
+    return ret;
 }
 
 // return the encoding provided by this util

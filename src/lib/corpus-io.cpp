@@ -79,7 +79,8 @@ KyteaSentence * FullCorpusIO::readSentence() {
             else
                 THROW_ERROR("Empty word at position "<<j<<" in "<<s);
         }
-        KyteaWord word(buff.substr(0,bpos));
+        KyteaString word_str = buff.substr(0,bpos);
+        KyteaWord word(word_str, util_->normalize(word_str));
         charLen += bpos;
         // 2) get the tags
         lev = -1;
@@ -98,25 +99,19 @@ KyteaSentence * FullCorpusIO::readSentence() {
     }
      
     // make the character/ws string
-    ret->chars = KyteaString(charLen);
+    ret->surface = KyteaString(charLen);
+    ret->norm = KyteaString(charLen);
     unsigned pos = 0;
     for(KyteaSentence::Words::const_iterator tit = ret->words.begin(); tit != ret->words.end(); tit++) {
-        ret->chars.splice(tit->surf, pos);
-        unsigned nextPos = pos + tit->surf.length() - 1;
+        ret->surface.splice(tit->surface, pos);
+        ret->norm.splice(tit->norm, pos);
+        unsigned nextPos = pos + tit->surface.length() - 1;
         while(pos++ < nextPos)
             ret->wsConfs.push_back(PROB_FALSE);
         ret->wsConfs.push_back(PROB_TRUE); 
     }
     if(ret->wsConfs.size() > 0)
         ret->wsConfs.pop_back();
-    // // DEBUG START
-    // cout << "words. ";
-    // for(unsigned i = 0; i < ret->words.size(); i++) {
-    //     if(i != 0) cout << " ||| ";
-    //     cout << util_->showString(ret->words[i].surf);
-    // }
-    // cout << endl;
-    // // DEBUG END
     return ret;
 }
 
@@ -125,7 +120,7 @@ void FullCorpusIO::writeSentence(const KyteaSentence * sent, double conf) {
     for(unsigned i = 0; i < sent->words.size(); i++) {
         if(i != 0) *str_ << wb;
         const KyteaWord & w = sent->words[i];
-        *str_ << util_->showString(w.surf);
+        *str_ << util_->showString(w.surface);
         for(int j = 0; j < w.getNumTags(); j++) {
             const vector< KyteaTag > & tags = w.getTags(j);
             if(tags.size() > 0) {
@@ -184,7 +179,8 @@ KyteaSentence * PartCorpusIO::readSentence() {
             } else
                 ret->wsConfs.push_back(PROB_FALSE);
         }
-        KyteaWord word(buff.substr(0,bpos));
+        KyteaString word_str = buff.substr(0,bpos);
+        KyteaWord word(word_str, util_->normalize(word_str));
         charLen += bpos;
         word.isCertain = cert;
         bpos = 0;
@@ -208,11 +204,13 @@ KyteaSentence * PartCorpusIO::readSentence() {
     }
 
     // make the character/ws string
-    ret->chars = KyteaString(charLen);
+    ret->surface = KyteaString(charLen);
+    ret->norm = KyteaString(charLen);
     unsigned pos = 0;
     for(KyteaSentence::Words::const_iterator tit = ret->words.begin(); tit != ret->words.end(); tit++) {
-        ret->chars.splice(tit->surf, pos);
-        pos += tit->surf.length();
+        ret->surface.splice(tit->surface, pos);
+        ret->norm.splice(tit->norm, pos);
+        pos += tit->surface.length();
     }
 
     return ret;
@@ -226,13 +224,13 @@ void PartCorpusIO::writeSentence(const KyteaSentence * sent, double conf)  {
     for(unsigned i = 0; i < sent->words.size(); i++) {
         const KyteaWord & w = sent->words[i];
         string sepType = ukBound;
-        for(unsigned j = 0; j < w.surf.length(); ) {
-            *str_ << util_->showChar(sent->chars[curr]);
+        for(unsigned j = 0; j < w.surface.length(); ) {
+            *str_ << util_->showChar(sent->surface[curr]);
             if(curr == sent->wsConfs.size()) sepType = skipBound;
             else if(sent->wsConfs[curr] > conf) sepType = hasBound;
             else if(sent->wsConfs[curr] < conf*-1) sepType = noBound;
             else sepType = ukBound;
-            if(++j != w.surf.length())
+            if(++j != w.surface.length())
                 *str_ << sepType;
             curr++;
         }
@@ -329,12 +327,13 @@ KyteaSentence * RawCorpusIO::readSentence() {
     if(str_->eof())
         return 0;
     KyteaSentence * ret = new KyteaSentence();
-    ret->chars = util_->mapString(s);
-    if(ret->chars.length() != 0)
-        ret->wsConfs.resize(ret->chars.length()-1,0);
+    ret->surface = util_->mapString(s);
+    ret->norm = util_->normalize(ret->surface);
+    if(ret->surface.length() != 0)
+        ret->wsConfs.resize(ret->surface.length()-1,0);
     return ret;
 }
 
 void RawCorpusIO::writeSentence(const KyteaSentence * sent, double conf)  {
-    *str_ << util_->showString(sent->chars) << endl;
+    *str_ << util_->showString(sent->surface) << endl;
 }

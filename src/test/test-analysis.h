@@ -22,9 +22,9 @@ public:
 "これ/代名詞/これ は/助詞/は 学習/名詞/がくしゅう データ/名詞/でーた で/助動詞/で す/語尾/す 。/補助記号/。\n"
 "大変/形状詞/でーた で/助動詞/で す/語尾/す 。/補助記号/。\n"
 "\n"
-"どうぞ/副詞/どうぞ モデル/名詞/もでる を/助詞/を 学習/名詞/がくしゅう し/動詞/し て/助詞/て くださ/動詞/くださ い/語尾/い ！/補助記号/！\n"
-"処理/名詞/しょり を/助詞/を 行/動詞/おこな っ/語尾/っ た/助動詞/た\n"
-"京都/名詞/きょうと に/助詞/に 行/動詞/い っ/語尾/っ た/助動詞/た\n";
+"どうぞ/副詞/どうぞ モデル/名詞/もでる を/助詞/を ＫｙＴｅａ/名詞/きゅーてぃー で/助詞/で 学習/名詞/がくしゅう し/動詞/し て/助詞/て くださ/動詞/くださ い/語尾/い ！/補助記号/！\n"
+"処理/名詞/しょり を/助詞/を 行/動詞/おこな っ/語尾/っ た/助動詞/た ．/補助記号/。\n"
+"京都/名詞/きょうと に/助詞/に 行/動詞/い っ/語尾/っ た/助動詞/た ．/補助記号/。\n";
         ofstream ofs("/tmp/kytea-toy-corpus.txt"); 
         ofs << toy_text; ofs.close();
         // Train the KyTea model with SVMs
@@ -82,7 +82,8 @@ public:
     int testWordSegmentationEmpty() {
         // Do the analysis (This is very close to the training data, so it
         // should work perfectly)
-        KyteaSentence sentence(util->mapString(""));
+        KyteaString str = util->mapString("");
+        KyteaSentence sentence(str, util->normalize(str));
         kytea->calculateWS(sentence);
         // Make the correct words
         KyteaString::Tokens toks = util->mapString("").tokenize(util->mapString(" "));
@@ -92,7 +93,8 @@ public:
     int testWordSegmentationUnk() {
         // Do the analysis (This is very close to the training data, so it
         // should work perfectly)
-        KyteaSentence sentence(util->mapString("これは学習デエタです。"));
+        KyteaString str = util->mapString("これは学習デエタです。");
+        KyteaSentence sentence(str, util->normalize(str));
         kytea->calculateWS(sentence);
         // Make the correct words
         KyteaString::Tokens toks = util->mapString("これ は 学習 デエタ で す 。").tokenize(util->mapString(" "));
@@ -103,11 +105,27 @@ public:
             unk_act[i] = sentence.words[i].getUnknown();
         return checkVector(unk_exp, unk_act);
     }
+    
+    int testNormalizationUnk() {
+        // Do the analysis (This is very close to the training data, so it
+        // should work perfectly)
+        KyteaString str = util->mapString("これはKyTeaです.");
+        KyteaSentence sentence(str, util->normalize(str));
+        kytea->calculateWS(sentence);
+        // Make the correct words
+        KyteaString::Tokens toks = util->mapString("これ は KyTea で す .").tokenize(util->mapString(" "));
+        if(!checkWordSeg(sentence,toks,util)) { return 0; }
+        vector<bool> unk_exp(6, false), unk_act(6);
+        for(int i = 0; i < 6; i++)
+            unk_act[i] = sentence.words[i].getUnknown();
+        return checkVector(unk_exp, unk_act);
+    }
 
     int testWordSegmentationSVM() {
         // Do the analysis (This is very close to the training data, so it
         // should work perfectly)
-        KyteaSentence sentence(util->mapString("これは学習データです。"));
+        KyteaString str = util->mapString("これは学習データです。");
+        KyteaSentence sentence(str, util->normalize(str));
         kytea->calculateWS(sentence);
         // Make the correct words
         KyteaString::Tokens toks = util->mapString("これ は 学習 データ で す 。").tokenize(util->mapString(" "));
@@ -117,7 +135,8 @@ public:
     int testWordSegmentationMCSVM() {
         // Do the analysis (This is very close to the training data, so it
         // should work perfectly)
-        KyteaSentence sentence(utilMCSVM->mapString("これは学習データです。"));
+        KyteaString str = utilMCSVM->mapString("これは学習データです。");
+        KyteaSentence sentence(str, utilMCSVM->normalize(str));
         kyteaMCSVM->calculateWS(sentence);
         // Make the correct words
         KyteaString::Tokens toks = utilMCSVM->mapString("これ は 学習 データ で す 。").tokenize(utilMCSVM->mapString(" "));
@@ -127,7 +146,8 @@ public:
     int testWordSegmentationLogistic() {
         // Do the analysis (This is very close to the training data, so it
         // should work perfectly)
-        KyteaSentence sentence(utilLogist->mapString("これは学習データです。"));
+        KyteaString str = utilLogist->mapString("これは学習データです。");
+        KyteaSentence sentence(str, utilLogist->normalize(str));
         kyteaLogist->calculateWS(sentence);
         // Make the correct words
         KyteaString::Tokens toks = utilLogist->mapString("これ は 学習 データ で す 。").tokenize(utilLogist->mapString(" "));
@@ -146,7 +166,8 @@ public:
     int testGlobalTaggingSVM() {
         // Do the analysis (This is very close to the training data, so it
         // should work perfectly)
-        KyteaSentence sentence(util->mapString("これは学習データです。"));
+        KyteaString str = util->mapString("これは学習データです。");
+        KyteaSentence sentence(str, util->normalize(str));
         kytea->calculateWS(sentence);
         kytea->calculateTags(sentence,0);
         // Make the correct tags
@@ -168,7 +189,8 @@ public:
     int testGlobalTaggingMCSVM() {
         // Do the analysis (This is very close to the training data, so it
         // should work perfectly)
-        KyteaSentence sentence(utilMCSVM->mapString("これは学習データです。"));
+        KyteaString str = utilMCSVM->mapString("これは学習データです。");
+        KyteaSentence sentence(str, utilMCSVM->normalize(str));
         kyteaMCSVM->calculateWS(sentence);
         kyteaMCSVM->calculateTags(sentence,0);
         // Make the correct tags
@@ -190,7 +212,8 @@ public:
     int testGlobalTaggingNoWS() {
         // Do the analysis (This is very close to the training data, so it
         // should work perfectly)
-        KyteaSentence sentence(utilNoWS->mapString("これは学習データです。"));
+        KyteaString str = utilNoWS->mapString("これは学習データです。");
+        KyteaSentence sentence(str, utilNoWS->normalize(str));
         sentence.wsConfs[0] = -1; sentence.wsConfs[1] = 1; sentence.wsConfs[2] = 1;
         sentence.wsConfs[3] = -1; sentence.wsConfs[4] = 1; sentence.wsConfs[5] = -1;
         sentence.wsConfs[6] = -1; sentence.wsConfs[7] = 1; sentence.wsConfs[8] = 1; sentence.wsConfs[9] = 1;
@@ -215,7 +238,8 @@ public:
     int testGlobalTaggingLogistic() {
         // Do the analysis (This is very close to the training data, so it
         // should work perfectly)
-        KyteaSentence sentence(utilLogist->mapString("これは学習データです。"));
+        KyteaString str = utilLogist->mapString("これは学習データです。");
+        KyteaSentence sentence(str, utilLogist->normalize(str));
         kyteaLogist->calculateWS(sentence);
         kyteaLogist->calculateTags(sentence,0);
         // Make the correct tags
@@ -244,7 +268,7 @@ public:
         if(words.size() != tags.size()) THROW_ERROR("words.size() != tags.size() in testGlobalSelf");
         int ok = 1;
         for(int i = 0; i < (int)words.size(); i++) {
-            KyteaSentence sent(words[i]);
+            KyteaSentence sent(words[i], util->normalize(words[i]));
             sent.refreshWS(1);
             if(sent.words.size() != 1) THROW_ERROR("Bad segmentation in testGlobalSelf");
             kytea->calculateTags(sent,0);
@@ -257,7 +281,8 @@ public:
     int testLocalTagging() {
         // Do the analysis (This is very close to the training data, so it
         // should work perfectly)
-        KyteaSentence sentence(util->mapString("東京に行った。"));
+        KyteaString str = util->mapString("東京に行った。");
+        KyteaSentence sentence(str, util->normalize(str));
         kytea->calculateWS(sentence);
         kytea->calculateTags(sentence,1);
         // Make the correct tags
@@ -344,12 +369,11 @@ public:
         done++; cout << "testWordSegmentationEmpty()" << endl; if(testWordSegmentationEmpty()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testWordSegmentationUnk()" << endl; if(testWordSegmentationUnk()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testWordSegmentationLogistic()" << endl; if(testWordSegmentationLogistic()) succeeded++; else cout << "FAILED!!!" << endl;
-        done++; cout << "testWordSegmentationMCSVM()" << endl; if(testWordSegmentationMCSVM()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testGlobalTaggingSVM()" << endl; if(testGlobalTaggingSVM()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testGlobalTaggingLogistic()" << endl; if(testGlobalTaggingLogistic()) succeeded++; else cout << "FAILED!!!" << endl;
-        done++; cout << "testGlobalTaggingMCSVM()" << endl; if(testGlobalTaggingMCSVM()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testGlobalTaggingNoWS()" << endl; if(testGlobalTaggingNoWS()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testGlobalSelf()" << endl; if(testGlobalSelf()) succeeded++; else cout << "FAILED!!!" << endl;
+        done++; cout << "testNormalizationUnk()" << endl; if(testNormalizationUnk()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testLocalTagging()" << endl; if(testLocalTagging()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testPartialSegmentation()" << endl; if(testPartialSegmentation()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testTextIO()" << endl; if(testTextIO()) succeeded++; else cout << "FAILED!!!" << endl;

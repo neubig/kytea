@@ -46,11 +46,16 @@ public:
     const static Encoding ENCODING_EUC     = 'E';
     const static Encoding ENCODING_SJIS    = 'S';
 
+    // A map that normalizes characters to a single representation
+    GenericMap<KyteaChar,KyteaChar> * normMap_;
+
 public:
 
-    StringUtil() { }
+    StringUtil() : normMap_(NULL) { }
 
-    virtual ~StringUtil() { }
+    virtual ~StringUtil() {
+        if(normMap_) delete normMap_;    
+    }
 
     // map a std::string to a character
     virtual KyteaChar mapChar(const std::string & str, bool add = true) = 0;
@@ -77,6 +82,10 @@ public:
     // transform to or from a character std::string
     virtual void unserialize(const std::string & str) = 0;
     virtual std::string serialize() const = 0;
+    
+    // normalization functions
+    virtual GenericMap<KyteaChar,KyteaChar> * getNormMap() = 0;
+    KyteaString normalize(const KyteaString & str);
 
     // Check that these are equal by serializing them
     void checkEqual(const StringUtil & rhs) const {
@@ -132,14 +141,7 @@ private:
 
 public:
 
-    StringUtilUtf8() : charIds_(), charNames_(), charTypes_() {
-        const char * initial[7] = { "", "K", "T", "H", "R", "D", "O" };
-        for(unsigned i = 0; i < 7; i++) {
-            charIds_.insert(std::pair<std::string,KyteaChar>(initial[i], i));
-            charTypes_.push_back(i==0?6:4); // first is other, rest romaji
-            charNames_.push_back(initial[i]);
-        }
-    }
+    StringUtilUtf8();
 
     ~StringUtilUtf8() { }
     
@@ -148,6 +150,8 @@ public:
     std::string showChar(KyteaChar c);
 
     CharType findType(KyteaChar c);
+
+    GenericMap<KyteaChar,KyteaChar> * getNormMap();
 
     bool badu(char val) { return ((val ^ maskl1) & maskl2); }
     KyteaString mapString(const std::string & str);
@@ -173,13 +177,14 @@ const static KyteaChar mask3len = 1 << 14;
     
 
 public:
-    StringUtilEuc() { }
+    StringUtilEuc() { };
     ~StringUtilEuc() { }
 
     KyteaChar mapChar(const std::string & str, bool add = true);
-
     std::string showChar(KyteaChar c);
     
+    GenericMap<KyteaChar,KyteaChar> * getNormMap();
+
     // map an unparsed std::string to a KyteaString
     KyteaString mapString(const std::string & str);
 
@@ -204,10 +209,11 @@ const static KyteaChar mask3len = 1 << 14;
     
 
 public:
-    StringUtilSjis() { }
+    StringUtilSjis() { };
     ~StringUtilSjis() { }
 
     KyteaChar mapChar(const std::string & str, bool add = true);
+    GenericMap<KyteaChar,KyteaChar> * getNormMap();
 
     std::string showChar(KyteaChar c);
     
