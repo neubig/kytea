@@ -27,7 +27,8 @@ int main(int argc, char** argv) {
     KyteaConfig* config = kytea.getConfig();
 
     // Map a plain text string to a KyteaString, and create a sentence object
-    KyteaSentence sentence(util->mapString("これはテストです。"));
+    KyteaString surface_string = util->mapString("これはテストです。");
+    KyteaSentence sentence(surface_string, util->normalize(surface_string));
 
     // Find the word boundaries
     kytea.calculateWS(sentence);
@@ -39,7 +40,7 @@ int main(int argc, char** argv) {
     const KyteaSentence::Words & words =  sentence.words;
     for(int i = 0; i < (int)words.size(); i++) {
         // Print the word
-        cout << util->showString(words[i].surf);
+        cout << util->showString(words[i].surface);
         // For each tag level
         for(int j = 0; j < (int)words[i].tags.size(); j++) {
             cout << "\t";

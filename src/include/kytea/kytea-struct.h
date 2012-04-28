@@ -33,6 +33,8 @@
 #else
 #   include <tr1/unordered_map>
 #endif
+    template <class Key, class T>
+    class GenericMap : public std::tr1::unordered_map<Key,T> { };
     template <class T>
     class StringMap : public std::tr1::unordered_map<std::string,T> { };
     template <class T>
@@ -45,12 +47,16 @@
         size_t operator() (const std::string& x) const { return hash<const char*>()(x.c_str()); }
     };
     }
+    template <class Key, class T>
+    class GenericMap : public __gnu_cxx::hash_map<Key,T> { };
     template <class T>
     class StringMap : public __gnu_cxx::hash_map<std::string,T> { };
     template <class T>
     class KyteaStringMap : public __gnu_cxx::hash_map<kytea::KyteaString,T,kytea::KyteaStringHash> { };
 #else
 #   include <map>
+    template <class Key, class T>
+    class GenericMap : public map<Key,T> { };
     template <class T>
     class StringMap : public std::map<std::string,T> { };
     template <class T>
@@ -86,10 +92,12 @@ inline bool operator<(const KyteaTag & a, const KyteaTag & b) {
 //  a single word, with multiple lists of candidates for each tag
 class KyteaWord {
 public:
-    KyteaWord(const KyteaString & s) : surf(s), isCertain(true), unknown(false) { }
+    KyteaWord(const KyteaString & s, const KyteaString & n) : surface(s), norm(n), isCertain(true), unknown(false) { }
 
     // The surface form of the word
-    KyteaString surf;
+    KyteaString surface;
+    // The normalized form of the word used for calculating features
+    KyteaString norm;
     // Each of its tags
     std::vector< std::vector< KyteaTag > > tags;
     // Whether the word boundaries are certain
@@ -134,23 +142,24 @@ public:
     typedef std::vector<double> Floats;
 
     // the original raw string
-    KyteaString chars;
+    KyteaString surface;
+    KyteaString norm;
     Floats wsConfs;
 
     // the string of words
     Words words;
 
     // constructors
-    KyteaSentence() : chars(), wsConfs(0) {
+    KyteaSentence() : surface(), wsConfs(0) {
     }
-    KyteaSentence(const KyteaString & str) : chars(str), wsConfs(std::max(str.length(),(unsigned)1)-1,0) {
+    KyteaSentence(const KyteaString & str, const KyteaString & norm_str) : surface(str), norm(norm_str), wsConfs(std::max(str.length(),(unsigned)1)-1,0) {
     }
 
     void refreshWS(double confidence) {
         Words newWords;
         // In order to keep track of new words, use the start and end
         int nextWord = 0, nextEnd = 0, nextStart = -1;
-        if(chars.length() != 0) {
+        if(surface.length() != 0) {
             int last = 0, i;
             for(i = 0; i <= (int)wsConfs.size(); i++) {
                 double myConf = (i == (int)wsConfs.size()) ? 100.0 : wsConfs[i];
@@ -158,14 +167,14 @@ public:
                     // Catch up to the current word
                     while(nextWord < (int)words.size() && nextEnd < i+1) {
                         nextStart = nextEnd;
-                        nextEnd += words[nextWord].surf.length();
+                        nextEnd += words[nextWord].surface.length();
                         nextWord++;
                     }
                     // If both the beginning and end match, use the current word
                     if(last == nextStart && i+1 == nextEnd)
                         newWords.push_back(words[nextWord-1]);
                     else {
-                        KyteaWord w(chars.substr(last, i-last+1));
+                        KyteaWord w(surface.substr(last, i-last+1), norm.substr(last, i-last+1));
                         newWords.push_back(w);
                     }
                     // Update the start of the next word

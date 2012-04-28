@@ -41,6 +41,9 @@ void KyteaConfig::parseTrainCommandLine(int argc, const char ** argv) {
 void KyteaConfig::parseRunCommandLine(int argc, const char ** argv) {
     for(int i = 1; i < argc; i++)
         i += parseRunArg(argv[i], (i == argc-1?NULL:argv[i+1]));
+}
+
+const string & KyteaConfig::getModelFile() {
     // load the model file if it has not been specified at the command line
     if(model_.length() == 0) {
         if(getenv("KYTEA_MODEL"))
@@ -50,6 +53,7 @@ void KyteaConfig::parseRunCommandLine(int argc, const char ** argv) {
             model_ += "/model.bin";
         }
     }
+    return model_;
 }
 
 

@@ -15,10 +15,10 @@ protected:
         const KyteaSentence::Words & words =  sent.words;
         int ok = 1;
         for(int i = 0; i < (int)max(words.size(), toks.size()); i++) {
-            if(i >= (int)words.size() || i >= (int)toks.size() || words[i].surf != toks[i]) {
+            if(i >= (int)words.size() || i >= (int)toks.size() || words[i].surface != toks[i]) {
                 ok = 0;
                 cout << "words["<<i<<"] != toks["<<i<<"] ("<<
-                    (i >= (int)words.size() ? "NULL" : util->showString(words[i].surf))
+                    (i >= (int)words.size() ? "NULL" : util->showString(words[i].surface))
                     <<" != "<<
                     (i >= (int)toks.size() ? "NULL" : util->showString(toks[i]))
                     <<")"<<endl;
