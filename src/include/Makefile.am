@@ -3,4 +3,7 @@ nobase_include_HEADERS = kytea/corpus-io.h kytea/dictionary.h \
     kytea/kytea-string.h kytea/kytea-struct.h kytea/kytea.h \
     kytea/model-io.h kytea/string-util.h kytea/kytea-lm.h \
     kytea/config.h kytea/feature-io.h kytea/feature-lookup.h \
-    kytea/kytea-util.h
+    kytea/kytea-util.h \
+    kytea/string-util-map-utf8.h \
+    kytea/string-util-map-euc.h \
+    kytea/string-util-map-sjis.h
