@@ -50,8 +50,11 @@ GenericMap<KyteaChar,KyteaChar> * StringUtilSjis::getNormMap() {
         normMap_ = new GenericMap<KyteaChar,KyteaChar>;
         KyteaString orig = mapString(STRING_UTIL_ORIG_SJIS);
         KyteaString norm = mapString(STRING_UTIL_NORM_SJIS);
-        if(orig.length() != norm.length())
+        if(orig.length() != norm.length()) {
+            for(int i = 0; i < (int)min(orig.length(), norm.length()); i++)
+                cerr << showChar(orig[i]) << " <-> " << showChar(norm[i]) << endl;
             THROW_ERROR("FATAL ERROR: unmatched strings in string-util.cpp : StringUtilSjis");
+        }
         for(int i = 0; i < (int)orig.length(); i++)
             normMap_->insert(pair<KyteaChar,KyteaChar>(orig[i], norm[i]));
     }
@@ -63,8 +66,11 @@ GenericMap<KyteaChar,KyteaChar> * StringUtilEuc::getNormMap() {
         normMap_ = new GenericMap<KyteaChar,KyteaChar>;
         KyteaString orig = mapString(STRING_UTIL_ORIG_EUC);
         KyteaString norm = mapString(STRING_UTIL_NORM_EUC);
-        if(orig.length() != norm.length())
+        if(orig.length() != norm.length()) {
+            for(int i = 0; i < (int)min(orig.length(), norm.length()); i++)
+                cerr << showChar(orig[i]) << " <-> " << showChar(norm[i]) << endl;
             THROW_ERROR("FATAL ERROR: unmatched strings in string-util.cpp : StringUtilEuc");
+        }
         for(int i = 0; i < (int)orig.length(); i++)
             normMap_->insert(pair<KyteaChar,KyteaChar>(orig[i], norm[i]));
     }
