@@ -194,9 +194,8 @@ KyteaSentence * PartCorpusIO::readSentence() {
                     THROW_ERROR("Illegal trailing escape character at "<<s);
                 buff[bpos++] = ks[j];
             }
-            if(bpos == 0)
-                THROW_ERROR("Empty tag at position "<<j<<" in "<<s);
-            word.addTag(lev,KyteaTag(buff.substr(0,bpos),PROB_TRUE));
+            if(bpos != 0)
+                word.addTag(lev,KyteaTag(buff.substr(0,bpos),PROB_TRUE));
         }
         if(j != len)
             ret->wsConfs.push_back(PROB_TRUE);

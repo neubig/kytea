@@ -49,6 +49,21 @@ public:
         return ret;
     }
 
+    int testPartEmptyTag() {
+        // Build the string
+        stringstream instr;
+        instr << "こ-れ//これ" << endl;
+        PartCorpusIO io(util, instr, false);
+        KyteaSentence * sent = io.readSentence();
+        int ret = 1;
+        if(sent->words.size() != 1) {
+            cerr << "Sentence size " << sent->words.size() << " != 1" << endl;
+            ret = 0;
+        }
+        delete sent;
+        return ret;
+    }
+
     int testFullTagConf() {
         // Build the string
         stringstream instr;
@@ -113,6 +128,7 @@ public:
         int done = 0, succeeded = 0;
         done++; cout << "testWordSegConf()" << endl; if(testWordSegConf()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testPartEmptyLines()" << endl; if(testPartEmptyLines()) succeeded++; else cout << "FAILED!!!" << endl;
+        done++; cout << "testPartEmptyTag()" << endl; if(testPartEmptyTag()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testFullTagConf()" << endl; if(testFullTagConf()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testLastValue()" << endl; if(testLastValue()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testUnkIO()" << endl; if(testUnkIO()) succeeded++; else cout << "FAILED!!!" << endl;
