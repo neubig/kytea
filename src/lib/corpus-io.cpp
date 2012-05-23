@@ -27,6 +27,7 @@ using namespace std;
 
 CorpusIO * CorpusIO::createIO(const char* file, Format form, const KyteaConfig & conf, bool output, StringUtil* util) {
     if(form == CORP_FORMAT_FULL)      { return new FullCorpusIO(util,file,output,conf.getWordBound(),conf.getTagBound(),conf.getElemBound(),conf.getEscape()); }
+    else if(form == CORP_FORMAT_TOK)      { return new TokenizedCorpusIO(util,file,output,conf.getWordBound()); }
     else if(form == CORP_FORMAT_PART) { return new PartCorpusIO(util,file,output,conf.getUnkBound(),conf.getSkipBound(),conf.getNoBound(),conf.getHasBound(),conf.getTagBound(),conf.getElemBound(),conf.getEscape()); }
     else if(form == CORP_FORMAT_PROB) { return new ProbCorpusIO(util,file,output,conf.getWordBound(),conf.getTagBound(),conf.getElemBound(),conf.getEscape()); }
     else if(form == CORP_FORMAT_RAW)  { return new RawCorpusIO(util,file,output);  }
@@ -36,6 +37,7 @@ CorpusIO * CorpusIO::createIO(const char* file, Format form, const KyteaConfig &
 
 CorpusIO * CorpusIO::createIO(iostream & file, Format form, const KyteaConfig & conf, bool output, StringUtil* util) {
     if(form == CORP_FORMAT_FULL)      { return new FullCorpusIO(util,file,output,conf.getWordBound(),conf.getTagBound(),conf.getElemBound(),conf.getEscape()); }
+    else if(form == CORP_FORMAT_TOK)      { return new FullCorpusIO(util,file,output,conf.getWordBound()); }
     else if(form == CORP_FORMAT_PART) { return new PartCorpusIO(util,file,output,conf.getUnkBound(),conf.getSkipBound(),conf.getNoBound(),conf.getHasBound(),conf.getTagBound(),conf.getElemBound(),conf.getEscape()); }
     else if(form == CORP_FORMAT_PROB) { return new ProbCorpusIO(util,file,output,conf.getWordBound(),conf.getTagBound(),conf.getElemBound(),conf.getEscape()); }
     else if(form == CORP_FORMAT_RAW)  { return new RawCorpusIO(util,file,output);  }
@@ -130,6 +132,70 @@ void FullCorpusIO::writeSentence(const KyteaSentence * sent, double conf) {
                         *str_ << eb << util_->showString(tags[k].first);
             }
         }
+        if(w.getUnknown())
+            *str_ << unkTag_;
+    }
+    *str_ << endl;
+}
+
+KyteaSentence * TokenizedCorpusIO::readSentence() {
+#ifdef KYTEA_SAFE
+    if(out_ || !str_) 
+        THROW_ERROR("Attempted to read a sentence from an closed or output object");
+#endif
+    string s;
+    getline(*str_, s);
+    if(str_->eof())
+        return 0;
+
+    KyteaChar spaceChar = bounds_[0];
+    KyteaString ks = util_->mapString(s), buff(ks.length());
+    int len = ks.length();
+    KyteaSentence * ret = new KyteaSentence();
+    int charLen = 0;
+
+    // go through the whole string
+    int j = 0, bpos;
+    for(j = 0; j < len; j++) {
+        // 1) get the word
+        bpos = 0;
+        for( ; j < len && ks[j] != spaceChar; j++)
+            buff[bpos++] = ks[j];
+        if(bpos == 0) {
+            if(ks[j] == spaceChar)
+                continue;
+            else
+                THROW_ERROR("Empty word at position "<<j<<" in "<<s);
+        }
+        KyteaString word_str = buff.substr(0,bpos);
+        KyteaWord word(word_str, util_->normalize(word_str));
+        charLen += bpos;
+        ret->words.push_back(word);
+    }
+     
+    // make the character/ws string
+    ret->surface = KyteaString(charLen);
+    ret->norm = KyteaString(charLen);
+    unsigned pos = 0;
+    for(KyteaSentence::Words::const_iterator tit = ret->words.begin(); tit != ret->words.end(); tit++) {
+        ret->surface.splice(tit->surface, pos);
+        ret->norm.splice(tit->norm, pos);
+        unsigned nextPos = pos + tit->surface.length() - 1;
+        while(pos++ < nextPos)
+            ret->wsConfs.push_back(PROB_FALSE);
+        ret->wsConfs.push_back(PROB_TRUE); 
+    }
+    if(ret->wsConfs.size() > 0)
+        ret->wsConfs.pop_back();
+    return ret;
+}
+
+void TokenizedCorpusIO::writeSentence(const KyteaSentence * sent, double conf) {
+    const string & wb = util_->showChar(bounds_[0]);
+    for(unsigned i = 0; i < sent->words.size(); i++) {
+        if(i != 0) *str_ << wb;
+        const KyteaWord & w = sent->words[i];
+        *str_ << util_->showString(w.surface);
         if(w.getUnknown())
             *str_ << unkTag_;
     }

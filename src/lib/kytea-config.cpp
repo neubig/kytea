@@ -23,6 +23,7 @@ using namespace std;
 // set the type of the input corpus
 void KyteaConfig::setIOFormat(const char* str, CorpForm & cf) {
     if(!strcmp(str, "full"))      { cf = CORP_FORMAT_FULL; }
+    else if(!strcmp(str, "tok"))  { cf = CORP_FORMAT_TOK; }
     else if(!strcmp(str, "part")) { cf = CORP_FORMAT_PART; }
     else if(!strcmp(str, "conf")) { cf = CORP_FORMAT_PROB; }
     else if(!strcmp(str, "prob")) { cf = CORP_FORMAT_PROB; }
@@ -162,6 +163,7 @@ unsigned KyteaConfig::parseTrainArg(const char * n, const char * v) {
 
     // input options for training
     else if(!strcmp(n, "-full"))     { ch(n,v); addCorpus(v, CORP_FORMAT_FULL); }
+    else if(!strcmp(n, "-tok"))     { ch(n,v); addCorpus(v, CORP_FORMAT_TOK); }
     else if(!strcmp(n, "-part"))     { ch(n,v); addCorpus(v, CORP_FORMAT_PART); }
     else if(!strcmp(n, "-conf"))     { ch(n,v); addCorpus(v, CORP_FORMAT_PROB); }
     else if(!strcmp(n, "-dict"))     { ch(n,v); addDictionary(v); }

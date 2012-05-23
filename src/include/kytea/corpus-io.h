@@ -23,7 +23,8 @@ const static char CORP_FORMAT_RAW  = 0;
 const static char CORP_FORMAT_FULL = 1;
 const static char CORP_FORMAT_PART = 2;
 const static char CORP_FORMAT_PROB = 3;
-const static char CORP_FORMAT_DEFAULT = 4;
+const static char CORP_FORMAT_TOK = 5;
+const static char CORP_FORMAT_DEFAULT = 5;
 }
 
 #include "general-io.h"
@@ -191,6 +192,32 @@ public:
 
 };
 
+// An IO class for corpora that are tokenized, but with no tags
+class TokenizedCorpusIO : public CorpusIO {
+
+protected:
+
+    bool allTags_;
+    KyteaString bounds_;
+
+public:
+    TokenizedCorpusIO(StringUtil * util, const char* wordBound = " ") : CorpusIO(util), bounds_(1) { 
+        bounds_[0] = util_->mapChar(wordBound);
+    }
+    TokenizedCorpusIO(const CorpusIO & c, const char* wordBound = " ") : CorpusIO(c), allTags_(false), bounds_(1) { 
+        bounds_[0] = util_->mapChar(wordBound);
+    }
+    TokenizedCorpusIO(StringUtil * util, const char* file, bool out, const char* wordBound = " ") : CorpusIO(util,file,out), allTags_(false), bounds_(1) { 
+        bounds_[0] = util_->mapChar(wordBound);
+    } 
+    TokenizedCorpusIO(StringUtil * util, std::iostream & str, bool out, const char* wordBound = " ") : CorpusIO(util,str,out), allTags_(false), bounds_(1) { 
+        bounds_[0] = util_->mapChar(wordBound);
+    }
+    
+    KyteaSentence * readSentence();
+    void writeSentence(const KyteaSentence * sent, double conf = 0.0);
+
+};
 
 }
 
