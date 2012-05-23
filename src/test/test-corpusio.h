@@ -52,12 +52,12 @@ public:
     int testPartEmptyTag() {
         // Build the string
         stringstream instr;
-        instr << "こ-れ//これ" << endl;
+        instr << "リ-リ-カ-ル//りりかる|な-の-は//なのは|を 中 心 に 、" << endl;
         PartCorpusIO io(util, instr, false);
         KyteaSentence * sent = io.readSentence();
         int ret = 1;
-        if(sent->words.size() != 1) {
-            cerr << "Sentence size " << sent->words.size() << " != 1" << endl;
+        if(sent->words.size() != 3) {
+            cerr << "Sentence size " << sent->words.size() << " != 3" << endl;
             ret = 0;
         }
         delete sent;
