@@ -49,6 +49,16 @@ public:
         return ret;
     }
 
+    int testTokReadSentence() {
+        stringstream instr;
+        instr << "これ は 学習 データ で す 。" << endl;
+        TokenizedCorpusIO io(util, instr, false);
+        KyteaSentence * sent = io.readSentence();
+        // Make the correct words
+        KyteaString::Tokens toks = util->mapString("これ は 学習 データ で す 。").tokenize(util->mapString(" "));
+        return checkWordSeg(*sent,toks,util);
+    }
+
     int testPartEmptyTag() {
         // Build the string
         stringstream instr;
@@ -132,6 +142,7 @@ public:
         done++; cout << "testFullTagConf()" << endl; if(testFullTagConf()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testLastValue()" << endl; if(testLastValue()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testUnkIO()" << endl; if(testUnkIO()) succeeded++; else cout << "FAILED!!!" << endl;
+        done++; cout << "testTokReadSentence()" << endl; if(testTokReadSentence()) succeeded++; else cout << "FAILED!!!" << endl;
         cout << "#### TestCorpusIO Finished with "<<succeeded<<"/"<<done<<" tests succeeding ####"<<endl;
         return done == succeeded;
     }

@@ -1127,7 +1127,8 @@ void Kytea::trainAll() {
 void Kytea::analyze() {
     
     // on full input, disable word segmentation
-    if(config_->getInputFormat() == CORP_FORMAT_FULL)
+    if(config_->getInputFormat() == CORP_FORMAT_FULL ||
+       config_->getInputFormat() == CORP_FORMAT_TOK)
         config_->setDoWS(false);
 
     // sanity check
@@ -1148,7 +1149,7 @@ void Kytea::analyze() {
            config_->setInputFormat(CORP_FORMAT_RAW);
     } else {
         if(config_->getInputFormat() == CORP_FORMAT_DEFAULT)
-             config_->setInputFormat(CORP_FORMAT_FULL);
+             config_->setInputFormat(CORP_FORMAT_TOK);
         else if(config_->getInputFormat() == CORP_FORMAT_RAW) {
             buff << "In order to handle raw corpus input, word segmentation must be turned on." << std::endl
                  << "Either specify -in {full,part,prob}, stop using -nows, or train a new " << std::endl
