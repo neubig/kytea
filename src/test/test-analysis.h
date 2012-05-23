@@ -235,6 +235,28 @@ public:
         return correct;
     }
 
+    int testNoWSUnk() {
+        // Do the analysis (This is very close to the training data, so it
+        // should work perfectly)
+        KyteaString str = utilNoWS->mapString("これは学習デエタです。");
+        KyteaSentence sentence(str, utilNoWS->normalize(str));
+        sentence.wsConfs[0] = -1; sentence.wsConfs[1] = 1;
+        sentence.wsConfs[2] = 1; sentence.wsConfs[3] = -1; 
+        sentence.wsConfs[4] = 1; sentence.wsConfs[5] = -1;
+        sentence.wsConfs[6] = -1; sentence.wsConfs[7] = 1;
+        sentence.wsConfs[8] = 1; sentence.wsConfs[9] = 1;
+        sentence.refreshWS(0);
+        for(int i = 0; i < 7; i++)
+            sentence.words[i].setUnknown(false);
+        kyteaNoWS->calculateTags(sentence,0);
+        // Check to make sure unknown is correct
+        vector<bool> unk_exp(7, false), unk_act(7);
+        unk_exp[3] = true;
+        for(int i = 0; i < 7; i++)
+            unk_act[i] = sentence.words[i].getUnknown();
+        return checkVector(unk_exp, unk_act);
+    }
+
     int testGlobalTaggingLogistic() {
         // Do the analysis (This is very close to the training data, so it
         // should work perfectly)
@@ -372,6 +394,7 @@ public:
         done++; cout << "testGlobalTaggingSVM()" << endl; if(testGlobalTaggingSVM()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testGlobalTaggingLogistic()" << endl; if(testGlobalTaggingLogistic()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testGlobalTaggingNoWS()" << endl; if(testGlobalTaggingNoWS()) succeeded++; else cout << "FAILED!!!" << endl;
+        done++; cout << "testNoWSUnk()" << endl; if(testNoWSUnk()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testGlobalSelf()" << endl; if(testGlobalSelf()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testNormalizationUnk()" << endl; if(testNormalizationUnk()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testLocalTagging()" << endl; if(testLocalTagging()) succeeded++; else cout << "FAILED!!!" << endl;

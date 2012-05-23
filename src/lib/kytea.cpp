@@ -988,7 +988,7 @@ void Kytea::calculateTags(KyteaSentence & sent, int lev) {
     KyteaString charStr = sent.norm;
     KyteaString typeStr = util_->mapString(util_->getTypeString(charStr));
     KyteaString kssx = util_->mapString("SX"), ksst = util_->mapString("ST");
-    string defTag = config_->getDefaultTag();
+    const string & defTag = config_->getDefaultTag();
     for(unsigned i = 0; i < sent.words.size(); i++) {
         KyteaWord & word = sent.words[i];
         if((int)word.tags.size() > lev
@@ -997,7 +997,9 @@ void Kytea::calculateTags(KyteaSentence & sent, int lev) {
                 continue;
         startPos = finPos;
         finPos = startPos+word.norm.length();
+        // Find the word in the dictionary and set it to unknown if it is
         ModelTagEntry* ent = dict_->findEntry(word.norm);
+        word.setUnknown(ent == 0);
         // choose whether to do local or global estimation
         vector<KyteaString> * tags = 0;
         KyteaModel * tagMod = 0;
