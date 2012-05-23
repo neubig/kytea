@@ -59,6 +59,16 @@ public:
         return checkWordSeg(*sent,toks,util);
     }
 
+    int testRawReadSlash() {
+        stringstream instr;
+        instr << "右/左" << endl;
+        RawCorpusIO io(util, instr, false);
+        KyteaSentence * sent = io.readSentence();
+        // Make the correct words
+        KyteaString exp = util->mapString("右/左");
+        return exp == sent->surface;
+    }
+
     int testPartEmptyTag() {
         // Build the string
         stringstream instr;
@@ -143,6 +153,7 @@ public:
         done++; cout << "testLastValue()" << endl; if(testLastValue()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testUnkIO()" << endl; if(testUnkIO()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testTokReadSentence()" << endl; if(testTokReadSentence()) succeeded++; else cout << "FAILED!!!" << endl;
+        done++; cout << "testRawReadSlash()" << endl; if(testRawReadSlash()) succeeded++; else cout << "FAILED!!!" << endl;
         cout << "#### TestCorpusIO Finished with "<<succeeded<<"/"<<done<<" tests succeeding ####"<<endl;
         return done == succeeded;
     }
