@@ -80,6 +80,14 @@ public:
             cerr << "Sentence size " << sent->words.size() << " != 3" << endl;
             ret = 0;
         }
+        if(sent->words[0].tags.size() != 2) {
+            cerr << "Words[0] tags " << sent->words[0].tags.size() << " != 2" << endl;
+            ret = 0;
+        }
+        if(sent->words[1].tags.size() != 2) {
+            cerr << "Words[1] tags " << sent->words[1].tags.size() << " != 2" << endl;
+            ret = 0;
+        }
         delete sent;
         return ret;
     }
