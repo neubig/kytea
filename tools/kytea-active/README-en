@@ -1,0 +1,73 @@
+Partial Annotation for Word Alignment Domain Adaptation using KyTea
+Graham Neubig and Shinsuke Mori
+2011-01-20
+
+~~~~~~ Introduction ~~~~~~
+
+This is a toolkit for using active learning and partial annotation to do efficient domain adaptation. If you have any questions, comments, or corrections, please send them to neubig@gmail.com.
+
+One of the most attractive points of KyTea is that it is able to be adapted to new domains easily. In particular, as KyTea can be learned form partial annotations, it is possible to achieve good results with less annotation than previous methods. Traditional full annotation for word annotation takes the following form:
+
+この 時期 の 中心 人物 は 、 風穴 延昭 で あ る 。
+
+It can be seen that a space is placed between all words (where a word boundary exists), and there is no space where no word boundary exists. However, in order to do this, a whole sentence must be annotated at a time, while in this sentence there is only one word that is difficult to segment: "風穴." When using partial annotation, we are able to annotate only this difficult word and skip the rest of the words: 
+
+こ の 時 期 の 中 心 人 物 は 、|風-穴|延 昭 で あ る 。
+
+Here, a pipe "|" indicates that a word boundary exists, a hyphen "-" indicates that word boundaries don't exist, while a space " " indicates a section that we have not yet annotated.
+
+~~~~~~ Getting Ready ~~~~~~
+
+Please take the following steps to get ready to start annotating. Note that all files should be in the UTF-8 encoding.
+
+0) Modify the following lines in makemodel.sh to link to the KyTea binaries.
+
+     KYTEA=$PATH_TO_KYTEA_BIN/kytea
+     TRAIN=$PATH_TO_KYTEA_BIN/train-kytea
+
+   If KyTea is installed in your default path (it can be run by just typing "kytea)" then there is no need to modify these lines.
+
+1) Choose your segmentation standard. There are a number of different segmentation standards that can be used, but the official version of KyTea uses the one on the following site:
+   http://plata.ar.media.kyoto-u.ac.jp/sasada/research/project/corpus/
+
+2) Next, move a general domain corpus to the "data/" folder and modify the "GEN_CORPORA" variable in makemodel.sh to point to this data. For example, if the name of the corpus is BCCWJ.word, we will set the line as follows:
+
+      GEN_CORPORA="-full data/BCCWJ.word"
+
+   Included in the package is a Wikipedia corpus, which we are able to distrubte under the Creative Commons License. However, it is extremely small, and the results were automatically generated and corrected very simply by hand, it cannot be considered 100% correct. We recommend that you replace this with any high-quality language resources that you have at your disposal. In particular, the "Balanced Corpus of Contemporary Written Japanese (BCCWJ)" has extremely high quality annotations over a fair number of domains, so we recommend it for use with KyTea.
+
+3) Move the corpus that you want to annotate to data/target-train.raw.
+
+4) If you have dictionaries that you would like to use, you can move them to the "data/" folder and modify the DICTS variable in makemodel.sh to include them. If we have two dictionaries named "dict-1.txt" and "dict-2.txt" we can set the variable as follows.
+
+     DICTS="-dict data/dict-1.txt -dict data/dict-2.txt"
+
+   There are several things to note here. First, if it is possible to use a large, high-quality dictionary that matches the segmentation standard (for example, UniDic), this will greatly improve the segmentation accuracy compared with when one is not used. Second, unlike previous methods for morphological analysis, KyTea is able to use other dictionaries that don't necessarily match the segmentation standard of the corpus without decreasing accuracy. For example, if you have an in-domain dictionary that includes compound words, this can still be used to improve accuracy.
+
+~~~~~ Annotation ~~~~~
+
+Once you have finished preparing, it is time to start annotation. If you follow the 3 steps below 5-50 times you will notice a large increase in accuracy on your target domain. Of course, more is better, but you will get diminishing returns.
+
+1) First, we create a model with the corpus and dictionaries that are currently annotated, and choose positions that need to be annotated using active learning.
+
+     [user@machine]$ ./makemodel.sh
+
+   * The file in work/XXX.mod (where XXX is a number) is the model trained using all the resources that you have finished annotating.
+   * This step takes approximately five minutes, but more or less depending on the size of the corpora that you are using.
+
+2) In the file that is created in work/XXX.annot, change all of the exclamation points into "|" or "-". Also, if there are mistaken word boundaries that surround the exclamation points, these should be corrected as well. The file you need to modify is the file with the largest number XXX. Also, if you are having trouble deciding about a particular point, you can skip it by inserting a "?" instead of "|" or "-" and move on.
+
+3) Save the new file.
+
+     [user@machine]$ ./saveannot.sh
+
+   * If you get an error such as 「Double boundary ' |' at XXX」 this means that you made a mistake annotating line XXX, so check to make sure that you inserted only one boundary character " ", "|" or "-" between each text character. saveannot.sh will need to be run one more time after this.
+   * Once this step is finished, return to step 1.
+
+After you have finished annotating, you can find the fruit of your labors in the save/ folder. The file XXX.wann with the highest number is the file containing all sections annotated in this process. You can use this for later KyTea training using the "-part save/XXX.wann" option.
+
+~~~~ Notes ~~~~
+
+o In the XXX.annot file, word boundaries "|" should not be added at the very beginning or end of any sentence.
+
+o The files "save/XXX.wann" and "work/XXX.wordprob" contain information about the entire input corpus, and are saved on every iteration. If the corpus is large and your disk is small, this has the potential to fill up your entire disk. To make sure that none of your files are deleted by accident, we are not deleting these files automatically, but if you run into problems, you can delete some of the older files by hand to free up space.
