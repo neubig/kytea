@@ -4,11 +4,14 @@
 /* Enable quantizing */
 #define DISABLE_QUANTIZE 0
 
+/* Define to 1 if you have the <boost/tr1/unordered_map.hpp> header file. */
+#define HAVE_BOOST_TR1_UNORDERED_MAP_HPP 1
+
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #define HAVE_DLFCN_H 1
 
 /* Define to 1 if you have the <ext/hash_map> header file. */
-#define HAVE_EXT_HASH_MAP 1
+/* #undef HAVE_EXT_HASH_MAP */
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #define HAVE_INTTYPES_H 1
@@ -38,7 +41,7 @@
 #define HAVE_SYS_TYPES_H 1
 
 /* Define to 1 if you have the <tr1/unordered_map> header file. */
-#define HAVE_TR1_UNORDERED_MAP 1
+/* #undef HAVE_TR1_UNORDERED_MAP */
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #define HAVE_UNISTD_H 1
