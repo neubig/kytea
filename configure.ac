@@ -60,7 +60,6 @@ AC_TYPE_SIZE_T
 
 # Check to make sure that we have unordered_map
 AC_LANG([C++])
-AC_CHECK_HEADERS([tr1/unordered_map])
-AC_CHECK_HEADERS([ext/hash_map])
+AC_CHECK_HEADERS([boost/tr1/unordered_map.hpp tr1/unordered_map ext/hash_map], break)
 
 AC_OUTPUT

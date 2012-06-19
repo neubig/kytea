@@ -27,7 +27,15 @@
 #include "config.h"
 
 // maps for use with various classes
-#ifdef HAVE_TR1_UNORDERED_MAP
+#ifdef HAVE_BOOST_TR1_UNORDERED_MAP_HPP
+#   include <boost/tr1/unordered_map.hpp>
+    template <class Key, class T>
+    class GenericMap : public std::tr1::unordered_map<Key,T> { };
+    template <class T>
+    class StringMap : public std::tr1::unordered_map<std::string,T> { };
+    template <class T>
+    class KyteaStringMap : public std::tr1::unordered_map<kytea::KyteaString,T,kytea::KyteaStringHash> { };
+#elif HAVE_TR1_UNORDERED_MAP
 #if _MSC_VER >=1600
 #   include <unordered_map>
 #else
