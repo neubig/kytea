@@ -115,7 +115,8 @@ void KyteaConfig::printUsage() {
 "  -notags  Do only word segmentation, no tagging" << endl <<
 "  -notag   Skip the tag of the nth tag (n starts at 1)" << endl <<
 "  -nounk   Don't estimate the pronunciation of unknown words" << endl <<
-"  -unkbeam The width of the beam to use in beam search for unknown words " <<endl<<
+"  -wsconst Specifies character types to not be segmented (e.g. D for digits)" << endl <<
+"  -unkbeam The width of the beam to use in beam search for unknown words " << endl <<
 "           (default 50, 0 for full search)" << endl <<
 "  -debug   The debugging level (0=silent, 1=simple, 2=detailed)" << endl <<
 "Format Options: " << endl <<
@@ -234,6 +235,7 @@ unsigned KyteaConfig::parseRunArg(const char * n, const char * v) {
 
     // whether or not to perform word segmentation, pronunciation estimation
     else if(!strcmp(n, "-nows"))     { setDoWS(false); r=0; }
+    else if(!strcmp(n, "-wsconst"))  { ch(n,v); setWsConstraint(v); }
     else if(!strcmp(n, "-notags"))   { setDoTags(false); r=0; }
     else if(!strcmp(n, "-notag"))    { 
         ch(n,v); 
