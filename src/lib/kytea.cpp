@@ -882,14 +882,22 @@ void Kytea::calculateWS(KyteaSentence & sent) {
     featLookup->addNgramScores(featLookup->getCharDict(), 
                                sent.norm, config_->getCharWindow(), 
                                scores);
+    const string & type_str = util_->getTypeString(sent.norm);
     featLookup->addNgramScores(featLookup->getTypeDict(), 
-                               util_->mapString(util_->getTypeString(sent.norm)), 
+                               util_->mapString(type_str), 
                                config_->getTypeWindow(), scores);
     if(featLookup->getDictVector())
         featLookup->addDictionaryScores(
             dict_->match(sent.norm),
             dict_->getNumDicts(), config_->getDictionaryN(),
             scores);
+    
+    // If the characters match the hard constraint, OK
+    const string & wsc = config_->getWsConstraint();
+    if(wsc.size())
+        for(unsigned i = 0; i < scores.size(); i++)
+            if(type_str[i]==type_str[i+1] && wsc.find(type_str[i]) != std::string::npos)
+                scores[i] = KyteaModel::isProbabilistic(config_->getSolverType())?0:-100;
 
     // Update values, but only ones that are not already sure
     for(unsigned i = 0; i < sent.wsConfs.size(); i++)

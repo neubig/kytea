@@ -100,6 +100,9 @@ private:
     // formatting tags
     std::string wordBound_, tagBound_, elemBound_, unkBound_, noBound_, hasBound_, skipBound_, escape_;
 
+    // hard constraint on character divisions. can be used for digits, etc.
+    std::string wsConstraint_;
+
     // the number of tag levels
     int numTags_;
     std::vector<bool> global_;
@@ -122,6 +125,7 @@ public:
                     solverType_(1/*SVM*/),
                     wordBound_(" "), tagBound_("/"), elemBound_("&"), unkBound_(" "), 
                     noBound_("-"), hasBound_("|"), skipBound_("?"), escape_("\\"), 
+                    wsConstraint_(""),
                     numTags_(0), tagMax_(3) {
         setEncoding("utf8");
     }
@@ -205,6 +209,7 @@ public:
     const unsigned getUnkBeam() const { return unkBeam_; }
     const std::string & getUnkTag() const { return unkTag_; }
     const std::string & getDefaultTag() const { return defTag_; }
+    const std::string & getWsConstraint() const { return wsConstraint_; }
 
     const double getBias() const { return bias_; }
     const double getEpsilon() const { return eps_; }
@@ -272,6 +277,7 @@ public:
     void setGlobal(int v) { if((int)global_.size() <= v) global_.resize(v+1,false); global_[v] = true; } 
     void setFeatureIn(const std::string & featIn) { featIn_ = featIn; }
     void setFeatureOut(const std::string & featOut) { featOut_ = featOut; }
+    void setWsConstraint(const std::string & wsConstraint) { wsConstraint_ = wsConstraint; }
 
     std::ostream * getFeatureOutStream() {
         if(featOut_.length() && !featStr_)
