@@ -19,6 +19,7 @@
 #include <kytea/string-util-map-euc.h>
 #include <kytea/string-util-map-sjis.h>
 #include <iostream>
+#include <limits>
 
 using namespace kytea;
 using namespace std;
@@ -85,6 +86,8 @@ KyteaChar StringUtilUtf8::mapChar(const string & str, bool add) {
     if(it != charIds_.end())
         ret = it->second;
     else if (add) {
+        if (charTypes_.size() > std::numeric_limits<KyteaChar>::max())
+          THROW_ERROR("FATAL ERROR: id exceeds numerical limit in string-util.cpp : StringUtilUtf8");
         ret = charTypes_.size();
         charIds_.insert(pair<string, KyteaChar>(str,ret));
         charTypes_.push_back(findType(str));
@@ -173,7 +176,14 @@ StringUtil::CharType StringUtilUtf8::findType(const string & str) {
         return DIGIT;
     }
     // CJK Unified Ideographs
-    else if((val >= 0x4E00 && val <= 0x9FFF) || (val >= 0xEFA480 && val <= 0xEFAB99)) {
+    else if((val >= 0x3400 && val <= 0x4DBF)    // CJK Unified Ideographs Extension A
+           || (val >= 0x4E00 && val <= 0x9FFF) // CJK Unified Ideographs
+           || (val >= 0xF900 && val <= 0xFAFF) // CJK Compatibility Ideographs
+           //|| (val >= 0x1F200 && val <= 0x1F2FF) // Enclosed Ideographic Supplement
+           || (val >= 0x20000 && val <= 0x2A6DF) // CJK Unified Ideographs Extension B
+           || (val >= 0x2A700 && val <= 0x2B73F) // CJK Unified Ideographs Extension C
+           || (val >= 0x2B740 && val <= 0x2B81F) // CJK Unified Ideographs Extension D
+           || (val >= 0x2F800 && val <= 0x2FA1F)) { // CJK Compatibility Ideographs Supplement
         return KANJI;
     }
     return OTHER;
