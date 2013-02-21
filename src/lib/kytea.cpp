@@ -16,11 +16,18 @@
 
 #include <set>
 #include <cmath>
+#include <sstream>
+#include <iostream>
 #include <kytea/config.h>
 #include <kytea/kytea.h>
 #include <kytea/corpus-io.h>
 #include <kytea/model-io.h>
+#include <kytea/feature-io.h>
 #include <kytea/dictionary.h>
+#include <kytea/string-util.h>
+#include <kytea/kytea-util.h>
+#include <kytea/kytea-lm.h>
+#include <kytea/feature-lookup.h>
 
 using namespace kytea;
 using namespace std;
@@ -115,7 +122,7 @@ void Kytea::scanDictionaries(const vector<string> & dict, typename Dictionary<En
 
 void Kytea::buildVocabulary() {
 
-    Dictionary<ModelTagEntry>::WordMap & allWords = fio_.getWordMap();
+    Dictionary<ModelTagEntry>::WordMap & allWords = fio_->getWordMap();
 
     if(config_->getDebug() > 0)
         cerr << "Scanning dictionaries and corpora for vocabulary" << endl;
@@ -167,7 +174,7 @@ void Kytea::buildVocabulary() {
     // scan the dictionaries
     scanDictionaries<ModelTagEntry>(config_->getDictionaryFiles(), allWords, config_, util_, true);
 
-    if(sentences_.size() == 0 && fio_.getFeatures().size() == 0)
+    if(sentences_.size() == 0 && fio_->getFeatures().size() == 0)
         THROW_ERROR("There were no sentences in the training data. Check to make sure your training file contains sentences.");
 
     if(config_->getDebug() > 0)
@@ -177,7 +184,7 @@ void Kytea::buildVocabulary() {
     if(dict_ != 0) delete dict_;
     dict_ = new Dictionary<ModelTagEntry>(util_);
     dict_->buildIndex(allWords);
-    dict_->setNumDicts(max((int)config_->getDictionaryFiles().size(),fio_.getNumDicts()));
+    dict_->setNumDicts(max((int)config_->getDictionaryFiles().size(),fio_->getNumDicts()));
     if(config_->getDebug() > 0)
         cerr << "done!" << endl;
 
@@ -293,7 +300,7 @@ void Kytea::preparePrefixes() {
 void Kytea::trainWS() {
     if(wsModel_)
         delete wsModel_;
-    TagTriplet * trip = fio_.getFeatures(util_->mapString("WS"),true);
+    TagTriplet * trip = fio_->getFeatures(util_->mapString("WS"),true);
     if(trip->third)
         wsModel_ = trip->third;
     else 
@@ -336,7 +343,7 @@ void Kytea::trainWS() {
     if(config_->getDebug() > 0)
         cerr << " done!" << endl;
 
-    fio_.printFeatures(util_->mapString("WS"),util_);
+    fio_->printFeatures(util_->mapString("WS"),util_);
 
 }
 
@@ -402,7 +409,7 @@ void Kytea::trainGlobalTags(int lev) {
 
     ostringstream oss; oss << "T "<<lev<<" G";
     KyteaString featId = util_->mapString(oss.str());
-    TagTriplet * trip = fio_.getFeatures(featId,true);
+    TagTriplet * trip = fio_->getFeatures(featId,true);
     globalMods_[lev] = (trip->third?trip->third:new KyteaModel());
     trip->third = globalMods_[lev];
     KyteaString kssx = util_->mapString("SX"), ksst = util_->mapString("ST");
@@ -445,7 +452,7 @@ void Kytea::trainGlobalTags(int lev) {
         cerr << "done with " << globalTags_[lev].size() << " labels and " << 
                 trip->third->getNumFeatures() << " features!" << endl;
 
-    fio_.printFeatures(featId,util_);
+    fio_->printFeatures(featId,util_);
 }
 
 template <class T>
@@ -479,7 +486,7 @@ void Kytea::trainLocalTags(int lev) {
     for(unsigned i = 0; i < entries.size(); i++) {
         myEntry = entries[i];
         if((int)myEntry->tags.size() > lev && (myEntry->tags[lev].size() > 1 || config_->getWriteFeatures())) {
-            TagTriplet * trip = fio_.getFeatures(featId+myEntry->word,true);
+            TagTriplet * trip = fio_->getFeatures(featId+myEntry->word,true);
             if((int)myEntry->tagMods.size() <= lev)
                 myEntry->tagMods.resize(lev+1,0);
             myEntry->tagMods[lev] = (trip->third ? trip->third : new KyteaModel());
@@ -498,7 +505,7 @@ void Kytea::trainLocalTags(int lev) {
             finPos = startPos+word.norm.length();
             if(!word.getTag(lev) || word.getTagConf(lev) <= config_->getConfidence())
                 continue;
-            TagTriplet * trip = fio_.getFeatures(featId+word.norm,false);
+            TagTriplet * trip = fio_->getFeatures(featId+word.norm,false);
             if(trip) {
                 unsigned myTag = dict_->getTagID(word.norm,word.getTagSurf(lev),lev);
                 if(myTag != 0) {
@@ -517,7 +524,7 @@ void Kytea::trainLocalTags(int lev) {
     for(unsigned i = 0; i < entries.size(); i++) {
         myEntry = entries[i];
         if((int)myEntry->tags.size() > lev && (myEntry->tags[lev].size() > 1 || config_->getWriteFeatures())) {
-            TagTriplet * trip = fio_.getFeatures(featId+myEntry->word,false);
+            TagTriplet * trip = fio_->getFeatures(featId+myEntry->word,false);
             if(!trip) THROW_ERROR("FATAL: Unbuilt model in entry table");
             vector< vector<unsigned> > & xs = trip->first;
             vector<int> & ys = trip->second;
@@ -533,7 +540,7 @@ void Kytea::trainLocalTags(int lev) {
     }
 
     // print the features
-    fio_.printFeatures(featId,util_);
+    fio_->printFeatures(featId,util_);
 
     if(config_->getDebug() > 0)
         cerr << "done!" << endl;
@@ -1089,18 +1096,18 @@ void Kytea::trainAll() {
     if(config_->getFeatureIn().length()) {
         if(config_->getDebug() > 0)
             cerr << "Loading features from "<<config_->getFeatureIn() << "...";
-        fio_.load(config_->getFeatureIn(),util_);
+        fio_->load(config_->getFeatureIn(),util_);
         if(config_->getDebug() > 0)
             cerr << " done!" << endl;
     }
-    config_->setNumTags(max(config_->getNumTags(),fio_.getNumTags()));
+    config_->setNumTags(max(config_->getNumTags(),fio_->getNumTags()));
     if(config_->getFeatureOut().length())
-        fio_.openOut(config_->getFeatureOut());
+        fio_->openOut(config_->getFeatureOut());
 
     // load the vocabulary, tags
     buildVocabulary();
-    fio_.setNumTags(config_->getNumTags());
-    fio_.printWordMap(util_);
+    fio_->setNumTags(config_->getNumTags());
+    fio_->printWordMap(util_);
 
     // train the word segmenter
     if(config_->getDoWS())
@@ -1124,7 +1131,7 @@ void Kytea::trainAll() {
     }
 
     // close the feature output
-    fio_.closeOut();
+    fio_->closeOut();
 
     // write the models out to a file
     writeModel(config_->getModelFile().c_str());
@@ -1224,4 +1231,29 @@ void Kytea::checkEqual(const Kytea & rhs) {
     checkPointerVecEqual(globalMods_, rhs.globalMods_);
     checkValueVecEqual(globalTags_, rhs.globalTags_);
     checkValueVecEqual(dictFeats_, rhs.dictFeats_);
+}
+
+// Destructor and other misc. small functions
+Kytea::~Kytea() {
+    if(dict_) delete dict_;
+    if(subwordDict_) delete subwordDict_;
+    if(wsModel_) delete wsModel_;
+    if(config_) delete config_;
+    if(fio_) delete fio_;
+    for(int i = 0; i < (int)subwordModels_.size(); i++) {
+        if(subwordModels_[i] != 0) delete subwordModels_[i];
+    }
+    for(int i = 0; i < (int)globalMods_.size(); i++)
+        if(globalMods_[i] != 0) delete globalMods_[i];
+    for(Sentences::iterator it = sentences_.begin(); it != sentences_.end(); it++)
+        delete *it;
+    
+}
+void Kytea::init() { 
+    util_ = config_->getStringUtil();
+    // dict_ = new Dictionary(util_);
+    dict_ = NULL;
+    wsModel_ = NULL;
+    subwordDict_ = NULL;
+    fio_ = new FeatureIO;
 }

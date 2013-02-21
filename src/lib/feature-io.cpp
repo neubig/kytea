@@ -1,8 +1,16 @@
 
-#include "kytea/feature-io.h"
+#include <kytea/string-util.h>
+#include <kytea/kytea-util.h>
+#include <kytea/feature-io.h>
+#include <kytea/dictionary.h>
+#include <fstream>
 
 using namespace kytea;
 using namespace std;
+
+FeatureIO::~FeatureIO() {
+    if(out_) delete out_;
+}
 
 void FeatureIO::load(const string& fileName,StringUtil* util) {
     ifstream in(fileName.c_str());

@@ -17,17 +17,26 @@
 #ifndef KYTEA_H__
 #define KYTEA_H__
 
-#include "kytea/kytea-config.h"
-#include "kytea/kytea-struct.h"
-#include "kytea/kytea-model.h"
-#include "kytea/kytea-lm.h"
-#include "kytea/dictionary.h"
-#include "kytea/feature-io.h"
-#include "kytea/feature-lookup.h"
+// #include <kytea/kytea-model.h>
+// #include <kytea/kytea-lm.h>
+// #include <kytea/dictionary.h>
+// #include <kytea/feature-io.h>
+// #include <kytea/feature-lookup.h>
+#include <kytea/kytea-config.h>
+#include <kytea/kytea-struct.h>
+#include <vector>
 
 namespace kytea  {
 
 class KyteaTest;
+class StringUtil;
+class KyteaConfig;
+template <class T> class Dictionary;
+class ModelTagEntry;
+class ProbTagEntry;
+class KyteaModel;
+class KyteaLM;
+class FeatureIO;
 
 // a class representing the main analyzer
 class Kytea {
@@ -55,7 +64,7 @@ private:
     std::vector<unsigned> dictFeats_;
     std::vector<KyteaString> charPrefixes_, typePrefixes_;
 
-    FeatureIO fio_;
+    FeatureIO* fio_;
 
 public:
 
@@ -101,29 +110,12 @@ public:
 //                     Constructor/Destructor                    //
 ///////////////////////////////////////////////////////////////////
 
-    void init() { 
-        util_ = config_->getStringUtil();
-        // dict_ = new Dictionary(util_);
-        dict_ = 0; wsModel_ = 0; subwordDict_ = 0;
-    }
+    void init();
 
     Kytea() : config_(new KyteaConfig()) { init(); }
     Kytea(KyteaConfig * config) : config_(config) { init(); }
     
-    ~Kytea() {
-        if(dict_) delete dict_;
-        if(subwordDict_) delete subwordDict_;
-        if(wsModel_) delete wsModel_;
-        if(config_) delete config_;
-        for(int i = 0; i < (int)subwordModels_.size(); i++) {
-            if(subwordModels_[i] != 0) delete subwordModels_[i];
-        }
-        for(int i = 0; i < (int)globalMods_.size(); i++)
-            if(globalMods_[i] != 0) delete globalMods_[i];
-        for(Sentences::iterator it = sentences_.begin(); it != sentences_.end(); it++)
-            delete *it;
-        
-    }
+    ~Kytea();
 
     KyteaModel* getWSModel() { return wsModel_; }
 

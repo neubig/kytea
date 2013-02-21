@@ -1,10 +1,15 @@
 #ifndef FEATURE_LOOKUP__
 #define FEATURE_LOOKUP__
 
-#include "kytea/dictionary.h"
 #include <vector>
+#include <cstddef>
+#include <kytea/feature-vector.h>
+#include <kytea/dictionary.h>
 
 namespace kytea {
+
+class KyteaString;
+class ModelTagEntry;
 
 class FeatureLookup {
 protected:
@@ -14,15 +19,7 @@ public:
     FeatureLookup() : charDict_(NULL), typeDict_(NULL), selfDict_(NULL), dictVector_(NULL), biases_(NULL), tagDictVector_(NULL), tagUnkVector_(NULL) { }
     ~FeatureLookup();
 
-    void checkEqual(const FeatureLookup & rhs) const {
-        checkPointerEqual(charDict_, rhs.charDict_);
-        checkPointerEqual(typeDict_, rhs.typeDict_);
-        checkPointerEqual(selfDict_, rhs.selfDict_);
-        checkValueVecEqual(dictVector_, rhs.dictVector_);
-        checkValueVecEqual(biases_, rhs.biases_);
-        checkValueVecEqual(tagDictVector_, rhs.tagDictVector_);
-        checkValueVecEqual(tagUnkVector_, rhs.tagUnkVector_);
-    }
+    void checkEqual(const FeatureLookup & rhs) const;
 
     // Getters
     const Dictionary<FeatVec> * getCharDict() const { return charDict_; }

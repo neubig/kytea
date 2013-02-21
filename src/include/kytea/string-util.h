@@ -17,12 +17,12 @@
 #ifndef STRING_UTIL_H__
 #define STRING_UTIL_H__
 
-#include "kytea-struct.h"
-#include "kytea-string.h"
-#include <iostream>
+#include <kytea/kytea-struct.h>
+// #include <kytea/kytea-string.h>
+// #include <iostream>
 #include <sstream>
-#include <vector>
-#include <cstdlib>
+// #include <vector>
+// #include <cstdlib>
 
 namespace kytea {
 
@@ -88,31 +88,12 @@ public:
     KyteaString normalize(const KyteaString & str);
 
     // Check that these are equal by serializing them
-    void checkEqual(const StringUtil & rhs) const {
-        std::string me = serialize();
-        std::string you = rhs.serialize();
-        if(me != you) {
-            THROW_ERROR("String utils don't match" << std::endl 
-                        << " --- lhs --- " << std::endl << me << std::endl
-                        << " --- rhs --- " << std::endl << you);
-        }
-    }
+    void checkEqual(const StringUtil & rhs) const;
 
     // parse an integer or float
-    int parseInt(const char* str) {
-        char* endP;
-        int ret = strtol(str, &endP, 10);
-        if(endP == str)
-            THROW_ERROR("Bad integer value '" << str << "'");
-        return ret;
-    }
-    double parseFloat(const char* str) {
-        char* endP;
-        double ret = strtod(str, &endP);
-        if(endP == str)
-            THROW_ERROR("Bad floating-point value '" << str << "'");
-        return ret;
-    }
+    int parseInt(const char* str);
+    double parseFloat(const char* str);
+
 
     // get a std::string of character types
     std::string getTypeString(const KyteaString& str) {
