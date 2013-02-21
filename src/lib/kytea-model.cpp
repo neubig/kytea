@@ -1,5 +1,8 @@
+#include <kytea/kytea-util.h>
 #include <kytea/kytea-model.h>
 #include <kytea/feature-lookup.h>
+#include <kytea/string-util.h>
+#include <kytea/dictionary.h>
 #include "liblinear/linear.h"
 #include <cstdlib>
 #include <cmath>
@@ -439,4 +442,10 @@ void KyteaModel::checkEqual(const KyteaModel & rhs) const {
 
 KyteaModel::~KyteaModel() {
     if(featLookup_) delete featLookup_;
+}
+
+
+void KyteaModel::setNumFeatures(unsigned i) {
+    if(i != getNumFeatures()) 
+        THROW_ERROR("setting the number of features to a different value is not allowed ("<<i<<" != "<<getNumFeatures()<<")");
 }

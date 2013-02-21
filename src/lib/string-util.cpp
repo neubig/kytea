@@ -14,6 +14,7 @@
 * limitations under the License.
 */
 
+#include <kytea/kytea-util.h>
 #include <kytea/string-util.h>
 #include <kytea/string-util-map-utf8.h>
 #include <kytea/string-util-map-euc.h>
@@ -23,6 +24,34 @@
 
 using namespace kytea;
 using namespace std;
+
+
+// Check that these are equal by serializing them
+void StringUtil::checkEqual(const StringUtil & rhs) const {
+    std::string me = serialize();
+    std::string you = rhs.serialize();
+    if(me != you) {
+        THROW_ERROR("String utils don't match" << std::endl 
+                    << " --- lhs --- " << std::endl << me << std::endl
+                    << " --- rhs --- " << std::endl << you);
+    }
+}
+
+// parse an integer or float
+int StringUtil::parseInt(const char* str) {
+    char* endP;
+    int ret = strtol(str, &endP, 10);
+    if(endP == str)
+        THROW_ERROR("Bad integer value '" << str << "'");
+    return ret;
+}
+double StringUtil::parseFloat(const char* str) {
+    char* endP;
+    double ret = strtod(str, &endP);
+    if(endP == str)
+        THROW_ERROR("Bad floating-point value '" << str << "'");
+    return ret;
+}
 
 StringUtilUtf8::StringUtilUtf8() {
     const char * initial[7] = { "", "K", "T", "H", "R", "D", "O" };

@@ -17,13 +17,14 @@
 #ifndef GENERAL_IO_H__ 
 #define GENERAL_IO_H__ 
 
-#include "kytea-string.h"
-#include "string-util.h"
-#include "config.h"
+// #include <kytea/kytea-string.h>
+// #include <kytea/string-util.h>
+// #include <kytea/config.h>
 #include <iostream>
-#include <fstream>
-#include <sstream>
-#include <stdint.h>
+#include <cstddef>
+// #include <fstream>
+// #include <sstream>
+// #include <stdint.h>
 
 #if DISABLE_QUANTIZE
 #   define DECIMAL_PRECISION 8
@@ -32,6 +33,10 @@
 #endif
 
 namespace kytea {
+
+// Forward declarations
+class StringUtil;
+class KyteaString;
 
 class GeneralIO {
 
@@ -45,40 +50,23 @@ protected:
  
     // write
     template <class T>
-    inline void writeBinary(T v) {
+    void writeBinary(T v) {
         str_->write(reinterpret_cast<char *>(&v), sizeof(T));
     } 
-    inline void writeString(const char* str, size_t size) {
+    void writeString(const char* str, size_t size) {
         str_->write(str, size+1);
     } 
-    inline void writeString(const std::string & str) {
+    void writeString(const std::string & str) {
         str_->write(str.c_str(), str.length()+1);
     }
-    inline void writeString(const KyteaString & str) {
-        writeBinary((uint32_t)str.length());
-        for(unsigned i = 0; i < str.length(); i++)
-            writeBinary(str[i]);
-    }
+    void writeString(const KyteaString & str);
     
     // read
     template <class T>
-    inline T readBinary() {
-        T v;
-        str_->read(reinterpret_cast<char *>(&v),sizeof(T));
-        return v;
-    } 
-    inline std::string readString() {
-        std::string str;
-        getline(*str_, str, (char)0);
-        return str;
-    }
-    inline KyteaString readKyteaString() {
-        KyteaString ret(readBinary<uint32_t>());
-        for(unsigned i = 0; i < ret.length(); i++)
-            ret[i] = readBinary<KyteaChar>();
-        return ret;
-    }
-    
+    T readBinary();
+
+    std::string readString();
+    KyteaString readKyteaString();
 
 public:
 
@@ -99,25 +87,8 @@ public:
             delete str_;
     }
 
-    void openFile(const char* file, bool out, bool bin) {
-        std::fstream::openmode mode = (out?std::fstream::out:std::fstream::in);
-        if(bin) mode = mode | std::fstream::binary;
-        std::fstream * str = new std::fstream(file, mode);
-        if(str->fail()) 
-            THROW_ERROR("Couldn't open file '"<<file<<"' for "<<(out?"output":"input"));
-        setStream(*str, out, bin);
-        owns_ = true;
-    }
-
-    void setStream(std::iostream & str, bool out, bool bin) {
-        if(str_ && owns_)
-            delete str_;
-        str_ = &str;
-        str_->precision(DECIMAL_PRECISION);
-        bin_ = bin;
-        out_ = out;
-        owns_ = false;
-    }
+    void openFile(const char* file, bool out, bool bin);
+    void setStream(std::iostream & str, bool out, bool bin);
 
 };
 

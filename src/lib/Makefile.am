@@ -1,5 +1,5 @@
 LLLIBS = liblinear/liblinear.la
-KYTCPP = kytea.cpp corpus-io.cpp model-io.cpp string-util.cpp kytea-model.cpp kytea-config.cpp kytea-lm.cpp feature-io.cpp dictionary.cpp feature-lookup.cpp
+KYTCPP = corpus-io-prob.cpp corpus-io-full.cpp corpus-io-part.cpp corpus-io-tokenized.cpp corpus-io-raw.cpp corpus-io.cpp model-io.cpp string-util.cpp kytea-model.cpp kytea-config.cpp kytea-lm.cpp feature-io.cpp dictionary.cpp feature-lookup.cpp kytea.cpp 
 # KYTH = kytea.h corpus-io.h model-io.h string-util.h \
 #        kytea-model.h kytea-string.h kytea-struct.h dictionary.h general-io.h \
 #        kytea-config.h

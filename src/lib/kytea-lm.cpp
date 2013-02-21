@@ -1,4 +1,5 @@
-#include "kytea/kytea-lm.h"
+#include <kytea/kytea-lm.h>
+#include <kytea/kytea-util.h>
 #include <iostream>
 #include <cmath>
 
@@ -121,4 +122,13 @@ double KyteaLM::score(const KyteaString& val) const {
             prob += log(1.0/vocabSize_);
     }
     return prob;
+}
+
+void KyteaLM::checkEqual(const KyteaLM & rhs) const {
+    if(n_ != rhs.n_)
+        THROW_ERROR("KyteaLM n_ don't match: " << n_ << " != " << rhs.n_);
+    if(vocabSize_ != rhs.vocabSize_)
+        THROW_ERROR("KyteaLM vocabSize_ don't match: " << vocabSize_ << " != " << rhs.vocabSize_);
+    checkMapEqual(probs_, rhs.probs_);
+    checkMapEqual(fallbacks_, rhs.fallbacks_);
 }

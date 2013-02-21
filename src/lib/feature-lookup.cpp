@@ -1,5 +1,7 @@
 
-#include "kytea/feature-lookup.h"
+#include <kytea/feature-lookup.h>
+#include <kytea/kytea-util.h>
+#include <kytea/dictionary.h>
 #include <algorithm>
 
 using namespace kytea;
@@ -147,4 +149,14 @@ void FeatureLookup::addTagDictWeights(const std::vector<pair<int,int> > & exists
             }
         }
     }
+}
+
+void FeatureLookup::checkEqual(const FeatureLookup & rhs) const {
+    checkPointerEqual(charDict_, rhs.charDict_);
+    checkPointerEqual(typeDict_, rhs.typeDict_);
+    checkPointerEqual(selfDict_, rhs.selfDict_);
+    checkValueVecEqual(dictVector_, rhs.dictVector_);
+    checkValueVecEqual(biases_, rhs.biases_);
+    checkValueVecEqual(tagDictVector_, rhs.tagDictVector_);
+    checkValueVecEqual(tagUnkVector_, rhs.tagUnkVector_);
 }

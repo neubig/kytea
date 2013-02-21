@@ -21,18 +21,17 @@ namespace kytea {
 class KyteaConfig;
 }
 
-#include "string-util.h"
-#include "corpus-io.h"
-#include <cstring>
-#include <cmath>
+#include <string>
+#include <vector>
 
 namespace kytea {
+
+class StringUtil;
 
 class KyteaConfig {
 
 private:
 
-    typedef StringUtil::Encoding Encoding;
     // must be the same as CorpusIO::Format, not used directly because of cross-dependencies
     typedef char CorpForm;
     bool onTraining_;
@@ -114,59 +113,12 @@ private:
 
 public:
 
-    KyteaConfig() : onTraining_(true), debug_(0), util_(0), dicts_(), 
-                    modelForm_('B'), inputForm_(CORP_FORMAT_DEFAULT),
-                    outputForm_(CORP_FORMAT_FULL), featStr_(0),
-                    doWS_(true), doTags_(true), doUnk_(true),
-                    addFeat_(false), confidence_(0.0), charW_(3), charN_(3), 
-                    typeW_(3), typeN_(3), dictN_(4), 
-                    unkN_(3), unkBeam_(50), defTag_("UNK"), unkTag_(),
-                    bias_(1.0f), eps_(HUGE_VAL), cost_(1.0),
-                    solverType_(1/*SVM*/),
-                    wordBound_(" "), tagBound_("/"), elemBound_("&"), unkBound_(" "), 
-                    noBound_("-"), hasBound_("|"), skipBound_("?"), escape_("\\"), 
-                    wsConstraint_(""),
-                    numTags_(0), tagMax_(3) {
-        setEncoding("utf8");
-    }
-    KyteaConfig(const KyteaConfig & rhs) 
-                  :  onTraining_(rhs.onTraining_), debug_(rhs.debug_), 
-                     util_(rhs.util_), dicts_(rhs.dicts_),
-                     modelForm_(rhs.modelForm_), inputForm_(rhs.inputForm_), 
-                     outputForm_(rhs.outputForm_), featStr_(rhs.featStr_), 
-                     doWS_(rhs.doWS_), doTags_(rhs.doTags_), 
-                     doUnk_(rhs.doUnk_), addFeat_(rhs.addFeat_), 
-                     confidence_(rhs.confidence_), charW_(rhs.charW_), 
-                     charN_(rhs.charN_), typeW_(rhs.typeW_), 
-                     typeN_(rhs.typeN_), dictN_(rhs.dictN_), 
-                     unkN_(rhs.unkN_), unkBeam_(rhs.unkBeam_), 
-                     defTag_(rhs.defTag_), unkTag_(rhs.unkTag_), 
-                     bias_(rhs.bias_), eps_(rhs.eps_), cost_(rhs.cost_), 
-                     solverType_(rhs.solverType_), wordBound_(rhs.wordBound_), 
-                     tagBound_(rhs.tagBound_), elemBound_(rhs.elemBound_), 
-                     unkBound_(rhs.unkBound_), noBound_(rhs.noBound_), 
-                     hasBound_(rhs.hasBound_), skipBound_(rhs.skipBound_), 
-                     escape_(rhs.escape_), numTags_(rhs.numTags_), tagMax_(rhs.tagMax_)
-    {
-
-    }
-    ~KyteaConfig() {
-        if(util_)
-            delete util_;
-    }
-
-    void addCorpus(const std::string & corp, CorpForm format) {
-        corpora_.push_back(corp);
-        corpusFormats_.push_back(format);
-    }
-    
-    void addDictionary(const std::string & corp) {
-        dicts_.push_back(corp);
-    }
-    
-    void addSubwordDict(const std::string & corp) {
-        subwordDicts_.push_back(corp);
-    }
+    KyteaConfig();
+    KyteaConfig(const KyteaConfig & rhs);
+    ~KyteaConfig();
+    void addCorpus(const std::string & corp, CorpForm format);
+    void addDictionary(const std::string & corp);
+    void addSubwordDict(const std::string & corp);
 
     // parse command line arguments
     void parseTrainCommandLine(int argc, const char ** argv);
@@ -229,8 +181,8 @@ public:
     const char* getEscape() const { return escape_.c_str(); } 
 
     const double getConfidence() const { return confidence_; }
-    const char getEncoding() const { return util_->getEncoding(); }
-    const char* getEncodingString() const { return util_->getEncodingString(); }
+    const char getEncoding() const;
+    const char* getEncodingString() const;
     int getNumTags() const { return numTags_; }
     bool getGlobal(int i) const { return i < (int)global_.size() && global_[i]; }
 
@@ -279,28 +231,11 @@ public:
     void setFeatureOut(const std::string & featOut) { featOut_ = featOut; }
     void setWsConstraint(const std::string & wsConstraint) { wsConstraint_ = wsConstraint; }
 
-    std::ostream * getFeatureOutStream() {
-        if(featOut_.length() && !featStr_)
-            featStr_ = new std::ofstream(featOut_.c_str());
-        return featStr_;
-    }
-    void closeFeatureOutStream() {
-        if(featStr_) {
-            delete featStr_;
-            featStr_ = 0;
-        }
-    }
+    std::ostream * getFeatureOutStream();
+    void closeFeatureOutStream();
 
     // set the encoding of the StringUtil class and reset all the IOs
-    void setEncoding(const char* str) {
-        if(util_)
-            delete util_;
-        if(!strcmp(str,"utf8")) util_ = new StringUtilUtf8();
-        else if(!strcmp(str,"euc")) util_ = new StringUtilEuc();
-        else if(!strcmp(str,"sjis")) util_ = new StringUtilSjis();
-        else
-            THROW_ERROR("Unsupported encoding format '" << str << "'");
-    }
+    void setEncoding(const char* str);
 
 };
 

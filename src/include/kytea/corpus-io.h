@@ -27,11 +27,17 @@ const static char CORP_FORMAT_TOK = 4;
 const static char CORP_FORMAT_DEFAULT = 5;
 }
 
-#include "general-io.h"
-#include "kytea-struct.h"
-#include "kytea-config.h"
+#include <kytea/general-io.h>
+#include <vector>
+// #include <kytea/kytea-struct.h>
+// #include <kytea/kytea-config.h>
 
 namespace kytea {
+
+// Forward declarations
+class KyteaConfig;
+class StringUtil;
+class KyteaSentence;
 
 class CorpusIO : public GeneralIO {
 
@@ -67,155 +73,6 @@ public:
     virtual void writeSentence(const KyteaSentence * sent, double conf = 0.0) = 0;
 
     void setUnkTag(const std::string & tag) { unkTag_ = tag; }
-
-};
-
-class FullCorpusIO : public CorpusIO {
-
-protected:
-
-    bool allTags_;
-    KyteaString bounds_;
-
-public:
-    FullCorpusIO(StringUtil * util, const char* wordBound = " ", const char* tagBound = "/", const char* elemBound = "&", const char* escape = "\\") : CorpusIO(util), allTags_(false), bounds_(4) { 
-        bounds_[0] = util_->mapChar(wordBound);
-        bounds_[1] = util_->mapChar(tagBound);
-        bounds_[2] = util_->mapChar(elemBound);
-        bounds_[3] = util_->mapChar(escape);
-    }
-    FullCorpusIO(const CorpusIO & c, const char* wordBound = " ", const char* tagBound = "/", const char* elemBound = "&", const char* escape = "\\") : CorpusIO(c), allTags_(false), bounds_(4) { 
-        bounds_[0] = util_->mapChar(wordBound);
-        bounds_[1] = util_->mapChar(tagBound);
-        bounds_[2] = util_->mapChar(elemBound);
-        bounds_[3] = util_->mapChar(escape);
-    }
-    FullCorpusIO(StringUtil * util, const char* file, bool out, const char* wordBound = " ", const char* tagBound = "/", const char* elemBound = "&", const char* escape = "\\") : CorpusIO(util,file,out), allTags_(false), bounds_(4) { 
-        bounds_[0] = util_->mapChar(wordBound);
-        bounds_[1] = util_->mapChar(tagBound);
-        bounds_[2] = util_->mapChar(elemBound);
-        bounds_[3] = util_->mapChar(escape);
-    } 
-    FullCorpusIO(StringUtil * util, std::iostream & str, bool out, const char* wordBound = " ", const char* tagBound = "/", const char* elemBound = "&", const char* escape = "\\") : CorpusIO(util,str,out), allTags_(false), bounds_(4) { 
-        bounds_[0] = util_->mapChar(wordBound);
-        bounds_[1] = util_->mapChar(tagBound);
-        bounds_[2] = util_->mapChar(elemBound);
-        bounds_[3] = util_->mapChar(escape);
-    }
-    
-    KyteaSentence * readSentence();
-    void writeSentence(const KyteaSentence * sent, double conf = 0.0);
-
-};
-
-class PartCorpusIO : public CorpusIO {
-    
-private:
-
-    KyteaString bounds_;
-
-public:
-    // PartCorpusIO ctr
-    //  util: the string utility to use
-    //  unkBound: the delimiter for when the bound is unannotated
-    //  skipBound: the delimiter for when annotation of a bound has been skipped
-    //  noBound: the delimiter for when no bound exists
-    //  hasBound: the delimiter for when a boundary exists
-    //  tagBound: the delimiter for when a boundary exists
-    //  elemBound: the delimiter for when a boundary exists
-    //  escape: the escape character
-    PartCorpusIO(StringUtil * util, const char* unkBound = " ", const char* skipBound = "?", const char* noBound = "-", const char* hasBound = "|", const char* tagBound = "/", const char* elemBound = "&", const char* escape = "\\") : CorpusIO(util), bounds_(7) { 
-        bounds_[0] = util_->mapChar(unkBound);
-        bounds_[1] = util_->mapChar(skipBound);
-        bounds_[2] = util_->mapChar(noBound);
-        bounds_[3] = util_->mapChar(hasBound);
-        bounds_[4] = util_->mapChar(tagBound);
-        bounds_[5] = util_->mapChar(elemBound);
-        bounds_[6] = util_->mapChar(escape);
-    }
-    PartCorpusIO(const CorpusIO & c, const char* unkBound = " ", const char* skipBound = "?", const char* noBound = "-", const char* hasBound = "|", const char* tagBound = "/", const char* elemBound = "&", const char* escape = "\\") : CorpusIO(c), bounds_(7) { 
-        bounds_[0] = util_->mapChar(unkBound);
-        bounds_[1] = util_->mapChar(skipBound);
-        bounds_[2] = util_->mapChar(noBound);
-        bounds_[3] = util_->mapChar(hasBound);
-        bounds_[4] = util_->mapChar(tagBound);
-        bounds_[5] = util_->mapChar(elemBound);
-        bounds_[6] = util_->mapChar(escape);
-    }
-    PartCorpusIO(StringUtil * util, std::iostream & str, bool out, const char* unkBound = " ", const char* skipBound = "?", const char* noBound = "-", const char* hasBound = "|", const char* tagBound = "/", const char* elemBound = "&", const char* escape = "\\") : CorpusIO(util,str,out), bounds_(7) { 
-        bounds_[0] = util_->mapChar(unkBound);
-        bounds_[1] = util_->mapChar(skipBound);
-        bounds_[2] = util_->mapChar(noBound);
-        bounds_[3] = util_->mapChar(hasBound);
-        bounds_[4] = util_->mapChar(tagBound);
-        bounds_[5] = util_->mapChar(elemBound);
-        bounds_[6] = util_->mapChar(escape);
-    }
-    PartCorpusIO(StringUtil * util, const char* file, bool out, const char* unkBound = " ", const char* skipBound = "?", const char* noBound = "-", const char* hasBound = "|", const char* tagBound = "/", const char* elemBound = "&", const char* escape = "\\") : CorpusIO(util,file,out), bounds_(7) { 
-        bounds_[0] = util_->mapChar(unkBound);
-        bounds_[1] = util_->mapChar(skipBound);
-        bounds_[2] = util_->mapChar(noBound);
-        bounds_[3] = util_->mapChar(hasBound);
-        bounds_[4] = util_->mapChar(tagBound);
-        bounds_[5] = util_->mapChar(elemBound);
-        bounds_[6] = util_->mapChar(escape);
-    }
-    
-    KyteaSentence * readSentence();
-    void writeSentence(const KyteaSentence * sent, double conf = 0.0);
-
-};
-
-class ProbCorpusIO : public FullCorpusIO {
-
-public:
-    ProbCorpusIO(StringUtil * util, const char* wordBound = " ", const char* tagBound = "/", const char* elemBound = "&", const char* escape = "\\") : FullCorpusIO(util,wordBound,tagBound,elemBound,escape) { allTags_ = true; }
-    ProbCorpusIO(const CorpusIO & c, const char* wordBound = " ", const char* tagBound = "/", const char* elemBound = "&", const char* escape = "\\") : FullCorpusIO(c,wordBound,tagBound,elemBound,escape) { allTags_ = true; }
-    ProbCorpusIO(StringUtil * util, const char* file, bool out, const char* wordBound = " ", const char* tagBound = "/", const char* elemBound = "&", const char* escape = "\\") : FullCorpusIO(util,file,out,wordBound,tagBound,elemBound,escape) { allTags_ = true; } 
-    ProbCorpusIO(StringUtil * util, std::iostream & str, bool out, const char* wordBound = " ", const char* tagBound = "/", const char* elemBound = "&", const char* escape = "\\") : FullCorpusIO(util,str,out,wordBound,tagBound,elemBound,escape) { allTags_ = true; }
-
-    KyteaSentence * readSentence();
-    void writeSentence(const KyteaSentence * sent, double conf = 0.0);
-
-};
-
-class RawCorpusIO : public CorpusIO {
-
-public:
-    RawCorpusIO(StringUtil * util) : CorpusIO(util) { }
-    RawCorpusIO(const CorpusIO & c) : CorpusIO(c) { }
-    RawCorpusIO(StringUtil * util, const char* file, bool out) : CorpusIO(util,file,out) { } 
-    RawCorpusIO(StringUtil * util, std::iostream & str, bool out) : CorpusIO(util,str,out) { }
-
-    KyteaSentence * readSentence();
-    void writeSentence(const KyteaSentence * sent, double conf = 0.0);
-
-};
-
-// An IO class for corpora that are tokenized, but with no tags
-class TokenizedCorpusIO : public CorpusIO {
-
-protected:
-
-    bool allTags_;
-    KyteaString bounds_;
-
-public:
-    TokenizedCorpusIO(StringUtil * util, const char* wordBound = " ") : CorpusIO(util), bounds_(1) { 
-        bounds_[0] = util_->mapChar(wordBound);
-    }
-    TokenizedCorpusIO(const CorpusIO & c, const char* wordBound = " ") : CorpusIO(c), allTags_(false), bounds_(1) { 
-        bounds_[0] = util_->mapChar(wordBound);
-    }
-    TokenizedCorpusIO(StringUtil * util, const char* file, bool out, const char* wordBound = " ") : CorpusIO(util,file,out), allTags_(false), bounds_(1) { 
-        bounds_[0] = util_->mapChar(wordBound);
-    } 
-    TokenizedCorpusIO(StringUtil * util, std::iostream & str, bool out, const char* wordBound = " ") : CorpusIO(util,str,out), allTags_(false), bounds_(1) { 
-        bounds_[0] = util_->mapChar(wordBound);
-    }
-    
-    KyteaSentence * readSentence();
-    void writeSentence(const KyteaSentence * sent, double conf = 0.0);
 
 };
 

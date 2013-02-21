@@ -17,26 +17,14 @@
 #ifndef KYTEA_MODEL_H__
 #define KYTEA_MODEL_H__
 
-#include <vector>
-#include <iostream>
-#include <stdint.h>
-#include "config.h"
-
-namespace kytea {
-// Define the size of the feature values and sums
-#if DISABLE_QUANTIZE
-    typedef double FeatVal;
-    typedef double FeatSum;
-#else
-    typedef int16_t FeatVal;
-    typedef int32_t FeatSum;
-#endif
-typedef std::vector<FeatVal> FeatVec;
-}
-
-#include "kytea/kytea-struct.h"
-#include "kytea/kytea-string.h"
-#include "kytea/string-util.h"
+// #include <vector>
+// #include <iostream>
+// #include <stdint.h>
+// #include <kytea/config.h>
+// #include <kytea/string-util.h>
+#include <kytea/feature-vector.h>
+#include <kytea/kytea-string.h>
+#include <kytea/kytea-struct.h>
 
 #define SIG_CUTOFF 1E-6
 
@@ -135,17 +123,13 @@ public:
         // std::cerr << "getWeight("<<i<<","<<j<<") == "<<weights_[id]<<std::endl;
         return weights_[id];
     }
-    inline const double getMultiplier() const { return multiplier_; }
-
-    inline void setBias(double bias) { bias_ = bias; }
-    inline void setLabel(unsigned i, int lab) { labels_[i] = lab; }
-    inline void setSolver(int i) { solver_ = i; }
-    inline void setNumWeights(int i) { numW_ = i; }
-    inline void setFeatureLookup(FeatureLookup * featLookup) { featLookup_ = featLookup; }
-    inline void setNumFeatures(unsigned i) {
-        if(i != getNumFeatures()) 
-            THROW_ERROR("setting the number of features to a different value is not allowed ("<<i<<" != "<<getNumFeatures()<<")");
-    }
+    const double getMultiplier() const { return multiplier_; }
+    void setBias(double bias) { bias_ = bias; }
+    void setLabel(unsigned i, int lab) { labels_[i] = lab; }
+    void setSolver(int i) { solver_ = i; }
+    void setNumWeights(int i) { numW_ = i; }
+    void setFeatureLookup(FeatureLookup * featLookup) { featLookup_ = featLookup; }
+    void setNumFeatures(unsigned i);
     void setNumClasses(unsigned i);
 
     void initializeWeights(unsigned i, unsigned j) { weights_.resize(i*j,0); }

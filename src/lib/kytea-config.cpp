@@ -14,8 +14,14 @@
 * limitations under the License.
 */
 
+#include <kytea/string-util.h>
+#include <kytea/kytea-util.h>
 #include <kytea/kytea-config.h>
-#include "config.h"
+#include <kytea/corpus-io.h>
+#include <kytea/config.h>
+#include <cstring>
+#include <cstdlib>
+#include <fstream>
 
 using namespace kytea;
 using namespace std;
@@ -268,4 +274,86 @@ unsigned KyteaConfig::parseRunArg(const char * n, const char * v) {
 
     else { r=0; args_.push_back(n); }
     return r;
+}
+
+// set the encoding of the StringUtil class and reset all the IOs
+void KyteaConfig::setEncoding(const char* str) {
+    if(util_)
+        delete util_;
+    if(!strcmp(str,"utf8")) util_ = new StringUtilUtf8();
+    else if(!strcmp(str,"euc")) util_ = new StringUtilEuc();
+    else if(!strcmp(str,"sjis")) util_ = new StringUtilSjis();
+    else
+        THROW_ERROR("Unsupported encoding format '" << str << "'");
+}
+
+
+KyteaConfig::KyteaConfig() : onTraining_(true), debug_(0), util_(0), dicts_(), 
+                modelForm_('B'), inputForm_(CORP_FORMAT_DEFAULT),
+                outputForm_(CORP_FORMAT_FULL), featStr_(0),
+                doWS_(true), doTags_(true), doUnk_(true),
+                addFeat_(false), confidence_(0.0), charW_(3), charN_(3), 
+                typeW_(3), typeN_(3), dictN_(4), 
+                unkN_(3), unkBeam_(50), defTag_("UNK"), unkTag_(),
+                bias_(1.0f), eps_(HUGE_VAL), cost_(1.0),
+                solverType_(1/*SVM*/),
+                wordBound_(" "), tagBound_("/"), elemBound_("&"), unkBound_(" "), 
+                noBound_("-"), hasBound_("|"), skipBound_("?"), escape_("\\"), 
+                wsConstraint_(""),
+                numTags_(0), tagMax_(3) {
+    setEncoding("utf8");
+}
+KyteaConfig::KyteaConfig(const KyteaConfig & rhs) 
+              :  onTraining_(rhs.onTraining_), debug_(rhs.debug_), 
+                 util_(rhs.util_), dicts_(rhs.dicts_),
+                 modelForm_(rhs.modelForm_), inputForm_(rhs.inputForm_), 
+                 outputForm_(rhs.outputForm_), featStr_(rhs.featStr_), 
+                 doWS_(rhs.doWS_), doTags_(rhs.doTags_), 
+                 doUnk_(rhs.doUnk_), addFeat_(rhs.addFeat_), 
+                 confidence_(rhs.confidence_), charW_(rhs.charW_), 
+                 charN_(rhs.charN_), typeW_(rhs.typeW_), 
+                 typeN_(rhs.typeN_), dictN_(rhs.dictN_), 
+                 unkN_(rhs.unkN_), unkBeam_(rhs.unkBeam_), 
+                 defTag_(rhs.defTag_), unkTag_(rhs.unkTag_), 
+                 bias_(rhs.bias_), eps_(rhs.eps_), cost_(rhs.cost_), 
+                 solverType_(rhs.solverType_), wordBound_(rhs.wordBound_), 
+                 tagBound_(rhs.tagBound_), elemBound_(rhs.elemBound_), 
+                 unkBound_(rhs.unkBound_), noBound_(rhs.noBound_), 
+                 hasBound_(rhs.hasBound_), skipBound_(rhs.skipBound_), 
+                 escape_(rhs.escape_), numTags_(rhs.numTags_), tagMax_(rhs.tagMax_)
+{
+
+}
+
+KyteaConfig::~KyteaConfig() {
+    if(util_)
+        delete util_;
+}
+
+void KyteaConfig::addCorpus(const std::string & corp, CorpForm format) {
+    corpora_.push_back(corp);
+    corpusFormats_.push_back(format);
+}
+
+void KyteaConfig::addDictionary(const std::string & corp) {
+    dicts_.push_back(corp);
+}
+
+void KyteaConfig::addSubwordDict(const std::string & corp) {
+    subwordDicts_.push_back(corp);
+}
+
+const char KyteaConfig::getEncoding() const { return util_->getEncoding(); }
+const char* KyteaConfig::getEncodingString() const { return util_->getEncodingString(); }
+
+std::ostream * KyteaConfig::getFeatureOutStream() {
+    if(featOut_.length() && !featStr_)
+        featStr_ = new std::ofstream(featOut_.c_str());
+    return featStr_;
+}
+void KyteaConfig::closeFeatureOutStream() {
+    if(featStr_) {
+        delete featStr_;
+        featStr_ = 0;
+    }
 }

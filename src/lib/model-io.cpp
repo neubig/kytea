@@ -14,9 +14,21 @@
 * limitations under the License.
 */
 
+#include <kytea/kytea-config.h>
+#include <kytea/kytea-util.h>
+#include <kytea/kytea-model.h>
+#include <kytea/kytea-lm.h>
+#include <kytea/kytea-string.h>
+#include <kytea/dictionary.h>
+#include <kytea/feature-lookup.h>
+#include <kytea/string-util.h>
 #include <kytea/model-io.h>
+#include <kytea/model-io-text.h>
+#include <kytea/model-io-binary.h>
 #include <algorithm>
+#include <cstring>
 #include <set>
+#include <fstream>
 
 #define BUFFER_SIZE 4096
 #define NEG_INFINITY -999.0
