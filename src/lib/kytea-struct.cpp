@@ -1,6 +1,9 @@
 #include <kytea/kytea-struct.h>
+#include <kytea/kytea-util.h>
 
 using namespace kytea;
+
+namespace kytea {
 
 // Map equality checking function
 template <class T>
@@ -14,6 +17,11 @@ void checkMapEqual(const KyteaStringMap<T> & a, const KyteaStringMap<T> & b) {
         if(bit == b.end() || ait->second != bit->second)
             THROW_ERROR("Values don't match in map");
     }
+}
+
+template void checkMapEqual(const KyteaStringMap<double> & a, const KyteaStringMap<double> & b);
+template void checkMapEqual(const KyteaStringMap<unsigned int> & a, const KyteaStringMap<unsigned int> & b);
+
 }
 
 

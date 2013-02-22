@@ -2,8 +2,6 @@
 #define TEST_ANALYSIS__
 
 #include "test-base.h"
-#include <kytea/corpus-io.h>
-#include <kytea/model-io.h>
 
 namespace kytea {
 

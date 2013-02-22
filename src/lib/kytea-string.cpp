@@ -1,6 +1,8 @@
 #include <kytea/kytea-string.h>
+#include <cstring>
 
 using namespace kytea;
+using namespace std;
 
 // Constructors for KyteaStringImpl
 KyteaStringImpl::KyteaStringImpl(unsigned length) : length_(length), count_(1) {
@@ -12,10 +14,10 @@ KyteaStringImpl::KyteaStringImpl(const KyteaStringImpl & impl) : length_(impl.le
 }
 
 // tokenize the string using the characters in the delimiter string
-Tokens KyteaString::tokenize(const KyteaString & delim, bool includeDelim = false) const {
+KyteaString::Tokens KyteaString::tokenize(const KyteaString & delim, bool includeDelim) const {
     unsigned i,j,s=0;
     const unsigned l=length(),dl=delim.length();
-    std::vector<KyteaString> ret;
+    vector<KyteaString> ret;
     for(i = 0; i < l; i++) {
         for(j = 0; j < dl && delim[j] != impl_->chars_[i]; j++);
         if(j != dl) {
@@ -38,7 +40,7 @@ void KyteaString::splice(const KyteaString& str, unsigned pos) {
         return;
 #ifdef KYTEA_SAFE
     if(pos+l > length())
-        throw std::runtime_error("KyteaString splice index out of bounds");
+        throw runtime_error("KyteaString splice index out of bounds");
 #endif
     memcpy(impl_->chars_+pos, str.getImpl()->chars_, sizeof(KyteaChar)*l);
 }
@@ -47,7 +49,7 @@ KyteaString KyteaString::substr(unsigned s) const {
     const unsigned l = length()-s;
 #ifdef KYTEA_SAFE
     if(s+l > length())
-        throw std::runtime_error("KyteaString substr index out of bounds");
+        throw runtime_error("KyteaString substr index out of bounds");
 #endif
     KyteaString ret(l);
     memcpy(ret.getImpl()->chars_, impl_->chars_+s, sizeof(KyteaChar)*l);
@@ -58,7 +60,7 @@ KyteaString KyteaString::substr(unsigned s) const {
 KyteaString KyteaString::substr(unsigned s, unsigned l) const {
 #ifdef KYTEA_SAFE
     if(s+l > length())
-        throw std::runtime_error("substr out of bounds");
+        throw runtime_error("substr out of bounds");
 #endif
     KyteaString ret(l);
     memcpy(ret.getImpl()->chars_, impl_->chars_+s, sizeof(KyteaChar)*l);
@@ -76,9 +78,6 @@ size_t KyteaString::getHash() const {
     return hash;
 }
 
-const KyteaStringImpl * KyteaString::getImpl() const {
-    return impl_;
-} 
 KyteaStringImpl * KyteaString::getImpl() {
     if(impl_->count_ != 1) {
         impl_->dec();

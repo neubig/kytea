@@ -1,4 +1,8 @@
 #include <kytea/general-io.h>
+#include <kytea/kytea-util.h>
+#include <kytea/kytea-string.h>
+#include <fstream>
+#include <stdint.h>
 
 using namespace std;
 using namespace kytea;
@@ -36,6 +40,17 @@ T GeneralIO::readBinary() {
     str_->read(reinterpret_cast<char *>(&v),sizeof(T));
     return v;
 } 
+
+// Template instantiations
+template bool GeneralIO::readBinary<bool>();
+template char GeneralIO::readBinary<char>();
+template short GeneralIO::readBinary<short>();
+template int GeneralIO::readBinary<int>();
+template double GeneralIO::readBinary<double>();
+template unsigned short GeneralIO::readBinary<unsigned short>();
+template unsigned int GeneralIO::readBinary<unsigned int>();
+template unsigned char GeneralIO::readBinary<unsigned char>();
+
 std::string GeneralIO::readString() {
     std::string str;
     getline(*str_, str, (char)0);
