@@ -33,6 +33,7 @@ void KyteaConfig::setIOFormat(const char* str, CorpForm & cf) {
     else if(!strcmp(str, "part")) { cf = CORP_FORMAT_PART; }
     else if(!strcmp(str, "conf")) { cf = CORP_FORMAT_PROB; }
     else if(!strcmp(str, "prob")) { cf = CORP_FORMAT_PROB; }
+    else if(!strcmp(str, "eda"))  { cf = CORP_FORMAT_EDA; }
     else if(!strcmp(str, "raw"))  { cf = CORP_FORMAT_RAW;  }
     else
         THROW_ERROR("Unsupported corpus IO format '" << str << "'");
