@@ -25,6 +25,7 @@ const static char CORP_FORMAT_PART = 2;
 const static char CORP_FORMAT_PROB = 3;
 const static char CORP_FORMAT_TOK = 4;
 const static char CORP_FORMAT_DEFAULT = 5;
+const static char CORP_FORMAT_EDA = 6;
 }
 
 #include <kytea/general-io.h>

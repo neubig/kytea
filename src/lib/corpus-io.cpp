@@ -18,6 +18,7 @@
 #include <kytea/kytea-config.h>
 #include <kytea/corpus-io.h>
 #include <kytea/corpus-io-full.h>
+#include <kytea/corpus-io-eda.h>
 #include <kytea/corpus-io-tokenized.h>
 #include <kytea/corpus-io-part.h>
 #include <kytea/corpus-io-prob.h>
@@ -38,6 +39,7 @@ CorpusIO * CorpusIO::createIO(const char* file, Format form, const KyteaConfig &
     else if(form == CORP_FORMAT_PART) { return new PartCorpusIO(util,file,output,conf.getUnkBound(),conf.getSkipBound(),conf.getNoBound(),conf.getHasBound(),conf.getTagBound(),conf.getElemBound(),conf.getEscape()); }
     else if(form == CORP_FORMAT_PROB) { return new ProbCorpusIO(util,file,output,conf.getWordBound(),conf.getTagBound(),conf.getElemBound(),conf.getEscape()); }
     else if(form == CORP_FORMAT_RAW)  { return new RawCorpusIO(util,file,output);  }
+    else if(form == CORP_FORMAT_EDA)  { return new EdaCorpusIO(util,file,output);  }
     else
         THROW_ERROR("Illegal Output Format");
 }
@@ -48,6 +50,7 @@ CorpusIO * CorpusIO::createIO(iostream & file, Format form, const KyteaConfig & 
     else if(form == CORP_FORMAT_PART) { return new PartCorpusIO(util,file,output,conf.getUnkBound(),conf.getSkipBound(),conf.getNoBound(),conf.getHasBound(),conf.getTagBound(),conf.getElemBound(),conf.getEscape()); }
     else if(form == CORP_FORMAT_PROB) { return new ProbCorpusIO(util,file,output,conf.getWordBound(),conf.getTagBound(),conf.getElemBound(),conf.getEscape()); }
     else if(form == CORP_FORMAT_RAW)  { return new RawCorpusIO(util,file,output);  }
+    else if(form == CORP_FORMAT_EDA)  { return new EdaCorpusIO(util,file,output);  }
     else 
         THROW_ERROR("Illegal Output Format");
 }
