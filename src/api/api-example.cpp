@@ -1,9 +1,11 @@
 #include <iostream>
 
 // a file including the main program
-#include "kytea/kytea.h"
+#include <kytea/kytea.h>
 // a file including sentence, word, and pronunciation objects
-#include "kytea/kytea-struct.h"
+#include <kytea/kytea-struct.h>
+// a file to include the StringUtil object
+#include <kytea/string-util.h>
 
 using namespace std;
 using namespace kytea;

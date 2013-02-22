@@ -14,6 +14,16 @@
 * limitations under the License.
 */
 
+#include <kytea/feature-lookup.h>
+#include <kytea/kytea-model.h>
+#include <kytea/corpus-io.h>
+#include <kytea/corpus-io-part.h>
+#include <kytea/corpus-io-full.h>
+#include <kytea/corpus-io-tokenized.h>
+#include <kytea/corpus-io-raw.h>
+#include <kytea/model-io.h>
+#include <kytea/kytea-util.h>
+#include <fstream>
 #include <iostream>
 #include <kytea/kytea-config.h>
 #include <kytea/kytea.h>

@@ -3,11 +3,13 @@
 #include <kytea/kytea-util.h>
 #include <kytea/kytea-model.h>
 #include <kytea/string-util.h>
+#include <kytea/feature-vector.h>
 #include <iostream>
 
 using namespace kytea;
 using namespace std;
 
+namespace kytea {
 
 ModelTagEntry::~ModelTagEntry() {
     for(int i = 0; i < (int)tagMods.size(); i++)
@@ -135,13 +137,29 @@ void Dictionary<Entry>::buildIndex(const WordMap & input) {
     buildFailures();
 }
 
+inline string showWord(StringUtil * util, const ModelTagEntry * entry) {
+    return util->showString(entry->word);
+}
+inline string showWord(StringUtil * util, const ProbTagEntry * entry) {
+    return util->showString(entry->word);
+}
+inline string showWord(StringUtil * util, const FeatVec * entry) {
+    ostringstream oss;
+    for(int i = 0; i < (int)entry->size(); i++) {
+        if(i != 0) oss << ",";
+        oss << (*entry)[i];
+    }
+    return oss.str();
+}
+
 template <class Entry>
 void Dictionary<Entry>::print() {
     for(unsigned i = 0; i < states_.size(); i++) {
         std::cout << "s="<<i<<", f="<<states_[i]->failure<<", o='";
         for(unsigned j = 0; j < states_[i]->output.size(); j++) {
             if(j!=0) std::cout << " ";
-            std::cout << util_->showString(entries_[states_[i]->output[j]]->word);
+            // std::cout << util_->showString(entries_[states_[i]->output[j]]->word);
+            std::cout << showWord(util_, entries_[states_[i]->output[j]]);
         }
         std::cout << "' g='";
         for(unsigned j = 0; j < states_[i]->gotos.size(); j++) {
@@ -181,6 +199,10 @@ const Entry * Dictionary<Entry>::findEntry(KyteaString str) const {
     return entries_[states_[state]->output[0]];
 }
 
+template <>
+unsigned Dictionary<FeatVec>::getTagID(KyteaString str, KyteaString tag, int lev) {
+    return 0;
+}
 template <class Entry>
 unsigned Dictionary<Entry>::getTagID(KyteaString str, KyteaString tag, int lev) {
     const Entry * ent = findEntry(str);
@@ -206,4 +228,10 @@ typename Dictionary<Entry>::MatchResult Dictionary<Entry>::match( const KyteaStr
             ret.push_back( std::pair<unsigned, Entry*>(i, entries_[output[j]]) );
     }
     return ret;
+}
+
+template class Dictionary<ModelTagEntry>;
+template class Dictionary<ProbTagEntry>;
+template class Dictionary<FeatVec>;
+
 }

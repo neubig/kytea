@@ -18,6 +18,7 @@
 #define KYTEA_DICTIONARY_H_
 
 #include <kytea/kytea-string.h>
+#include <kytea/string-util.h>
 // #include <kytea/kytea-model.h>
 #include <map>
 #include <deque>
