@@ -17,11 +17,7 @@
 #ifndef KYTEA_MODEL_H__
 #define KYTEA_MODEL_H__
 
-// #include <vector>
-// #include <iostream>
-// #include <stdint.h>
-// #include <kytea/config.h>
-// #include <kytea/string-util.h>
+#include <iostream>
 #include <kytea/feature-vector.h>
 #include <kytea/kytea-string.h>
 #include <kytea/kytea-struct.h>
