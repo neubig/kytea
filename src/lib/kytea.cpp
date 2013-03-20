@@ -20,6 +20,7 @@
 #include <iostream>
 #include <kytea/config.h>
 #include <kytea/kytea.h>
+#include <kytea/dictionary.h>
 #include <kytea/corpus-io.h>
 #include <kytea/model-io.h>
 #include <kytea/feature-io.h>
@@ -1257,3 +1258,10 @@ void Kytea::init() {
     subwordDict_ = NULL;
     fio_ = new FeatureIO;
 }
+
+template <class Entry>
+void Kytea::setDictionary(Dictionary<Entry> * dict) {
+    if(dict_ != 0) delete dict_;
+    dict_ = dict;
+}
+template void Kytea::setDictionary(Dictionary<ModelTagEntry> * dict);

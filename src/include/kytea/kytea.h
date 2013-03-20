@@ -17,11 +17,6 @@
 #ifndef KYTEA_H__
 #define KYTEA_H__
 
-// #include <kytea/kytea-model.h>
-// #include <kytea/kytea-lm.h>
-// #include <kytea/dictionary.h>
-// #include <kytea/feature-io.h>
-// #include <kytea/feature-lookup.h>
 #include <kytea/kytea-config.h>
 #include <kytea/kytea-struct.h>
 #include <vector>
@@ -124,10 +119,7 @@ public:
 
     // Set the dictionary and take control of it
     template <class Entry>
-    void setDictionary(Dictionary<Entry> * dict) {
-        if(dict_ != 0) delete dict_;
-        dict_ = dict;
-    }
+    void setDictionary(Dictionary<Entry> * dict);
 
 ///////////////////////////////////////////////////////////////////
 // Functions used internally during Kytea training, testing etc. //
