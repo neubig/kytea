@@ -7,6 +7,7 @@ config.guess
 config.log
 config.status
 config.sub
+config.h.in
 configure
 install-sh
 libtool
@@ -16,8 +17,10 @@ ltmain.sh
 *.o
 *.lo
 *.la
-api-example
-kytea
-train-kytea
-test-kytea
+src/api/api-example
+src/bin/kytea
+src/bin/train-kytea
+src/bin/test-kytea
+src/test/test-kytea
+stamp-h1
 config.in.h
