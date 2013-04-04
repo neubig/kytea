@@ -1,6 +1,8 @@
 #ifndef TEST_KYTEA__
 #define TEST_KYTEA__
 
+#include <algorithm>
+
 using namespace std;
 
 namespace kytea {

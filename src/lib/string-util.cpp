@@ -19,6 +19,7 @@
 #include <kytea/string-util-map-utf8.h>
 #include <kytea/string-util-map-euc.h>
 #include <kytea/string-util-map-sjis.h>
+#include <cstdlib>
 #include <iostream>
 #include <limits>
 

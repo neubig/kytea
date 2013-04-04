@@ -19,6 +19,7 @@
 #include <kytea/kytea-config.h>
 #include <kytea/corpus-io.h>
 #include <kytea/config.h>
+#include <cmath>
 #include <cstring>
 #include <cstdlib>
 #include <fstream>
