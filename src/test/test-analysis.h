@@ -1,6 +1,7 @@
 #ifndef TEST_ANALYSIS__
 #define TEST_ANALYSIS__
 
+#include <cmath>
 #include "test-base.h"
 
 namespace kytea {
@@ -272,7 +273,7 @@ public:
                 double sum = 0.0;
                 for(int j = 0; j < (int)sentence.words[i].tags[0].size(); j++)
                     sum += sentence.words[i].tags[0][j].second;
-                if(abs(1.0-sum) > 0.01) {
+                if(fabs(1.0-sum) > 0.01) {
                     cerr << "Probability on word "<<i<<" is not close to 1 (== "<<sum<<")"<<endl;
                     correct = false;
                 }

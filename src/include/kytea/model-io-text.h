@@ -2,6 +2,7 @@
 #define MODEL_IO_TEXT_H__
 
 #include <kytea/model-io.h>
+#include <algorithm>
 
 namespace kytea {
 
