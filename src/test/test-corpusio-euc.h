@@ -25,7 +25,8 @@ public:
     int testWordSegConf() {
         // Build the string
         stringstream instr;
-        instr << "こ|れ-は デ ー タ で-す 。" << endl;
+        // instr << "こ|れ-は デ ー タ で-す 。" << endl;
+        instr << "\xa4\xb3\x7c\xa4\xec\x2d\xa4\xcf\x20\xa5\xc7\x20\xa1\xbc\x20\xa5\xbf\x20\xa4\xc7\x2d\xa4\xb9\x20\xa1\xa3" << endl;
         PartCorpusIO io(util, instr, false);
         KyteaSentence * sent = io.readSentence();
         // Build the expectations
@@ -52,7 +53,8 @@ public:
     int testPartEmptyTag() {
         // Build the string
         stringstream instr;
-        instr << "こ-れ//これ" << endl;
+        // instr << "こ-れ//これ" << endl;
+        instr << "\xa4\xb3\x2d\xa4\xec\x2f\x2f\xa4\xb3\xa4\xec" << endl;
         PartCorpusIO io(util, instr, false);
         KyteaSentence * sent = io.readSentence();
         int ret = 1;
@@ -67,7 +69,8 @@ public:
     int testFullTagConf() {
         // Build the string
         stringstream instr;
-        instr << "こ-れ/名詞 は/助詞 データ/名詞 で/助動詞 す/語尾 。/補助記号" << endl;
+        // instr << "こ-れ/名詞 は/助詞 データ/名詞 で/助動詞 す/語尾 。/補助記号" << endl;
+        instr << "\xa4\xb3\x2d\xa4\xec\x2f\xcc\xbe\xbb\xec\x20\xa4\xcf\x2f\xbd\xf5\xbb\xec\x20\xa5\xc7\xa1\xbc\xa5\xbf\x2f\xcc\xbe\xbb\xec\x20\xa4\xc7\x2f\xbd\xf5\xc6\xb0\xbb\xec\x20\xa4\xb9\x2f\xb8\xec\xc8\xf8\x20\xa1\xa3\x2f\xca\xe4\xbd\xf5\xb5\xad\xb9\xe6" << endl;
         FullCorpusIO io(util, instr, false);
         KyteaSentence * sent = io.readSentence();
         // Build the expectations
@@ -85,7 +88,8 @@ public:
     }
 
     int testLastValue() {
-        string confident_text = "これ/代名詞/これ は/助詞/は 信頼/名詞/しんらい 度/接尾辞/ど の/助詞/の 高/形容詞/たか い/語尾/い 入力/名詞/にゅうりょく で/助動詞/で す/語尾/す 。/補助記号/。\n";
+        // string confident_text = "これ/代名詞/これ は/助詞/は 信頼/名詞/しんらい 度/接尾辞/ど の/助詞/の 高/形容詞/たか い/語尾/い 入力/名詞/にゅうりょく で/助動詞/で す/語尾/す 。/補助記号/。\n";
+        string confident_text = "\xa4\xb3\xa4\xec\x2f\xc2\xe5\xcc\xbe\xbb\xec\x2f\xa4\xb3\xa4\xec\x20\xa4\xcf\x2f\xbd\xf5\xbb\xec\x2f\xa4\xcf\x20\xbf\xae\xcd\xea\x2f\xcc\xbe\xbb\xec\x2f\xa4\xb7\xa4\xf3\xa4\xe9\xa4\xa4\x20\xc5\xd9\x2f\xc0\xdc\xc8\xf8\xbc\xad\x2f\xa4\xc9\x20\xa4\xce\x2f\xbd\xf5\xbb\xec\x2f\xa4\xce\x20\xb9\xe2\x2f\xb7\xc1\xcd\xc6\xbb\xec\x2f\xa4\xbf\xa4\xab\x20\xa4\xa4\x2f\xb8\xec\xc8\xf8\x2f\xa4\xa4\x20\xc6\xfe\xce\xcf\x2f\xcc\xbe\xbb\xec\x2f\xa4\xcb\xa4\xe5\xa4\xa6\xa4\xea\xa4\xe7\xa4\xaf\x20\xa4\xc7\x2f\xbd\xf5\xc6\xb0\xbb\xec\x2f\xa4\xc7\x20\xa4\xb9\x2f\xb8\xec\xc8\xf8\x2f\xa4\xb9\x20\xa1\xa3\x2f\xca\xe4\xbd\xf5\xb5\xad\xb9\xe6\x2f\xa1\xa3\n";
         // Read in a partially annotated sentence
         stringstream instr;
         instr << confident_text;
@@ -104,14 +108,16 @@ public:
     }
     
     int testUnkIO() {
-        string input = "これ/代名詞/これ は/助詞/は 未知/名詞/みち\n";
+        // string input = "これ/代名詞/これ は/助詞/は 未知/名詞/みち\n";
+        string input = "\xa4\xb3\xa4\xec\x2f\xc2\xe5\xcc\xbe\xbb\xec\x2f\xa4\xb3\xa4\xec\x20\xa4\xcf\x2f\xbd\xf5\xbb\xec\x2f\xa4\xcf\x20\xcc\xa4\xc3\xce\x2f\xcc\xbe\xbb\xec\x2f\xa4\xdf\xa4\xc1\n";
         // Read in a partially annotated sentence
         stringstream instr;
         instr << input;
         FullCorpusIO infcio(util, instr, false);
         KyteaSentence * sent = infcio.readSentence();
         sent->words[2].setUnknown(true);
-        string exp = "これ/代名詞/これ は/助詞/は 未知/名詞/みち/UNK\n";
+        // string exp = "これ/代名詞/これ は/助詞/は 未知/名詞/みち/UNK\n";
+        string exp = "\xa4\xb3\xa4\xec\x2f\xc2\xe5\xcc\xbe\xbb\xec\x2f\xa4\xb3\xa4\xec\x20\xa4\xcf\x2f\xbd\xf5\xbb\xec\x2f\xa4\xcf\x20\xcc\xa4\xc3\xce\x2f\xcc\xbe\xbb\xec\x2f\xa4\xdf\xa4\xc1\x2f\x55\x4e\x4b\n";
         stringstream outstr;
         FullCorpusIO outfcio(util, outstr, true);
         outfcio.setUnkTag("/UNK");

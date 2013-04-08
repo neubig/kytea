@@ -17,6 +17,7 @@ ltmain.sh
 *.o
 *.lo
 *.la
+*.swp
 src/api/api-example
 src/bin/kytea
 src/bin/train-kytea
