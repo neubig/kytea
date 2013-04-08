@@ -18,6 +18,7 @@ ltmain.sh
 *.lo
 *.la
 *.swp
+*.tar.gz
 src/api/api-example
 src/bin/kytea
 src/bin/train-kytea
