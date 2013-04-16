@@ -130,7 +130,7 @@ void KyteaConfig::printUsage() {
 "  -debug   The debugging level (0=silent, 1=simple, 2=detailed)" << endl <<
 "Format Options: " << endl <<
 "  -in      The formatting of the input  (raw/tok/full/part/conf, default raw)" << endl <<
-"  -out     The formatting of the output (full/part/conf/eda, default full)" << endl <<
+"  -out     The formatting of the output (full/part/conf/eda/tags, default full)" << endl <<
 "  -tagmax  The maximum number of tags to print for one word (default 3," << endl <<
 "            0 implies no limit)" << endl << 
 "  -deftag  A tag for words that cannot be given any tag (for example, "<<endl<<
