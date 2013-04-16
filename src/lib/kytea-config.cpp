@@ -30,6 +30,7 @@ using namespace std;
 // set the type of the input corpus
 void KyteaConfig::setIOFormat(const char* str, CorpForm & cf) {
     if(!strcmp(str, "full"))      { cf = CORP_FORMAT_FULL; }
+    else if(!strcmp(str, "tags"))  { cf = CORP_FORMAT_TAGS; }
     else if(!strcmp(str, "tok"))  { cf = CORP_FORMAT_TOK; }
     else if(!strcmp(str, "part")) { cf = CORP_FORMAT_PART; }
     else if(!strcmp(str, "conf")) { cf = CORP_FORMAT_PROB; }

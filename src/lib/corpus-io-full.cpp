@@ -88,11 +88,12 @@ void FullCorpusIO::writeSentence(const KyteaSentence * sent, double conf) {
     for(unsigned i = 0; i < sent->words.size(); i++) {
         if(i != 0) *str_ << wb;
         const KyteaWord & w = sent->words[i];
-        *str_ << util_->showString(w.surface);
+        if(printWords_) *str_ << util_->showString(w.surface);
+        int printed = 0;
         for(int j = 0; j < w.getNumTags(); j++) {
             const vector< KyteaTag > & tags = w.getTags(j);
             if(tags.size() > 0) {
-                *str_ << tb << util_->showString(tags[0].first);
+                *str_ << ((printWords_ || printed++ > 0) ? tb : "") << util_->showString(tags[0].first);
                 if(allTags_) 
                     for(unsigned k = 1; k < tags.size(); k++) 
                         *str_ << eb << util_->showString(tags[k].first);
@@ -104,25 +105,25 @@ void FullCorpusIO::writeSentence(const KyteaSentence * sent, double conf) {
     *str_ << endl;
 }
 
-FullCorpusIO::FullCorpusIO(StringUtil * util, const char* wordBound, const char* tagBound, const char* elemBound, const char* escape) : CorpusIO(util), allTags_(false), bounds_(4) { 
+FullCorpusIO::FullCorpusIO(StringUtil * util, const char* wordBound, const char* tagBound, const char* elemBound, const char* escape) : CorpusIO(util), allTags_(false), bounds_(4), printWords_(true) { 
     bounds_[0] = util_->mapChar(wordBound);
     bounds_[1] = util_->mapChar(tagBound);
     bounds_[2] = util_->mapChar(elemBound);
     bounds_[3] = util_->mapChar(escape);
 }
-FullCorpusIO::FullCorpusIO(const CorpusIO & c, const char* wordBound, const char* tagBound, const char* elemBound, const char* escape) : CorpusIO(c), allTags_(false), bounds_(4) { 
+FullCorpusIO::FullCorpusIO(const CorpusIO & c, const char* wordBound, const char* tagBound, const char* elemBound, const char* escape) : CorpusIO(c), allTags_(false), bounds_(4), printWords_(true) { 
     bounds_[0] = util_->mapChar(wordBound);
     bounds_[1] = util_->mapChar(tagBound);
     bounds_[2] = util_->mapChar(elemBound);
     bounds_[3] = util_->mapChar(escape);
 }
-FullCorpusIO::FullCorpusIO(StringUtil * util, const char* file, bool out, const char* wordBound, const char* tagBound, const char* elemBound, const char* escape) : CorpusIO(util,file,out), allTags_(false), bounds_(4) { 
+FullCorpusIO::FullCorpusIO(StringUtil * util, const char* file, bool out, const char* wordBound, const char* tagBound, const char* elemBound, const char* escape) : CorpusIO(util,file,out), allTags_(false), bounds_(4), printWords_(true) { 
     bounds_[0] = util_->mapChar(wordBound);
     bounds_[1] = util_->mapChar(tagBound);
     bounds_[2] = util_->mapChar(elemBound);
     bounds_[3] = util_->mapChar(escape);
 } 
-FullCorpusIO::FullCorpusIO(StringUtil * util, std::iostream & str, bool out, const char* wordBound, const char* tagBound, const char* elemBound, const char* escape) : CorpusIO(util,str,out), allTags_(false), bounds_(4) { 
+FullCorpusIO::FullCorpusIO(StringUtil * util, std::iostream & str, bool out, const char* wordBound, const char* tagBound, const char* elemBound, const char* escape) : CorpusIO(util,str,out), allTags_(false), bounds_(4), printWords_(true) { 
     bounds_[0] = util_->mapChar(wordBound);
     bounds_[1] = util_->mapChar(tagBound);
     bounds_[2] = util_->mapChar(elemBound);
