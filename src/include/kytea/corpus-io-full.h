@@ -12,6 +12,7 @@ protected:
 
     bool allTags_;
     KyteaString bounds_;
+    bool printWords_;
 
 public:
     FullCorpusIO(StringUtil * util, const char* wordBound = " ", const char* tagBound = "/", const char* elemBound = "&", const char* escape = "\\");
@@ -21,6 +22,7 @@ public:
     
     KyteaSentence * readSentence();
     void writeSentence(const KyteaSentence * sent, double conf = 0.0);
+    void setPrintWords(bool printWords) { printWords_ = printWords; }
 
 };
 

@@ -92,6 +92,26 @@ public:
         return ret;
     }
 
+    int testTagIO() {
+        // Build the string
+        stringstream instr, outstr;
+        instr << "こ-れ/名詞 は/助詞 データ/名詞 で/助動詞 す/語尾 。/補助記号" << endl;
+        FullCorpusIO ioin(util, instr, false);
+        KyteaSentence * sent = ioin.readSentence();
+        FullCorpusIO ioout(util, outstr, true);
+        ioout.setPrintWords(false);
+        ioout.writeSentence(sent);
+        string exp = "名詞 助詞 名詞 助動詞 語尾 補助記号\n";
+        string act = outstr.str();
+        delete sent;
+        if(exp != act) {
+            cerr << exp << endl << act << endl;
+            return 0;
+        } else {
+            return 1;
+        }
+    }
+
     int testFullTagConf() {
         // Build the string
         stringstream instr;
@@ -160,6 +180,7 @@ public:
         done++; cout << "testFullTagConf()" << endl; if(testFullTagConf()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testLastValue()" << endl; if(testLastValue()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testUnkIO()" << endl; if(testUnkIO()) succeeded++; else cout << "FAILED!!!" << endl;
+        done++; cout << "testTagIO()" << endl; if(testTagIO()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testTokReadSentence()" << endl; if(testTokReadSentence()) succeeded++; else cout << "FAILED!!!" << endl;
         done++; cout << "testRawReadSlash()" << endl; if(testRawReadSlash()) succeeded++; else cout << "FAILED!!!" << endl;
         cout << "#### TestCorpusIO Finished with "<<succeeded<<"/"<<done<<" tests succeeding ####"<<endl;

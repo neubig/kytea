@@ -35,6 +35,11 @@ using namespace std;
 
 CorpusIO * CorpusIO::createIO(const char* file, Format form, const KyteaConfig & conf, bool output, StringUtil* util) {
     if(form == CORP_FORMAT_FULL)      { return new FullCorpusIO(util,file,output,conf.getWordBound(),conf.getTagBound(),conf.getElemBound(),conf.getEscape()); }
+    else if(form == CORP_FORMAT_TAGS)      { 
+        FullCorpusIO * io = new FullCorpusIO(util,file,output,conf.getWordBound(),conf.getTagBound(),conf.getElemBound(),conf.getEscape());
+        io->setPrintWords(false);
+        return io;
+    }
     else if(form == CORP_FORMAT_TOK)      { return new TokenizedCorpusIO(util,file,output,conf.getWordBound()); }
     else if(form == CORP_FORMAT_PART) { return new PartCorpusIO(util,file,output,conf.getUnkBound(),conf.getSkipBound(),conf.getNoBound(),conf.getHasBound(),conf.getTagBound(),conf.getElemBound(),conf.getEscape()); }
     else if(form == CORP_FORMAT_PROB) { return new ProbCorpusIO(util,file,output,conf.getWordBound(),conf.getTagBound(),conf.getElemBound(),conf.getEscape()); }
@@ -46,6 +51,11 @@ CorpusIO * CorpusIO::createIO(const char* file, Format form, const KyteaConfig &
 
 CorpusIO * CorpusIO::createIO(iostream & file, Format form, const KyteaConfig & conf, bool output, StringUtil* util) {
     if(form == CORP_FORMAT_FULL)      { return new FullCorpusIO(util,file,output,conf.getWordBound(),conf.getTagBound(),conf.getElemBound(),conf.getEscape()); }
+    else if(form == CORP_FORMAT_TAGS)      { 
+        FullCorpusIO * io = new FullCorpusIO(util,file,output,conf.getWordBound(),conf.getTagBound(),conf.getElemBound(),conf.getEscape());
+        io->setPrintWords(false);
+        return io;
+    }
     else if(form == CORP_FORMAT_TOK)      { return new TokenizedCorpusIO(util,file,output,conf.getWordBound()); }
     else if(form == CORP_FORMAT_PART) { return new PartCorpusIO(util,file,output,conf.getUnkBound(),conf.getSkipBound(),conf.getNoBound(),conf.getHasBound(),conf.getTagBound(),conf.getElemBound(),conf.getEscape()); }
     else if(form == CORP_FORMAT_PROB) { return new ProbCorpusIO(util,file,output,conf.getWordBound(),conf.getTagBound(),conf.getElemBound(),conf.getEscape()); }
