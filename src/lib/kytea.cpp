@@ -148,9 +148,9 @@ void Kytea::buildVocabulary() {
                     maxTag = max(next->words[i].getNumTags(),maxTag);
                     for(int j = 0; j < next->words[i].getNumTags(); j++)
                         if(next->words[i].hasTag(j))
-                            addTag<ModelTagEntry>(allWords, next->words[i].surface, j, &next->words[i].getTagSurf(j), -1);
+                            addTag<ModelTagEntry>(allWords, next->words[i].norm, j, &next->words[i].getTagSurf(j), -1);
                     if(next->words[i].getNumTags() == 0)
-                        addTag<ModelTagEntry>(allWords, next->words[i].surface, 0, 0, -1);
+                        addTag<ModelTagEntry>(allWords, next->words[i].norm, 0, 0, -1);
                     
                     toAdd = true;
                 }
