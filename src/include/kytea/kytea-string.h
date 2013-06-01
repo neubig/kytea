@@ -86,6 +86,14 @@ public:
     // splice a string into the appropriate location
     void splice(const KyteaString& str, unsigned pos);
 
+    bool contains(const KyteaChar c) const {
+        if(impl_)
+            for(unsigned i = 0; i < impl_->length_; i++)
+                if(impl_->chars_[i] == c)
+                    return true;
+        return false;
+    }
+
     // Get the substring of a KyteaString
     KyteaString substr(unsigned s) const;
     KyteaString substr(unsigned s, unsigned l) const;
