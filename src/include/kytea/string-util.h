@@ -68,6 +68,16 @@ public:
         return buff.str();
     }
 
+    std::string showEscapedString(const KyteaString & c, const KyteaString & spec, const std::string & bs) {
+        std::ostringstream buff;
+        for(unsigned i = 0; i < c.length(); i++) {
+            if(spec.contains(c[i]))
+                buff << bs;
+            buff << showChar(c[i]);
+        }
+        return buff.str();
+    }
+
     // map an unparsed std::string to a KyteaString
     virtual KyteaString mapString(const std::string & str) = 0;
 

@@ -84,11 +84,11 @@ KyteaSentence * FullCorpusIO::readSentence() {
 }
 
 void FullCorpusIO::writeSentence(const KyteaSentence * sent, double conf) {
-    const string & wb = util_->showChar(bounds_[0]), tb = util_->showChar(bounds_[1]), eb = util_->showChar(bounds_[2]);
+    const string & wb = util_->showChar(bounds_[0]), tb = util_->showChar(bounds_[1]), eb = util_->showChar(bounds_[2]), bs = util_->showChar(bounds_[3]);
     for(unsigned i = 0; i < sent->words.size(); i++) {
         if(i != 0) *str_ << wb;
         const KyteaWord & w = sent->words[i];
-        if(printWords_) *str_ << util_->showString(w.surface);
+        if(printWords_) *str_ << util_->showEscapedString(w.surface, bounds_, bs);
         int printed = 0;
         for(int j = 0; j < w.getNumTags(); j++) {
             const vector< KyteaTag > & tags = w.getTags(j);
