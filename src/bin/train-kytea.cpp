@@ -23,7 +23,7 @@ using namespace std;
 using namespace kytea;
 
 // trains a KyTea model
-int main(int argv, const char **argc) {
+int main(int argc, const char **argv) {
 
 #ifndef KYTEA_SAFE
     try {
@@ -31,7 +31,7 @@ int main(int argv, const char **argc) {
         KyteaConfig * config = new KyteaConfig;
         config->setDebug(1);
         config->setOnTraining(true);
-        config->parseTrainCommandLine(argv, argc);
+        config->parseTrainCommandLine(argc, argv);
 
         Kytea kytea(config);
         kytea.trainAll();
