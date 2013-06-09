@@ -36,7 +36,7 @@
 
 using namespace std;
 
-int main(int argv, char **argc) {
+int main(int argc, char **argv) {
     kytea::KyteaTest test_kytea;
     kytea::TestAnalysis test_analysis;
     kytea::TestCorpusIO test_corpusio;

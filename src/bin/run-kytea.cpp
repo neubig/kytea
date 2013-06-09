@@ -22,7 +22,7 @@ using namespace std;
 using namespace kytea;
 
 // trains a pronunciation estimation model using a corpus and a dictionary
-int main(int argv, const char **argc) {
+int main(int argc, const char **argv) {
 
 #ifndef KYTEA_SAFE
     try {
@@ -30,7 +30,7 @@ int main(int argv, const char **argc) {
         KyteaConfig * config = new KyteaConfig;
         config->setDebug(0);
         config->setOnTraining(false);
-        config->parseRunCommandLine(argv, argc);
+        config->parseRunCommandLine(argc, argv);
 
         Kytea kytea(config);
         kytea.analyze();
