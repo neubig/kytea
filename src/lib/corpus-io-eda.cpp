@@ -18,7 +18,8 @@ KyteaSentence * EdaCorpusIO::readSentence() {
 }
 
 void EdaCorpusIO::writeSentence(const KyteaSentence * sent, double conf) {
-    *str_ << "ID=" << ++id_ << endl;
+    ostringstream oss;
+    oss << "ID=" << ++id_ << endl;
     for(unsigned i = 0; i < sent->words.size(); i++) {
         const KyteaWord & w = sent->words[i];
         // Find the POS tag
@@ -29,12 +30,12 @@ void EdaCorpusIO::writeSentence(const KyteaSentence * sent, double conf) {
                 tag = util_->showString(tags[0].first);
         }
         // Print
-        *str_ << i+1 << " " 
-              << i+2 << " "
-              << util_->showString(w.surface) << " "
-              << tag << " 0" << endl;
+        oss << i+1 << " " 
+            << i+2 << " "
+            << util_->showString(w.surface) << " "
+            << tag << " 0" << endl;
     }
-    *str_ << endl;
+    *str_ << oss.str() << endl;
 }
 
 EdaCorpusIO::EdaCorpusIO(StringUtil * util) : CorpusIO(util), id_(0) { }
