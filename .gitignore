@@ -26,3 +26,6 @@ src/bin/test-kytea
 src/test/test-kytea
 stamp-h1
 config.in.h
+missing
+depcomp
+compile
