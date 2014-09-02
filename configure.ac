@@ -3,6 +3,11 @@
 
 AC_PREREQ([2.59])
 AC_INIT([kytea], [0.4.6], [kytea@phontron.com])
+
+# Intialize automake
+AM_INIT_AUTOMAKE([-Wall])
+AM_PROG_AR()
+
 AC_CONFIG_SRCDIR([src/lib/kytea.cpp])
 AC_CONFIG_HEADERS([src/include/kytea/config.h])
 AC_CONFIG_FILES([
@@ -21,9 +26,6 @@ AC_CONFIG_FILES([
 
 # disable shared libraries
 AC_PROG_LIBTOOL
-
-# Intialize automake
-AM_INIT_AUTOMAKE([-Wall])
 
 # set CFLAGS and CXXFLAGS for maximal optimization
 if test -n "${CXXFLAGS}"; then
