@@ -18,12 +18,13 @@ AC_CONFIG_FILES([
     src/api/Makefile
     data/Makefile
 ])
-
-# disable shared libraries
-AC_PROG_LIBTOOL
+AC_CONFIG_MACRO_DIR([m4])
 
 # Intialize automake
 AM_INIT_AUTOMAKE([-Wall])
+AM_PROG_AR
+
+AC_PROG_LIBTOOL
 
 # set CFLAGS and CXXFLAGS for maximal optimization
 if test -n "${CXXFLAGS}"; then
