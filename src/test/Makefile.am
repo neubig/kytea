@@ -8,6 +8,8 @@ KYTH = test-kytea.h test-analysis.h test-base.h test-corpusio.h \
 
 AM_CPPFLAGS = -I$(srcdir)/../include -DPKGDATADIR='"$(pkgdatadir)"'
 
+TESTS = test-kytea
+
 noinst_PROGRAMS = test-kytea
 
 test_kytea_SOURCES = test-kytea.cpp ${KYTH}
