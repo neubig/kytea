@@ -5,7 +5,7 @@ AC_PREREQ([2.59])
 AC_INIT([kytea], [0.4.6], [kytea@phontron.com])
 
 # Intialize automake
-AM_INIT_AUTOMAKE([-Wall])
+AM_INIT_AUTOMAKE([-Wall] [foreign])
 AM_PROG_AR()
 
 AC_CONFIG_SRCDIR([src/lib/kytea.cpp])
