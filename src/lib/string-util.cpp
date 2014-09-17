@@ -39,14 +39,14 @@ void StringUtil::checkEqual(const StringUtil & rhs) const {
 }
 
 // parse an integer or float
-int StringUtil::parseInt(const char* str) {
+int StringUtil::parseInt(const char* str) const {
     char* endP;
     int ret = strtol(str, &endP, 10);
     if(endP == str)
         THROW_ERROR("Bad integer value '" << str << "'");
     return ret;
 }
-double StringUtil::parseFloat(const char* str) {
+double StringUtil::parseFloat(const char* str) const {
     char* endP;
     double ret = strtod(str, &endP);
     if(endP == str)
@@ -126,7 +126,7 @@ KyteaChar StringUtilUtf8::mapChar(const string & str, bool add) {
     return ret;
 }
 
-string StringUtilUtf8::showChar(KyteaChar c) {
+string StringUtilUtf8::showChar(KyteaChar c) const {
 #ifdef KYTEA_SAFE
     if(c >= charNames_.size())
         THROW_ERROR("FATAL: Index out of bounds in showChar");
@@ -134,7 +134,7 @@ string StringUtilUtf8::showChar(KyteaChar c) {
     return charNames_[c];
 }
 
-StringUtil::CharType StringUtilUtf8::findType(KyteaChar c) {
+StringUtil::CharType StringUtilUtf8::findType(KyteaChar c) const {
     return charTypes_[c];
 }
 
@@ -268,7 +268,7 @@ KyteaChar StringUtilEuc::mapChar(const string & str, bool add) {
     return ret;
 }
 
-string StringUtilEuc::showChar(KyteaChar c) {
+string StringUtilEuc::showChar(KyteaChar c) const {
     if(c < 0x8E) {
         char arr[2] = { c, 0 };
         string ret(arr);
@@ -304,7 +304,7 @@ KyteaString StringUtilEuc::mapString(const string & str) {
 StringUtil::CharType StringUtilEuc::findType(const string & str) {
     return findType(mapChar(str));
 }
-StringUtil::CharType StringUtilEuc::findType(KyteaChar c) {
+StringUtil::CharType StringUtilEuc::findType(KyteaChar c) const {
     unsigned char c1 = euc1(c), c2 = euc2(c);
     // digits (hankaku/zenkaku)
     if((c2 >= 0x30 && c2 <= 0x39) || (c1 == 0xA3 && c2 >= 0xB0 && c2 <= 0xB9))
@@ -333,8 +333,8 @@ StringUtil::CharType StringUtilEuc::findType(KyteaChar c) {
 }
 
 // return the encoding provided by this util
-StringUtil::Encoding StringUtilEuc::getEncoding() { return StringUtil::ENCODING_EUC; } 
-const char* StringUtilEuc::getEncodingString() { return "euc"; }
+StringUtil::Encoding StringUtilEuc::getEncoding() const { return StringUtil::ENCODING_EUC; }
+const char* StringUtilEuc::getEncodingString() const { return "euc"; }
 
 // transform to or from a character string
 void StringUtilEuc::unserialize(const string & str) {  }
@@ -378,7 +378,7 @@ KyteaChar StringUtilSjis::mapChar(const string & str, bool add) {
     return ret;
 }
 
-string StringUtilSjis::showChar(KyteaChar c) {
+string StringUtilSjis::showChar(KyteaChar c) const {
     if(c < 0xFF) {
         char arr[2] = { c, 0 };
         string ret(arr);
@@ -415,7 +415,7 @@ KyteaString StringUtilSjis::mapString(const string & str) {
 StringUtil::CharType StringUtilSjis::findType(const string & str) {
     return findType(mapChar(str));
 }
-StringUtil::CharType StringUtilSjis::findType(KyteaChar c) {
+StringUtil::CharType StringUtilSjis::findType(KyteaChar c) const {
     unsigned char c1 = sjis1(c), c2 = sjis2(c);
     // digits (hankaku/zenkaku)
     if((c1 == 0 && c2 >= 0x30 && c2 <= 0x39) || (c1 == 0x82 && c2 >= 0x4F && c2 <= 0x58))
@@ -459,8 +459,8 @@ KyteaString StringUtil::normalize(const KyteaString & str) {
 }
 
 // return the encoding provided by this util
-StringUtil::Encoding StringUtilSjis::getEncoding() { return StringUtil::ENCODING_SJIS; } 
-const char* StringUtilSjis::getEncodingString() { return "sjis"; }
+StringUtil::Encoding StringUtilSjis::getEncoding() const { return StringUtil::ENCODING_SJIS; }
+const char* StringUtilSjis::getEncodingString() const { return "sjis"; }
 
 // transform to or from a character string
 void StringUtilSjis::unserialize(const string & str) {  }
