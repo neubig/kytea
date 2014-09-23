@@ -57,18 +57,21 @@ public:
         if(normMap_) delete normMap_;    
     }
 
-    // map a std::string to a character
+    // Map a std::string to a character.
+    // If `add` is true, this operation changes the private members. That means,
+    // an external synchronization is required.
     virtual KyteaChar mapChar(const std::string & str, bool add = true) = 0;
-    virtual std::string showChar(KyteaChar c) = 0;
 
-    std::string showString(const KyteaString & c) {
+    virtual std::string showChar(KyteaChar c) const = 0;
+
+    std::string showString(const KyteaString & c) const {
         std::ostringstream buff;
         for(unsigned i = 0; i < c.length(); i++)
             buff << showChar(c[i]);
         return buff.str();
     }
 
-    std::string showEscapedString(const KyteaString & c, const KyteaString & spec, const std::string & bs) {
+    std::string showEscapedString(const KyteaString & c, const KyteaString & spec, const std::string & bs) const {
         std::ostringstream buff;
         for(unsigned i = 0; i < c.length(); i++) {
             if(spec.contains(c[i]))
@@ -78,16 +81,17 @@ public:
         return buff.str();
     }
 
-    // map an unparsed std::string to a KyteaString
+    // Map an unparsed std::string to a KyteaString.
+    // Note that this operation requires an external synchronization.
     virtual KyteaString mapString(const std::string & str) = 0;
 
     // get the type of a character
     virtual CharType findType(const std::string & str) = 0;
-    virtual CharType findType(KyteaChar c) = 0;
+    virtual CharType findType(KyteaChar c) const = 0;
 
     // return the encoding provided by this util
-    virtual Encoding getEncoding() = 0;
-    virtual const char* getEncodingString() = 0;
+    virtual Encoding getEncoding() const = 0;
+    virtual const char* getEncodingString() const = 0;
     
     // transform to or from a character std::string
     virtual void unserialize(const std::string & str) = 0;
@@ -101,12 +105,12 @@ public:
     void checkEqual(const StringUtil & rhs) const;
 
     // parse an integer or float
-    int parseInt(const char* str);
-    double parseFloat(const char* str);
+    int parseInt(const char* str) const;
+    double parseFloat(const char* str) const;
 
 
     // get a std::string of character types
-    std::string getTypeString(const KyteaString& str) {
+    std::string getTypeString(const KyteaString& str) const {
         std::ostringstream buff;
         for(unsigned i = 0; i < str.length(); i++)
             buff << findType(str[i]);
@@ -138,22 +142,22 @@ public:
     
     // map a std::string to a character
     KyteaChar mapChar(const std::string & str, bool add = true);
-    std::string showChar(KyteaChar c);
+    std::string showChar(KyteaChar c) const;
 
-    CharType findType(KyteaChar c);
+    CharType findType(KyteaChar c) const;
 
     GenericMap<KyteaChar,KyteaChar> * getNormMap();
 
-    bool badu(char val) { return ((val ^ maskl1) & maskl2); }
+    bool badu(char val) const { return ((val ^ maskl1) & maskl2); }
     KyteaString mapString(const std::string & str);
 
     // find the type of a unicode character
     CharType findType(const std::string & str);
 
-    Encoding getEncoding() { return ENCODING_UTF8; }
-    const char* getEncodingString() { return "utf8"; }
+    Encoding getEncoding() const { return ENCODING_UTF8; }
+    const char* getEncodingString() const { return "utf8"; }
 
-    const std::vector<std::string> & getCharNames() { return charNames_; }
+    const std::vector<std::string> & getCharNames() const { return charNames_; }
 
     // transform to or from a character std::string
     void unserialize(const std::string & str);
@@ -172,7 +176,7 @@ public:
     ~StringUtilEuc() { }
 
     KyteaChar mapChar(const std::string & str, bool add = true);
-    std::string showChar(KyteaChar c);
+    std::string showChar(KyteaChar c) const;
     
     GenericMap<KyteaChar,KyteaChar> * getNormMap();
 
@@ -181,11 +185,11 @@ public:
 
     // get the type of a character
     CharType findType(const std::string & str);
-    CharType findType(KyteaChar c);
+    CharType findType(KyteaChar c) const;
 
     // return the encoding provided by this util
-    Encoding getEncoding();
-    const char* getEncodingString();
+    Encoding getEncoding() const;
+    const char* getEncodingString() const;
     
     // transform to or from a character std::string
     void unserialize(const std::string & str);
@@ -206,18 +210,18 @@ public:
     KyteaChar mapChar(const std::string & str, bool add = true);
     GenericMap<KyteaChar,KyteaChar> * getNormMap();
 
-    std::string showChar(KyteaChar c);
+    std::string showChar(KyteaChar c) const;
     
     // map an unparsed std::string to a KyteaString
     KyteaString mapString(const std::string & str);
 
     // get the type of a character
     CharType findType(const std::string & str);
-    CharType findType(KyteaChar c);
+    CharType findType(KyteaChar c) const;
 
     // return the encoding provided by this util
-    Encoding getEncoding();
-    const char* getEncodingString();
+    Encoding getEncoding() const;
+    const char* getEncodingString() const;
     
     // transform to or from a character std::string
     void unserialize(const std::string & str);
