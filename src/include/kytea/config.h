@@ -5,7 +5,7 @@
 #define DISABLE_QUANTIZE 0
 
 /* Define to 1 if you have the <boost/tr1/unordered_map.hpp> header file. */
-#define HAVE_BOOST_TR1_UNORDERED_MAP_HPP 1
+/* #undef HAVE_BOOST_TR1_UNORDERED_MAP_HPP */
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #define HAVE_DLFCN_H 1
