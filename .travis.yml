@@ -4,4 +4,4 @@ compiler:
   - clang
   - gcc
 
-script: autoreconf -i && ./configure && make && make check
+script: gunzip data/model.bin.gz && autoreconf -i && ./configure && make && make check
