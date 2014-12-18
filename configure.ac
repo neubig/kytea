@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.59])
-AC_INIT([kytea], [0.4.6], [kytea@phontron.com])
+AC_INIT([kytea], [0.4.7], [kytea@phontron.com])
 
 # Intialize automake
 AM_INIT_AUTOMAKE([-Wall] [foreign])
