@@ -32,3 +32,4 @@ config.in.h
 missing
 depcomp
 compile
+model.bin
