@@ -1,5 +1,5 @@
 model.bin: model.bin.gz
-	gzip -dk model.bin.gz
+	gzip -dc model.bin.gz > model.bin
 
 all: model.bin
 
