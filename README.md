@@ -11,8 +11,7 @@ To build KyTea, run
      $ ./configure
      $ make
 
-If there is no configure file in the directory (for example, if you checked the source out from [GitHub](https://github.com/neubig/kytea)), you must rebuild the configure file and unzip the model using the following two commands first:
+If there is no configure file in the directory (for example, if you checked the source out from [GitHub](https://github.com/neubig/kytea)), you must rebuild the configure file using the following command:
 
-     $ gunzip data/model.bin.gz
      $ autoreconf -i
 
