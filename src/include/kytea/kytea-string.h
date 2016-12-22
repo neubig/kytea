@@ -22,6 +22,7 @@
 
 #include <vector>
 #include <cstddef>
+#include <algorithm>
 // #include <stdexcept>
 // #include <cstring>
 // #include <sstream>

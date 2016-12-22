@@ -1,1 +1,320 @@
-<?xml version="1.0" encoding="utf-8"?><Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003"><ItemGroup Label="ProjectConfigurations"><ProjectConfiguration Include="Debug|Win32"><Configuration>Debug</Configuration><Platform>Win32</Platform></ProjectConfiguration><ProjectConfiguration Include="Debug|x64"><Configuration>Debug</Configuration><Platform>x64</Platform></ProjectConfiguration><ProjectConfiguration Include="Optimize|Win32"><Configuration>Optimize</Configuration><Platform>Win32</Platform></ProjectConfiguration><ProjectConfiguration Include="Optimize|x64"><Configuration>Optimize</Configuration><Platform>x64</Platform></ProjectConfiguration><ProjectConfiguration Include="Release|Win32"><Configuration>Release</Configuration><Platform>Win32</Platform></ProjectConfiguration><ProjectConfiguration Include="Release|x64"><Configuration>Release</Configuration><Platform>x64</Platform></ProjectConfiguration></ItemGroup><PropertyGroup Label="Globals"><ProjectGuid>{6803C738-5FB3-3852-2C07-4954A486D60F}</ProjectGuid><Keyword>Win32Proj</Keyword><RootNamespace>libkytea</RootNamespace></PropertyGroup><Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"/><PropertyGroup Label="Configuration"><CharacterSet>Unicode</CharacterSet><ConfigurationType>StaticLibrary</ConfigurationType></PropertyGroup><Import Project="$(VCTargetsPath)\Microsoft.Cpp.props"/><ImportGroup Label="ExtensionSettings"/><ImportGroup Label="PropertySheets"><Import Condition="exists(&apos;$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props&apos;)" Label="LocalAppDataPlatform" Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props"/></ImportGroup><PropertyGroup Label="UserMacros"/><PropertyGroup><ExecutablePath>$(ExecutablePath);$(MSBuildProjectDirectory)\..\third_party\cygwin\bin\;$(MSBuildProjectDirectory)\..\third_party\python_26\</ExecutablePath><IntDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|Win32&apos;">build-win/$(Configuration)/obj/$(ProjectName)\</IntDir><IntDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Optimize|Win32&apos;">build-win/$(Configuration)/obj/$(ProjectName)\</IntDir><IntDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|Win32&apos;">build-win/$(Configuration)/obj/$(ProjectName)\</IntDir><IntDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">build-win/$(Configuration)64/obj/$(ProjectName)\</IntDir><IntDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Optimize|x64&apos;">build-win/$(Configuration)64/obj/$(ProjectName)\</IntDir><IntDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">build-win/$(Configuration)64/obj/$(ProjectName)\</IntDir><LinkIncremental>false</LinkIncremental><OutDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">build-win/$(Configuration)64\</OutDir><OutDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Optimize|x64&apos;">build-win/$(Configuration)64\</OutDir><OutDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">build-win/$(Configuration)64\</OutDir><OutDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|Win32&apos;">build-win/$(Configuration)\</OutDir><OutDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Optimize|Win32&apos;">build-win/$(Configuration)\</OutDir><OutDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|Win32&apos;">build-win/$(Configuration)\</OutDir><TargetName>$(ProjectName)</TargetName><TargetPath>$(OutDir)\lib\$(ProjectName).lib</TargetPath></PropertyGroup><ItemDefinitionGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|Win32&apos;"><ClCompile><AdditionalIncludeDirectories>..;$(OutDir)obj\global_intermediate;..\src\include;..\src\include\kytea;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories><AdditionalOptions>/J</AdditionalOptions><BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks><BufferSecurityCheck>true</BufferSecurityCheck><CompileAs>Default</CompileAs><DebugInformationFormat>ProgramDatabase</DebugInformationFormat><DisableSpecificWarnings>4018;4244;4267;4305;4800;4819;%(DisableSpecificWarnings)</DisableSpecificWarnings><ExceptionHandling>Async</ExceptionHandling><FunctionLevelLinking>true</FunctionLevelLinking><IntrinsicFunctions>true</IntrinsicFunctions><Optimization>Disabled</Optimization><PreprocessorDefinitions>_DEBUG;COMPILER_MSVC;ID_TRACE_LEVEL=1;OS_WINDOWS;UNICODE;WIN32;WIN32_IE=0x0600;WINVER=0x0501;_ATL_ALL_WARNINGS;_ATL_APARTMENT_THREADED;_ATL_CSTRING_EXPLICIT_CONSTRUCTORS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_MIDL_USE_GUIDDEF_;_STL_MSVC;_UNICODE;_USRDLL;_WIN32;_WIN32_WINDOWS=0x0410;_WIN32_WINNT=0x0501;_WINDLL;_WINDOWS;PKGDATADIR=&quot;&quot;;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions><SuppressStartupBanner>true</SuppressStartupBanner><TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType><WarningLevel>Level3</WarningLevel></ClCompile><Lib><OutputFile>$(OutDir)lib\$(ProjectName).lib</OutputFile></Lib><Link><AdditionalDependencies>Advapi32.lib;Aux_ulib.lib;comdlg32.lib;crypt32.lib;dbghelp.lib;delayimp.lib;gdi32.lib;imm32.lib;kernel32.lib;msi.lib;odbc32.lib;odbccp32.lib;ole32.lib;oleaut32.lib;propsys.lib;psapi.lib;shell32.lib;user32.lib;uuid.lib;version.lib;wininet.lib;winmm.lib;winspool.lib;%(AdditionalDependencies)</AdditionalDependencies><AdditionalOptions>/DYNAMICBASE /NXCOMPAT %(AdditionalOptions)</AdditionalOptions><EnableCOMDATFolding>true</EnableCOMDATFolding><GenerateDebugInformation>true</GenerateDebugInformation><OptimizeReferences>true</OptimizeReferences><TerminalServerAware>true</TerminalServerAware></Link><ResourceCompile><AdditionalIncludeDirectories>$(OutDir)obj/global_intermediate/;../;..;$(OutDir)obj\global_intermediate;..\src\include;..\src\include\kytea;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories><PreprocessorDefinitions>MOZC_RES_USE_TEMPLATE=1;_DEBUG;COMPILER_MSVC;ID_TRACE_LEVEL=1;OS_WINDOWS;UNICODE;WIN32;WIN32_IE=0x0600;WINVER=0x0501;_ATL_ALL_WARNINGS;_ATL_APARTMENT_THREADED;_ATL_CSTRING_EXPLICIT_CONSTRUCTORS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_MIDL_USE_GUIDDEF_;_STL_MSVC;_UNICODE;_USRDLL;_WIN32;_WIN32_WINDOWS=0x0410;_WIN32_WINNT=0x0501;_WINDLL;_WINDOWS;PKGDATADIR=&quot;&quot;;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions></ResourceCompile></ItemDefinitionGroup><ItemDefinitionGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;"><ClCompile><AdditionalIncludeDirectories>..;$(OutDir)obj\global_intermediate;..\src\include;..\src\include\kytea;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories><AdditionalOptions>/J</AdditionalOptions><BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks><BufferSecurityCheck>true</BufferSecurityCheck><CompileAs>Default</CompileAs><DebugInformationFormat>ProgramDatabase</DebugInformationFormat><DisableSpecificWarnings>4018;4244;4267;4305;4800;4819;%(DisableSpecificWarnings)</DisableSpecificWarnings><ExceptionHandling>Async</ExceptionHandling><FunctionLevelLinking>true</FunctionLevelLinking><IntrinsicFunctions>true</IntrinsicFunctions><Optimization>Disabled</Optimization><PreprocessorDefinitions>_DEBUG;COMPILER_MSVC;ID_TRACE_LEVEL=1;OS_WINDOWS;UNICODE;WIN32;WIN32_IE=0x0600;WINVER=0x0501;_ATL_ALL_WARNINGS;_ATL_APARTMENT_THREADED;_ATL_CSTRING_EXPLICIT_CONSTRUCTORS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_MIDL_USE_GUIDDEF_;_STL_MSVC;_UNICODE;_USRDLL;_WIN32;_WIN32_WINDOWS=0x0410;_WIN32_WINNT=0x0501;_WINDLL;_WINDOWS;PKGDATADIR=&quot;&quot;;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions><SuppressStartupBanner>true</SuppressStartupBanner><TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType><WarningLevel>Level3</WarningLevel></ClCompile><Lib><OutputFile>$(OutDir)lib\$(ProjectName).lib</OutputFile></Lib><Link><AdditionalDependencies>Advapi32.lib;Aux_ulib.lib;comdlg32.lib;crypt32.lib;dbghelp.lib;delayimp.lib;gdi32.lib;imm32.lib;kernel32.lib;msi.lib;odbc32.lib;odbccp32.lib;ole32.lib;oleaut32.lib;propsys.lib;psapi.lib;shell32.lib;user32.lib;uuid.lib;version.lib;wininet.lib;winmm.lib;winspool.lib;%(AdditionalDependencies)</AdditionalDependencies><AdditionalOptions>/DYNAMICBASE /NXCOMPAT %(AdditionalOptions)</AdditionalOptions><EnableCOMDATFolding>true</EnableCOMDATFolding><GenerateDebugInformation>true</GenerateDebugInformation><OptimizeReferences>true</OptimizeReferences><TerminalServerAware>true</TerminalServerAware></Link><ResourceCompile><AdditionalIncludeDirectories>$(OutDir)obj/global_intermediate/;../;..;$(OutDir)obj\global_intermediate;..\src\include;..\src\include\kytea;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories><PreprocessorDefinitions>MOZC_RES_USE_TEMPLATE=1;_DEBUG;COMPILER_MSVC;ID_TRACE_LEVEL=1;OS_WINDOWS;UNICODE;WIN32;WIN32_IE=0x0600;WINVER=0x0501;_ATL_ALL_WARNINGS;_ATL_APARTMENT_THREADED;_ATL_CSTRING_EXPLICIT_CONSTRUCTORS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_MIDL_USE_GUIDDEF_;_STL_MSVC;_UNICODE;_USRDLL;_WIN32;_WIN32_WINDOWS=0x0410;_WIN32_WINNT=0x0501;_WINDLL;_WINDOWS;PKGDATADIR=&quot;&quot;;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions></ResourceCompile></ItemDefinitionGroup><ItemDefinitionGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Optimize|Win32&apos;"><ClCompile><AdditionalIncludeDirectories>..;$(OutDir)obj\global_intermediate;..\src\include;..\src\include\kytea;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories><AdditionalOptions>/J</AdditionalOptions><BufferSecurityCheck>true</BufferSecurityCheck><CompileAs>Default</CompileAs><DebugInformationFormat>ProgramDatabase</DebugInformationFormat><DisableSpecificWarnings>4018;4244;4267;4305;4800;4819;%(DisableSpecificWarnings)</DisableSpecificWarnings><ExceptionHandling>Async</ExceptionHandling><FunctionLevelLinking>true</FunctionLevelLinking><IntrinsicFunctions>true</IntrinsicFunctions><Optimization>MaxSpeed</Optimization><PreprocessorDefinitions>COMPILER_MSVC;ID_TRACE_LEVEL=1;OS_WINDOWS;UNICODE;WIN32;WIN32_IE=0x0600;WINVER=0x0501;_ATL_ALL_WARNINGS;_ATL_APARTMENT_THREADED;_ATL_CSTRING_EXPLICIT_CONSTRUCTORS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_MIDL_USE_GUIDDEF_;_STL_MSVC;_UNICODE;_USRDLL;_WIN32;_WIN32_WINDOWS=0x0410;_WIN32_WINNT=0x0501;_WINDLL;_WINDOWS;PKGDATADIR=&quot;&quot;;NDEBUG;QT_NO_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions><SuppressStartupBanner>true</SuppressStartupBanner><TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType><WarningLevel>Level3</WarningLevel></ClCompile><Lib><OutputFile>$(OutDir)lib\$(ProjectName).lib</OutputFile></Lib><Link><AdditionalDependencies>Advapi32.lib;Aux_ulib.lib;comdlg32.lib;crypt32.lib;dbghelp.lib;delayimp.lib;gdi32.lib;imm32.lib;kernel32.lib;msi.lib;odbc32.lib;odbccp32.lib;ole32.lib;oleaut32.lib;propsys.lib;psapi.lib;shell32.lib;user32.lib;uuid.lib;version.lib;wininet.lib;winmm.lib;winspool.lib;%(AdditionalDependencies)</AdditionalDependencies><AdditionalOptions>/DYNAMICBASE /NXCOMPAT %(AdditionalOptions)</AdditionalOptions><EnableCOMDATFolding>true</EnableCOMDATFolding><GenerateDebugInformation>true</GenerateDebugInformation><OptimizeReferences>true</OptimizeReferences><TerminalServerAware>true</TerminalServerAware></Link><ResourceCompile><AdditionalIncludeDirectories>$(OutDir)obj/global_intermediate/;../;..;$(OutDir)obj\global_intermediate;..\src\include;..\src\include\kytea;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories><PreprocessorDefinitions>MOZC_RES_USE_TEMPLATE=1;COMPILER_MSVC;ID_TRACE_LEVEL=1;OS_WINDOWS;UNICODE;WIN32;WIN32_IE=0x0600;WINVER=0x0501;_ATL_ALL_WARNINGS;_ATL_APARTMENT_THREADED;_ATL_CSTRING_EXPLICIT_CONSTRUCTORS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_MIDL_USE_GUIDDEF_;_STL_MSVC;_UNICODE;_USRDLL;_WIN32;_WIN32_WINDOWS=0x0410;_WIN32_WINNT=0x0501;_WINDLL;_WINDOWS;PKGDATADIR=&quot;&quot;;NDEBUG;QT_NO_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions></ResourceCompile></ItemDefinitionGroup><ItemDefinitionGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Optimize|x64&apos;"><ClCompile><AdditionalIncludeDirectories>..;$(OutDir)obj\global_intermediate;..\src\include;..\src\include\kytea;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories><AdditionalOptions>/J</AdditionalOptions><BufferSecurityCheck>true</BufferSecurityCheck><CompileAs>Default</CompileAs><DebugInformationFormat>ProgramDatabase</DebugInformationFormat><DisableSpecificWarnings>4018;4244;4267;4305;4800;4819;%(DisableSpecificWarnings)</DisableSpecificWarnings><ExceptionHandling>Async</ExceptionHandling><FunctionLevelLinking>true</FunctionLevelLinking><IntrinsicFunctions>true</IntrinsicFunctions><Optimization>MaxSpeed</Optimization><PreprocessorDefinitions>COMPILER_MSVC;ID_TRACE_LEVEL=1;OS_WINDOWS;UNICODE;WIN32;WIN32_IE=0x0600;WINVER=0x0501;_ATL_ALL_WARNINGS;_ATL_APARTMENT_THREADED;_ATL_CSTRING_EXPLICIT_CONSTRUCTORS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_MIDL_USE_GUIDDEF_;_STL_MSVC;_UNICODE;_USRDLL;_WIN32;_WIN32_WINDOWS=0x0410;_WIN32_WINNT=0x0501;_WINDLL;_WINDOWS;PKGDATADIR=&quot;&quot;;NDEBUG;QT_NO_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions><SuppressStartupBanner>true</SuppressStartupBanner><TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType><WarningLevel>Level3</WarningLevel></ClCompile><Lib><OutputFile>$(OutDir)lib\$(ProjectName).lib</OutputFile></Lib><Link><AdditionalDependencies>Advapi32.lib;Aux_ulib.lib;comdlg32.lib;crypt32.lib;dbghelp.lib;delayimp.lib;gdi32.lib;imm32.lib;kernel32.lib;msi.lib;odbc32.lib;odbccp32.lib;ole32.lib;oleaut32.lib;propsys.lib;psapi.lib;shell32.lib;user32.lib;uuid.lib;version.lib;wininet.lib;winmm.lib;winspool.lib;%(AdditionalDependencies)</AdditionalDependencies><AdditionalOptions>/DYNAMICBASE /NXCOMPAT %(AdditionalOptions)</AdditionalOptions><EnableCOMDATFolding>true</EnableCOMDATFolding><GenerateDebugInformation>true</GenerateDebugInformation><OptimizeReferences>true</OptimizeReferences><TerminalServerAware>true</TerminalServerAware></Link><ResourceCompile><AdditionalIncludeDirectories>$(OutDir)obj/global_intermediate/;../;..;$(OutDir)obj\global_intermediate;..\src\include;..\src\include\kytea;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories><PreprocessorDefinitions>MOZC_RES_USE_TEMPLATE=1;COMPILER_MSVC;ID_TRACE_LEVEL=1;OS_WINDOWS;UNICODE;WIN32;WIN32_IE=0x0600;WINVER=0x0501;_ATL_ALL_WARNINGS;_ATL_APARTMENT_THREADED;_ATL_CSTRING_EXPLICIT_CONSTRUCTORS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_MIDL_USE_GUIDDEF_;_STL_MSVC;_UNICODE;_USRDLL;_WIN32;_WIN32_WINDOWS=0x0410;_WIN32_WINNT=0x0501;_WINDLL;_WINDOWS;PKGDATADIR=&quot;&quot;;NDEBUG;QT_NO_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions></ResourceCompile></ItemDefinitionGroup><ItemDefinitionGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|Win32&apos;"><ClCompile><AdditionalIncludeDirectories>..;$(OutDir)obj\global_intermediate;..\src\include;..\src\include\kytea;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories><AdditionalOptions>/J</AdditionalOptions><BufferSecurityCheck>true</BufferSecurityCheck><CompileAs>Default</CompileAs><DebugInformationFormat>ProgramDatabase</DebugInformationFormat><DisableSpecificWarnings>4018;4244;4267;4305;4800;4819;%(DisableSpecificWarnings)</DisableSpecificWarnings><ExceptionHandling>Async</ExceptionHandling><FunctionLevelLinking>true</FunctionLevelLinking><IntrinsicFunctions>true</IntrinsicFunctions><Optimization>MaxSpeed</Optimization><PreprocessorDefinitions>COMPILER_MSVC;ID_TRACE_LEVEL=1;OS_WINDOWS;UNICODE;WIN32;WIN32_IE=0x0600;WINVER=0x0501;_ATL_ALL_WARNINGS;_ATL_APARTMENT_THREADED;_ATL_CSTRING_EXPLICIT_CONSTRUCTORS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_MIDL_USE_GUIDDEF_;_STL_MSVC;_UNICODE;_USRDLL;_WIN32;_WIN32_WINDOWS=0x0410;_WIN32_WINNT=0x0501;_WINDLL;_WINDOWS;PKGDATADIR=&quot;&quot;;NDEBUG;QT_NO_DEBUG;NO_LOGGING;IGNORE_HELP_FLAG;IGNORE_INVALID_FLAG;%(PreprocessorDefinitions)</PreprocessorDefinitions><SuppressStartupBanner>true</SuppressStartupBanner><TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType><WarningLevel>Level3</WarningLevel></ClCompile><Lib><OutputFile>$(OutDir)lib\$(ProjectName).lib</OutputFile></Lib><Link><AdditionalDependencies>Advapi32.lib;Aux_ulib.lib;comdlg32.lib;crypt32.lib;dbghelp.lib;delayimp.lib;gdi32.lib;imm32.lib;kernel32.lib;msi.lib;odbc32.lib;odbccp32.lib;ole32.lib;oleaut32.lib;propsys.lib;psapi.lib;shell32.lib;user32.lib;uuid.lib;version.lib;wininet.lib;winmm.lib;winspool.lib;%(AdditionalDependencies)</AdditionalDependencies><AdditionalOptions>/DYNAMICBASE /NXCOMPAT /PDBALTPATH:%_PDB% %(AdditionalOptions)</AdditionalOptions><EnableCOMDATFolding>true</EnableCOMDATFolding><GenerateDebugInformation>true</GenerateDebugInformation><OptimizeReferences>true</OptimizeReferences><TerminalServerAware>true</TerminalServerAware></Link><ResourceCompile><AdditionalIncludeDirectories>$(OutDir)obj/global_intermediate/;../;..;$(OutDir)obj\global_intermediate;..\src\include;..\src\include\kytea;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories><PreprocessorDefinitions>MOZC_RES_USE_TEMPLATE=1;COMPILER_MSVC;ID_TRACE_LEVEL=1;OS_WINDOWS;UNICODE;WIN32;WIN32_IE=0x0600;WINVER=0x0501;_ATL_ALL_WARNINGS;_ATL_APARTMENT_THREADED;_ATL_CSTRING_EXPLICIT_CONSTRUCTORS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_MIDL_USE_GUIDDEF_;_STL_MSVC;_UNICODE;_USRDLL;_WIN32;_WIN32_WINDOWS=0x0410;_WIN32_WINNT=0x0501;_WINDLL;_WINDOWS;PKGDATADIR=&quot;&quot;;NDEBUG;QT_NO_DEBUG;NO_LOGGING;IGNORE_HELP_FLAG;IGNORE_INVALID_FLAG;%(PreprocessorDefinitions)</PreprocessorDefinitions></ResourceCompile></ItemDefinitionGroup><ItemDefinitionGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;"><ClCompile><AdditionalIncludeDirectories>..;$(OutDir)obj\global_intermediate;..\src\include;..\src\include\kytea;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories><AdditionalOptions>/J</AdditionalOptions><BufferSecurityCheck>true</BufferSecurityCheck><CompileAs>Default</CompileAs><DebugInformationFormat>ProgramDatabase</DebugInformationFormat><DisableSpecificWarnings>4018;4244;4267;4305;4800;4819;%(DisableSpecificWarnings)</DisableSpecificWarnings><ExceptionHandling>Async</ExceptionHandling><FunctionLevelLinking>true</FunctionLevelLinking><IntrinsicFunctions>true</IntrinsicFunctions><Optimization>MaxSpeed</Optimization><PreprocessorDefinitions>COMPILER_MSVC;ID_TRACE_LEVEL=1;OS_WINDOWS;UNICODE;WIN32;WIN32_IE=0x0600;WINVER=0x0501;_ATL_ALL_WARNINGS;_ATL_APARTMENT_THREADED;_ATL_CSTRING_EXPLICIT_CONSTRUCTORS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_MIDL_USE_GUIDDEF_;_STL_MSVC;_UNICODE;_USRDLL;_WIN32;_WIN32_WINDOWS=0x0410;_WIN32_WINNT=0x0501;_WINDLL;_WINDOWS;PKGDATADIR=&quot;&quot;;NDEBUG;QT_NO_DEBUG;NO_LOGGING;IGNORE_HELP_FLAG;IGNORE_INVALID_FLAG;%(PreprocessorDefinitions)</PreprocessorDefinitions><SuppressStartupBanner>true</SuppressStartupBanner><TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType><WarningLevel>Level3</WarningLevel></ClCompile><Lib><OutputFile>$(OutDir)lib\$(ProjectName).lib</OutputFile></Lib><Link><AdditionalDependencies>Advapi32.lib;Aux_ulib.lib;comdlg32.lib;crypt32.lib;dbghelp.lib;delayimp.lib;gdi32.lib;imm32.lib;kernel32.lib;msi.lib;odbc32.lib;odbccp32.lib;ole32.lib;oleaut32.lib;propsys.lib;psapi.lib;shell32.lib;user32.lib;uuid.lib;version.lib;wininet.lib;winmm.lib;winspool.lib;%(AdditionalDependencies)</AdditionalDependencies><AdditionalOptions>/DYNAMICBASE /NXCOMPAT /PDBALTPATH:%_PDB% %(AdditionalOptions)</AdditionalOptions><EnableCOMDATFolding>true</EnableCOMDATFolding><GenerateDebugInformation>true</GenerateDebugInformation><OptimizeReferences>true</OptimizeReferences><TerminalServerAware>true</TerminalServerAware></Link><ResourceCompile><AdditionalIncludeDirectories>$(OutDir)obj/global_intermediate/;../;..;$(OutDir)obj\global_intermediate;..\src\include;..\src\include\kytea;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories><PreprocessorDefinitions>MOZC_RES_USE_TEMPLATE=1;COMPILER_MSVC;ID_TRACE_LEVEL=1;OS_WINDOWS;UNICODE;WIN32;WIN32_IE=0x0600;WINVER=0x0501;_ATL_ALL_WARNINGS;_ATL_APARTMENT_THREADED;_ATL_CSTRING_EXPLICIT_CONSTRUCTORS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_MIDL_USE_GUIDDEF_;_STL_MSVC;_UNICODE;_USRDLL;_WIN32;_WIN32_WINDOWS=0x0410;_WIN32_WINNT=0x0501;_WINDLL;_WINDOWS;PKGDATADIR=&quot;&quot;;NDEBUG;QT_NO_DEBUG;NO_LOGGING;IGNORE_HELP_FLAG;IGNORE_INVALID_FLAG;%(PreprocessorDefinitions)</PreprocessorDefinitions></ResourceCompile></ItemDefinitionGroup><ItemGroup><None Include="kytea.gyp"/></ItemGroup><ItemGroup><ClInclude Include="..\src\lib\liblinear\linear.h"/><ClInclude Include="..\src\lib\liblinear\tron.h"/><ClInclude Include="..\src\lib\liblinear\blas\blas.h"/><ClInclude Include="..\src\lib\liblinear\blas\blasp.h"/></ItemGroup><ItemGroup><ClCompile Include="..\src\lib\kytea.cpp"/><ClCompile Include="..\src\lib\kytea-model.cpp"/><ClCompile Include="..\src\lib\dictionary.cpp"/><ClCompile Include="..\src\lib\feature-lookup.cpp"/><ClCompile Include="..\src\lib\kytea-lm.cpp"/><ClCompile Include="..\src\lib\corpus-io.cpp"/><ClCompile Include="..\src\lib\feature-io.cpp"/><ClCompile Include="..\src\lib\string-util.cpp"/><ClCompile Include="..\src\lib\model-io.cpp"/><ClCompile Include="..\src\lib\kytea-config.cpp"/><ClCompile Include="..\src\lib\liblinear\tron.cpp"/><ClCompile Include="..\src\lib\liblinear\linear.cpp"/><ClCompile Include="..\src\lib\liblinear\blas\daxpy.c"/><ClCompile Include="..\src\lib\liblinear\blas\ddot.c"/><ClCompile Include="..\src\lib\liblinear\blas\dnrm2.c"/><ClCompile Include="..\src\lib\liblinear\blas\dscal.c"/></ItemGroup><Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/><ImportGroup Label="ExtensionTargets"/></Project>
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Optimize|Win32">
+      <Configuration>Optimize</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Optimize|x64">
+      <Configuration>Optimize</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{6803C738-5FB3-3852-2C07-4954A486D60F}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>libkytea</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <CharacterSet>Unicode</CharacterSet>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Optimize|Win32'">
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Optimize|x64'">
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="PropertySheets">
+    <Import Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <ExecutablePath>$(ExecutablePath);$(MSBuildProjectDirectory)\..\third_party\cygwin\bin\;$(MSBuildProjectDirectory)\..\third_party\python_26\</ExecutablePath>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">build-win/$(Configuration)/obj/$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Optimize|Win32'">build-win/$(Configuration)/obj/$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">build-win/$(Configuration)/obj/$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">build-win/$(Configuration)64/obj/$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Optimize|x64'">build-win/$(Configuration)64/obj/$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">build-win/$(Configuration)64/obj/$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">build-win/$(Configuration)64\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Optimize|x64'">build-win/$(Configuration)64\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">build-win/$(Configuration)64\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">build-win/$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Optimize|Win32'">build-win/$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">build-win/$(Configuration)\</OutDir>
+    <TargetName>$(ProjectName)</TargetName>
+    <TargetPath>$(OutDir)\lib\$(ProjectName).lib</TargetPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..;$(OutDir)obj\global_intermediate;..\src\include;..\src\include\kytea;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/J</AdditionalOptions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <CompileAs>Default</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4018;4244;4267;4305;4800;4819;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;COMPILER_MSVC;ID_TRACE_LEVEL=1;OS_WINDOWS;UNICODE;WIN32;WIN32_IE=0x0600;WINVER=0x0501;_ATL_ALL_WARNINGS;_ATL_APARTMENT_THREADED;_ATL_CSTRING_EXPLICIT_CONSTRUCTORS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_MIDL_USE_GUIDDEF_;_STL_MSVC;_UNICODE;_USRDLL;_WIN32;_WIN32_WINDOWS=0x0410;_WIN32_WINNT=0x0501;_WINDLL;_WINDOWS;PKGDATADIR="";DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)lib\$(ProjectName).lib</OutputFile>
+    </Lib>
+    <Link>
+      <AdditionalDependencies>Advapi32.lib;Aux_ulib.lib;comdlg32.lib;crypt32.lib;dbghelp.lib;delayimp.lib;gdi32.lib;imm32.lib;kernel32.lib;msi.lib;odbc32.lib;odbccp32.lib;ole32.lib;oleaut32.lib;propsys.lib;psapi.lib;shell32.lib;user32.lib;uuid.lib;version.lib;wininet.lib;winmm.lib;winspool.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/DYNAMICBASE /NXCOMPAT %(AdditionalOptions)</AdditionalOptions>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <OptimizeReferences>true</OptimizeReferences>
+      <TerminalServerAware>true</TerminalServerAware>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(OutDir)obj/global_intermediate/;../;..;$(OutDir)obj\global_intermediate;..\src\include;..\src\include\kytea;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>MOZC_RES_USE_TEMPLATE=1;_DEBUG;COMPILER_MSVC;ID_TRACE_LEVEL=1;OS_WINDOWS;UNICODE;WIN32;WIN32_IE=0x0600;WINVER=0x0501;_ATL_ALL_WARNINGS;_ATL_APARTMENT_THREADED;_ATL_CSTRING_EXPLICIT_CONSTRUCTORS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_MIDL_USE_GUIDDEF_;_STL_MSVC;_UNICODE;_USRDLL;_WIN32;_WIN32_WINDOWS=0x0410;_WIN32_WINNT=0x0501;_WINDLL;_WINDOWS;PKGDATADIR="";DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..;$(OutDir)obj\global_intermediate;..\src\include;..\src\include\kytea;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/J</AdditionalOptions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <CompileAs>Default</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4018;4244;4267;4305;4800;4819;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;COMPILER_MSVC;ID_TRACE_LEVEL=1;OS_WINDOWS;UNICODE;WIN32;WIN32_IE=0x0600;WINVER=0x0501;_ATL_ALL_WARNINGS;_ATL_APARTMENT_THREADED;_ATL_CSTRING_EXPLICIT_CONSTRUCTORS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_MIDL_USE_GUIDDEF_;_STL_MSVC;_UNICODE;_USRDLL;_WIN32;_WIN32_WINDOWS=0x0410;_WIN32_WINNT=0x0501;_WINDLL;_WINDOWS;PKGDATADIR="";DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)lib\$(ProjectName).lib</OutputFile>
+    </Lib>
+    <Link>
+      <AdditionalDependencies>Advapi32.lib;Aux_ulib.lib;comdlg32.lib;crypt32.lib;dbghelp.lib;delayimp.lib;gdi32.lib;imm32.lib;kernel32.lib;msi.lib;odbc32.lib;odbccp32.lib;ole32.lib;oleaut32.lib;propsys.lib;psapi.lib;shell32.lib;user32.lib;uuid.lib;version.lib;wininet.lib;winmm.lib;winspool.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/DYNAMICBASE /NXCOMPAT %(AdditionalOptions)</AdditionalOptions>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <OptimizeReferences>true</OptimizeReferences>
+      <TerminalServerAware>true</TerminalServerAware>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(OutDir)obj/global_intermediate/;../;..;$(OutDir)obj\global_intermediate;..\src\include;..\src\include\kytea;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>MOZC_RES_USE_TEMPLATE=1;_DEBUG;COMPILER_MSVC;ID_TRACE_LEVEL=1;OS_WINDOWS;UNICODE;WIN32;WIN32_IE=0x0600;WINVER=0x0501;_ATL_ALL_WARNINGS;_ATL_APARTMENT_THREADED;_ATL_CSTRING_EXPLICIT_CONSTRUCTORS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_MIDL_USE_GUIDDEF_;_STL_MSVC;_UNICODE;_USRDLL;_WIN32;_WIN32_WINDOWS=0x0410;_WIN32_WINNT=0x0501;_WINDLL;_WINDOWS;PKGDATADIR="";DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Optimize|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..;$(OutDir)obj\global_intermediate;..\src\include;..\src\include\kytea;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/J</AdditionalOptions>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <CompileAs>Default</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4018;4244;4267;4305;4800;4819;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>COMPILER_MSVC;ID_TRACE_LEVEL=1;OS_WINDOWS;UNICODE;WIN32;WIN32_IE=0x0600;WINVER=0x0501;_ATL_ALL_WARNINGS;_ATL_APARTMENT_THREADED;_ATL_CSTRING_EXPLICIT_CONSTRUCTORS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_MIDL_USE_GUIDDEF_;_STL_MSVC;_UNICODE;_USRDLL;_WIN32;_WIN32_WINDOWS=0x0410;_WIN32_WINNT=0x0501;_WINDLL;_WINDOWS;PKGDATADIR="";NDEBUG;QT_NO_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)lib\$(ProjectName).lib</OutputFile>
+    </Lib>
+    <Link>
+      <AdditionalDependencies>Advapi32.lib;Aux_ulib.lib;comdlg32.lib;crypt32.lib;dbghelp.lib;delayimp.lib;gdi32.lib;imm32.lib;kernel32.lib;msi.lib;odbc32.lib;odbccp32.lib;ole32.lib;oleaut32.lib;propsys.lib;psapi.lib;shell32.lib;user32.lib;uuid.lib;version.lib;wininet.lib;winmm.lib;winspool.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/DYNAMICBASE /NXCOMPAT %(AdditionalOptions)</AdditionalOptions>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <OptimizeReferences>true</OptimizeReferences>
+      <TerminalServerAware>true</TerminalServerAware>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(OutDir)obj/global_intermediate/;../;..;$(OutDir)obj\global_intermediate;..\src\include;..\src\include\kytea;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>MOZC_RES_USE_TEMPLATE=1;COMPILER_MSVC;ID_TRACE_LEVEL=1;OS_WINDOWS;UNICODE;WIN32;WIN32_IE=0x0600;WINVER=0x0501;_ATL_ALL_WARNINGS;_ATL_APARTMENT_THREADED;_ATL_CSTRING_EXPLICIT_CONSTRUCTORS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_MIDL_USE_GUIDDEF_;_STL_MSVC;_UNICODE;_USRDLL;_WIN32;_WIN32_WINDOWS=0x0410;_WIN32_WINNT=0x0501;_WINDLL;_WINDOWS;PKGDATADIR="";NDEBUG;QT_NO_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Optimize|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..;$(OutDir)obj\global_intermediate;..\src\include;..\src\include\kytea;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/J</AdditionalOptions>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <CompileAs>Default</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4018;4244;4267;4305;4800;4819;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>COMPILER_MSVC;ID_TRACE_LEVEL=1;OS_WINDOWS;UNICODE;WIN32;WIN32_IE=0x0600;WINVER=0x0501;_ATL_ALL_WARNINGS;_ATL_APARTMENT_THREADED;_ATL_CSTRING_EXPLICIT_CONSTRUCTORS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_MIDL_USE_GUIDDEF_;_STL_MSVC;_UNICODE;_USRDLL;_WIN32;_WIN32_WINDOWS=0x0410;_WIN32_WINNT=0x0501;_WINDLL;_WINDOWS;PKGDATADIR="";NDEBUG;QT_NO_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)lib\$(ProjectName).lib</OutputFile>
+    </Lib>
+    <Link>
+      <AdditionalDependencies>Advapi32.lib;Aux_ulib.lib;comdlg32.lib;crypt32.lib;dbghelp.lib;delayimp.lib;gdi32.lib;imm32.lib;kernel32.lib;msi.lib;odbc32.lib;odbccp32.lib;ole32.lib;oleaut32.lib;propsys.lib;psapi.lib;shell32.lib;user32.lib;uuid.lib;version.lib;wininet.lib;winmm.lib;winspool.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/DYNAMICBASE /NXCOMPAT %(AdditionalOptions)</AdditionalOptions>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <OptimizeReferences>true</OptimizeReferences>
+      <TerminalServerAware>true</TerminalServerAware>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(OutDir)obj/global_intermediate/;../;..;$(OutDir)obj\global_intermediate;..\src\include;..\src\include\kytea;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>MOZC_RES_USE_TEMPLATE=1;COMPILER_MSVC;ID_TRACE_LEVEL=1;OS_WINDOWS;UNICODE;WIN32;WIN32_IE=0x0600;WINVER=0x0501;_ATL_ALL_WARNINGS;_ATL_APARTMENT_THREADED;_ATL_CSTRING_EXPLICIT_CONSTRUCTORS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_MIDL_USE_GUIDDEF_;_STL_MSVC;_UNICODE;_USRDLL;_WIN32;_WIN32_WINDOWS=0x0410;_WIN32_WINNT=0x0501;_WINDLL;_WINDOWS;PKGDATADIR="";NDEBUG;QT_NO_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..;$(OutDir)obj\global_intermediate;..\src\include;..\src\include\kytea;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/J</AdditionalOptions>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <CompileAs>Default</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4018;4244;4267;4305;4800;4819;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>COMPILER_MSVC;ID_TRACE_LEVEL=1;OS_WINDOWS;UNICODE;WIN32;WIN32_IE=0x0600;WINVER=0x0501;_ATL_ALL_WARNINGS;_ATL_APARTMENT_THREADED;_ATL_CSTRING_EXPLICIT_CONSTRUCTORS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_MIDL_USE_GUIDDEF_;_STL_MSVC;_UNICODE;_USRDLL;_WIN32;_WIN32_WINDOWS=0x0410;_WIN32_WINNT=0x0501;_WINDLL;_WINDOWS;PKGDATADIR="";NDEBUG;QT_NO_DEBUG;NO_LOGGING;IGNORE_HELP_FLAG;IGNORE_INVALID_FLAG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)lib\$(ProjectName).lib</OutputFile>
+    </Lib>
+    <Link>
+      <AdditionalDependencies>Advapi32.lib;Aux_ulib.lib;comdlg32.lib;crypt32.lib;dbghelp.lib;delayimp.lib;gdi32.lib;imm32.lib;kernel32.lib;msi.lib;odbc32.lib;odbccp32.lib;ole32.lib;oleaut32.lib;propsys.lib;psapi.lib;shell32.lib;user32.lib;uuid.lib;version.lib;wininet.lib;winmm.lib;winspool.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/DYNAMICBASE /NXCOMPAT /PDBALTPATH:%_PDB% %(AdditionalOptions)</AdditionalOptions>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <OptimizeReferences>true</OptimizeReferences>
+      <TerminalServerAware>true</TerminalServerAware>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(OutDir)obj/global_intermediate/;../;..;$(OutDir)obj\global_intermediate;..\src\include;..\src\include\kytea;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>MOZC_RES_USE_TEMPLATE=1;COMPILER_MSVC;ID_TRACE_LEVEL=1;OS_WINDOWS;UNICODE;WIN32;WIN32_IE=0x0600;WINVER=0x0501;_ATL_ALL_WARNINGS;_ATL_APARTMENT_THREADED;_ATL_CSTRING_EXPLICIT_CONSTRUCTORS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_MIDL_USE_GUIDDEF_;_STL_MSVC;_UNICODE;_USRDLL;_WIN32;_WIN32_WINDOWS=0x0410;_WIN32_WINNT=0x0501;_WINDLL;_WINDOWS;PKGDATADIR="";NDEBUG;QT_NO_DEBUG;NO_LOGGING;IGNORE_HELP_FLAG;IGNORE_INVALID_FLAG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..;$(OutDir)obj\global_intermediate;..\src\include;..\src\include\kytea;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/J</AdditionalOptions>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <CompileAs>Default</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4018;4244;4267;4305;4800;4819;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>COMPILER_MSVC;ID_TRACE_LEVEL=1;OS_WINDOWS;UNICODE;WIN32;WIN32_IE=0x0600;WINVER=0x0501;_ATL_ALL_WARNINGS;_ATL_APARTMENT_THREADED;_ATL_CSTRING_EXPLICIT_CONSTRUCTORS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_MIDL_USE_GUIDDEF_;_STL_MSVC;_UNICODE;_USRDLL;_WIN32;_WIN32_WINDOWS=0x0410;_WIN32_WINNT=0x0501;_WINDLL;_WINDOWS;PKGDATADIR="";NDEBUG;QT_NO_DEBUG;NO_LOGGING;IGNORE_HELP_FLAG;IGNORE_INVALID_FLAG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)lib\$(ProjectName).lib</OutputFile>
+    </Lib>
+    <Link>
+      <AdditionalDependencies>Advapi32.lib;Aux_ulib.lib;comdlg32.lib;crypt32.lib;dbghelp.lib;delayimp.lib;gdi32.lib;imm32.lib;kernel32.lib;msi.lib;odbc32.lib;odbccp32.lib;ole32.lib;oleaut32.lib;propsys.lib;psapi.lib;shell32.lib;user32.lib;uuid.lib;version.lib;wininet.lib;winmm.lib;winspool.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/DYNAMICBASE /NXCOMPAT /PDBALTPATH:%_PDB% %(AdditionalOptions)</AdditionalOptions>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <OptimizeReferences>true</OptimizeReferences>
+      <TerminalServerAware>true</TerminalServerAware>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(OutDir)obj/global_intermediate/;../;..;$(OutDir)obj\global_intermediate;..\src\include;..\src\include\kytea;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>MOZC_RES_USE_TEMPLATE=1;COMPILER_MSVC;ID_TRACE_LEVEL=1;OS_WINDOWS;UNICODE;WIN32;WIN32_IE=0x0600;WINVER=0x0501;_ATL_ALL_WARNINGS;_ATL_APARTMENT_THREADED;_ATL_CSTRING_EXPLICIT_CONSTRUCTORS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_MIDL_USE_GUIDDEF_;_STL_MSVC;_UNICODE;_USRDLL;_WIN32;_WIN32_WINDOWS=0x0410;_WIN32_WINNT=0x0501;_WINDLL;_WINDOWS;PKGDATADIR="";NDEBUG;QT_NO_DEBUG;NO_LOGGING;IGNORE_HELP_FLAG;IGNORE_INVALID_FLAG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="kytea.gyp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\lib\liblinear\linear.h" />
+    <ClInclude Include="..\src\lib\liblinear\tron.h" />
+    <ClInclude Include="..\src\lib\liblinear\blas\blas.h" />
+    <ClInclude Include="..\src\lib\liblinear\blas\blasp.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\lib\corpus-io-eda.cpp" />
+    <ClCompile Include="..\src\lib\corpus-io-full.cpp" />
+    <ClCompile Include="..\src\lib\corpus-io-part.cpp" />
+    <ClCompile Include="..\src\lib\corpus-io-prob.cpp" />
+    <ClCompile Include="..\src\lib\corpus-io-raw.cpp" />
+    <ClCompile Include="..\src\lib\corpus-io-tokenized.cpp" />
+    <ClCompile Include="..\src\lib\corpus-io.cpp" />
+    <ClCompile Include="..\src\lib\dictionary.cpp" />
+    <ClCompile Include="..\src\lib\feature-io.cpp" />
+    <ClCompile Include="..\src\lib\feature-lookup.cpp" />
+    <ClCompile Include="..\src\lib\general-io.cpp" />
+    <ClCompile Include="..\src\lib\kytea-config.cpp" />
+    <ClCompile Include="..\src\lib\kytea-lm.cpp" />
+    <ClCompile Include="..\src\lib\kytea-model.cpp" />
+    <ClCompile Include="..\src\lib\kytea-string.cpp" />
+    <ClCompile Include="..\src\lib\kytea-struct.cpp" />
+    <ClCompile Include="..\src\lib\kytea-util.cpp" />
+    <ClCompile Include="..\src\lib\kytea.cpp" />
+    <ClCompile Include="..\src\lib\model-io.cpp" />
+    <ClCompile Include="..\src\lib\string-util.cpp" />
+    <ClCompile Include="..\src\lib\liblinear\tron.cpp" />
+    <ClCompile Include="..\src\lib\liblinear\linear.cpp" />
+    <ClCompile Include="..\src\lib\liblinear\blas\daxpy.c" />
+    <ClCompile Include="..\src\lib\liblinear\blas\ddot.c" />
+    <ClCompile Include="..\src\lib\liblinear\blas\dnrm2.c" />
+    <ClCompile Include="..\src\lib\liblinear\blas\dscal.c" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+</Project>
