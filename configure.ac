@@ -48,7 +48,7 @@ fi
 AC_ARG_ENABLE(quantize,
   [  --enable-quantize       Quantize the model, resulting in smaller but possibly less accurate models)],
   [], [enable_quantize=yes])
-if test "x$enable_quantize" == xno; then
+if test "x$enable_quantize" = xno; then
     AC_DEFINE([DISABLE_QUANTIZE], [1], [Disable quantizing])
 else
     AC_DEFINE([DISABLE_QUANTIZE], [0], [Enable quantizing])
