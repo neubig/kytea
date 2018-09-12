@@ -53,6 +53,12 @@ template void checkValueVecEqual(const std::vector<vector<KyteaString> > * a, co
 template void checkValueVecEqual(const std::vector<int> * a, const std::vector<int> * b);
 template void checkValueVecEqual(const std::vector<KyteaString> * a, const std::vector<KyteaString> * b);
 
+template void checkValueVecEqual(const std::vector<unsigned int> & a, const std::vector<unsigned int> & b);
+template void checkValueVecEqual(const std::vector<short> & a, const std::vector<short> & b);
+template void checkValueVecEqual(const std::vector<vector<KyteaString> > & a, const std::vector<vector<KyteaString> > & b);
+template void checkValueVecEqual(const std::vector<int> & a, const std::vector<int> & b);
+template void checkValueVecEqual(const std::vector<KyteaString> & a, const std::vector<KyteaString> & b);
+
 // Vector equality checking function
 template <class T>
 void checkPointerVecEqual(const std::vector<T*> & a, const std::vector<T*> & b) {
