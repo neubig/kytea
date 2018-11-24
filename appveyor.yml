@@ -22,7 +22,7 @@ deploy:
   description: 'kytea-win'
   provider: GitHub
   auth_token:
-    secure: WcAHkON2wIKV1F/fwpQgUsk45iZilZfIb+9dIxX0GnneMFCdal/8FpM8gZmPO/N4
+    secure: REPLACE-ME
   artifact: kytea-win
   draft: false
   prerelease: false
