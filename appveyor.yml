@@ -1,0 +1,30 @@
+version: 1.0.{build}
+image: Visual Studio 2017
+configuration: Release
+platform:
+- x64
+- Win32
+build:
+  project: build-win\kytea.sln
+  parallel: true
+  verbosity: minimal
+
+after_build:
+    - cd %APPVEYOR_BUILD_FOLDER%\
+    - 7z a kytea-win-%PLATFORM%.zip %APPVEYOR_BUILD_FOLDER%\build-win\build-win\Release*\kytea.exe
+    - 7z a kytea-win-%PLATFORM%.zip %APPVEYOR_BUILD_FOLDER%\build-win\build-win\Release*\train-kytea.exe
+    - 7z a kytea-win-%PLATFORM%.zip %APPVEYOR_BUILD_FOLDER%\build-win\build-win\Release*\lib
+
+artifacts:
+- path: '*.zip'
+  name: kytea-win
+deploy:
+  description: 'kytea-win'
+  provider: GitHub
+  auth_token:
+    secure: REPLACE-ME
+  artifact: kytea-win
+  draft: false
+  prerelease: false
+  on:
+    appveyor_repo_tag: true
