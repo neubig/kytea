@@ -1,1 +1,95 @@
-<?xml version="1.0" encoding="utf-8"?><Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003"><ItemGroup><Filter Include=".."><UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier></Filter><Filter Include="..\src"><UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier></Filter><Filter Include="..\src\lib"><UniqueIdentifier>{2739B19F-16DF-601C-060A-FF86F6A40045}</UniqueIdentifier></Filter><Filter Include="..\src\lib\liblinear"><UniqueIdentifier>{B0AEC634-2F64-69F4-4DAE-C71F7A9BD208}</UniqueIdentifier></Filter><Filter Include="..\src\lib\liblinear\blas"><UniqueIdentifier>{DD653FF0-9711-24FA-4784-B8422839B4CB}</UniqueIdentifier></Filter></ItemGroup><ItemGroup><None Include="kytea.gyp"/><ClCompile Include="..\src\lib\kytea.cpp"><Filter>..\src\lib</Filter></ClCompile><ClCompile Include="..\src\lib\kytea-model.cpp"><Filter>..\src\lib</Filter></ClCompile><ClCompile Include="..\src\lib\dictionary.cpp"><Filter>..\src\lib</Filter></ClCompile><ClCompile Include="..\src\lib\feature-lookup.cpp"><Filter>..\src\lib</Filter></ClCompile><ClCompile Include="..\src\lib\kytea-lm.cpp"><Filter>..\src\lib</Filter></ClCompile><ClCompile Include="..\src\lib\corpus-io.cpp"><Filter>..\src\lib</Filter></ClCompile><ClCompile Include="..\src\lib\feature-io.cpp"><Filter>..\src\lib</Filter></ClCompile><ClCompile Include="..\src\lib\string-util.cpp"><Filter>..\src\lib</Filter></ClCompile><ClCompile Include="..\src\lib\model-io.cpp"><Filter>..\src\lib</Filter></ClCompile><ClCompile Include="..\src\lib\kytea-config.cpp"><Filter>..\src\lib</Filter></ClCompile><ClCompile Include="..\src\lib\liblinear\tron.cpp"><Filter>..\src\lib\liblinear</Filter></ClCompile><ClInclude Include="..\src\lib\liblinear\linear.h"><Filter>..\src\lib\liblinear</Filter></ClInclude><ClInclude Include="..\src\lib\liblinear\tron.h"><Filter>..\src\lib\liblinear</Filter></ClInclude><ClCompile Include="..\src\lib\liblinear\linear.cpp"><Filter>..\src\lib\liblinear</Filter></ClCompile><ClInclude Include="..\src\lib\liblinear\blas\blas.h"><Filter>..\src\lib\liblinear\blas</Filter></ClInclude><ClCompile Include="..\src\lib\liblinear\blas\daxpy.c"><Filter>..\src\lib\liblinear\blas</Filter></ClCompile><ClCompile Include="..\src\lib\liblinear\blas\ddot.c"><Filter>..\src\lib\liblinear\blas</Filter></ClCompile><ClCompile Include="..\src\lib\liblinear\blas\dnrm2.c"><Filter>..\src\lib\liblinear\blas</Filter></ClCompile><ClCompile Include="..\src\lib\liblinear\blas\dscal.c"><Filter>..\src\lib\liblinear\blas</Filter></ClCompile><ClInclude Include="..\src\lib\liblinear\blas\blasp.h"><Filter>..\src\lib\liblinear\blas</Filter></ClInclude></ItemGroup></Project>
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\src\lib">
+      <UniqueIdentifier>{2739B19F-16DF-601C-060A-FF86F6A40045}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\src\lib\liblinear">
+      <UniqueIdentifier>{B0AEC634-2F64-69F4-4DAE-C71F7A9BD208}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\src\lib\liblinear\blas">
+      <UniqueIdentifier>{DD653FF0-9711-24FA-4784-B8422839B4CB}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="kytea.gyp" />
+    <ClCompile Include="..\src\lib\kytea.cpp">
+      <Filter>..\src\lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\lib\kytea-model.cpp">
+      <Filter>..\src\lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\lib\dictionary.cpp">
+      <Filter>..\src\lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\lib\feature-lookup.cpp">
+      <Filter>..\src\lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\lib\kytea-lm.cpp">
+      <Filter>..\src\lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\lib\corpus-io.cpp">
+      <Filter>..\src\lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\lib\feature-io.cpp">
+      <Filter>..\src\lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\lib\string-util.cpp">
+      <Filter>..\src\lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\lib\model-io.cpp">
+      <Filter>..\src\lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\lib\kytea-config.cpp">
+      <Filter>..\src\lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\lib\liblinear\tron.cpp">
+      <Filter>..\src\lib\liblinear</Filter>
+    </ClCompile>
+    <ClInclude Include="..\src\lib\liblinear\linear.h">
+      <Filter>..\src\lib\liblinear</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\lib\liblinear\tron.h">
+      <Filter>..\src\lib\liblinear</Filter>
+    </ClInclude>
+    <ClCompile Include="..\src\lib\liblinear\linear.cpp">
+      <Filter>..\src\lib\liblinear</Filter>
+    </ClCompile>
+    <ClInclude Include="..\src\lib\liblinear\blas\blas.h">
+      <Filter>..\src\lib\liblinear\blas</Filter>
+    </ClInclude>
+    <ClCompile Include="..\src\lib\liblinear\blas\daxpy.c">
+      <Filter>..\src\lib\liblinear\blas</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\lib\liblinear\blas\ddot.c">
+      <Filter>..\src\lib\liblinear\blas</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\lib\liblinear\blas\dnrm2.c">
+      <Filter>..\src\lib\liblinear\blas</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\lib\liblinear\blas\dscal.c">
+      <Filter>..\src\lib\liblinear\blas</Filter>
+    </ClCompile>
+    <ClInclude Include="..\src\lib\liblinear\blas\blasp.h">
+      <Filter>..\src\lib\liblinear\blas</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\lib\corpus-io-eda.cpp" />
+    <ClCompile Include="..\src\lib\corpus-io-full.cpp" />
+    <ClCompile Include="..\src\lib\corpus-io-part.cpp" />
+    <ClCompile Include="..\src\lib\corpus-io-prob.cpp" />
+    <ClCompile Include="..\src\lib\corpus-io-raw.cpp" />
+    <ClCompile Include="..\src\lib\corpus-io-tokenized.cpp" />
+    <ClCompile Include="..\src\lib\general-io.cpp" />
+    <ClCompile Include="..\src\lib\kytea-string.cpp" />
+    <ClCompile Include="..\src\lib\kytea-struct.cpp" />
+    <ClCompile Include="..\src\lib\kytea-util.cpp" />
+  </ItemGroup>
+</Project>
