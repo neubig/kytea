@@ -1,5 +1,5 @@
 /*
-* Copyright 2009, KyTea Development Team
+* Copyright 2009-2020, KyTea Development Team
 * 
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -33,34 +33,71 @@
 using namespace kytea;
 using namespace std;
 
-CorpusIO * CorpusIO::createIO(const char* file, Format form, const KyteaConfig & conf, bool output, StringUtil* util) {
-    if(form == CORP_FORMAT_FULL)      { return new FullCorpusIO(util,file,output,conf.getWordBound(),conf.getTagBound(),conf.getElemBound(),conf.getEscape()); }
-    else if(form == CORP_FORMAT_TAGS)      { 
-        FullCorpusIO * io = new FullCorpusIO(util,file,output,conf.getWordBound(),conf.getTagBound(),conf.getElemBound(),conf.getEscape());
-        io->setPrintWords(false);
-        return io;
+CorpusIO * CorpusIO::createIO(const char* file, CorpusFormat form, const KyteaConfig & conf, bool output, StringUtil* util) {
+    switch (form) {
+        case CORP_FORMAT_FULL:
+            return new FullCorpusIO(util, file, output, conf.getWordBound(),
+                                    conf.getTagBound(), conf.getElemBound(),
+                                    conf.getEscape());
+        case CORP_FORMAT_TAGS: {
+            FullCorpusIO* io = new FullCorpusIO(
+                util, file, output, conf.getWordBound(), conf.getTagBound(),
+                conf.getElemBound(), conf.getEscape());
+            io->setPrintWords(false);
+            return io;
+        }
+        case CORP_FORMAT_TOK:
+            return new TokenizedCorpusIO(util, file, output,
+                                         conf.getWordBound());
+        case CORP_FORMAT_PART:
+            return new PartCorpusIO(util, file, output, conf.getUnkBound(),
+                                    conf.getSkipBound(), conf.getNoBound(),
+                                    conf.getHasBound(), conf.getTagBound(),
+                                    conf.getElemBound(), conf.getEscape());
+        case CORP_FORMAT_PROB:
+            return new ProbCorpusIO(util, file, output, conf.getWordBound(),
+                                    conf.getTagBound(), conf.getElemBound(),
+                                    conf.getEscape());
+        case CORP_FORMAT_RAW:
+            return new RawCorpusIO(util, file, output);
+        case CORP_FORMAT_EDA:
+            return new EdaCorpusIO(util, file, output);
+        default:
+            THROW_ERROR("Illegal Output Format");
     }
-    else if(form == CORP_FORMAT_TOK)      { return new TokenizedCorpusIO(util,file,output,conf.getWordBound()); }
-    else if(form == CORP_FORMAT_PART) { return new PartCorpusIO(util,file,output,conf.getUnkBound(),conf.getSkipBound(),conf.getNoBound(),conf.getHasBound(),conf.getTagBound(),conf.getElemBound(),conf.getEscape()); }
-    else if(form == CORP_FORMAT_PROB) { return new ProbCorpusIO(util,file,output,conf.getWordBound(),conf.getTagBound(),conf.getElemBound(),conf.getEscape()); }
-    else if(form == CORP_FORMAT_RAW)  { return new RawCorpusIO(util,file,output);  }
-    else if(form == CORP_FORMAT_EDA)  { return new EdaCorpusIO(util,file,output);  }
-    else
-        THROW_ERROR("Illegal Output Format");
 }
 
-CorpusIO * CorpusIO::createIO(iostream & file, Format form, const KyteaConfig & conf, bool output, StringUtil* util) {
-    if(form == CORP_FORMAT_FULL)      { return new FullCorpusIO(util,file,output,conf.getWordBound(),conf.getTagBound(),conf.getElemBound(),conf.getEscape()); }
-    else if(form == CORP_FORMAT_TAGS)      { 
-        FullCorpusIO * io = new FullCorpusIO(util,file,output,conf.getWordBound(),conf.getTagBound(),conf.getElemBound(),conf.getEscape());
-        io->setPrintWords(false);
-        return io;
+CorpusIO * CorpusIO::createIO(iostream & file, CorpusFormat form, const KyteaConfig & conf, bool output, StringUtil* util) {
+    switch (form) {
+        case CORP_FORMAT_FULL:
+            new FullCorpusIO(util, file, output, conf.getWordBound(),
+                             conf.getTagBound(), conf.getElemBound(),
+                             conf.getEscape());
+        case CORP_FORMAT_TAGS: {
+            FullCorpusIO* io = new FullCorpusIO(
+                util, file, output, conf.getWordBound(), conf.getTagBound(),
+                conf.getElemBound(), conf.getEscape());
+            io->setPrintWords(false);
+            return io;
+        }
+        case CORP_FORMAT_TOK:
+            return new TokenizedCorpusIO(util, file, output,
+                                         conf.getWordBound());
+        case CORP_FORMAT_PART:
+            return new PartCorpusIO(util, file, output, conf.getUnkBound(),
+                                    conf.getSkipBound(), conf.getNoBound(),
+                                    conf.getHasBound(), conf.getTagBound(),
+                                    conf.getElemBound(), conf.getEscape());
+
+        case CORP_FORMAT_PROB:
+            return new ProbCorpusIO(util, file, output, conf.getWordBound(),
+                                    conf.getTagBound(), conf.getElemBound(),
+                                    conf.getEscape());
+        case CORP_FORMAT_RAW:
+            return new RawCorpusIO(util, file, output);
+        case CORP_FORMAT_EDA:
+            return new EdaCorpusIO(util, file, output);
+        default:
+            THROW_ERROR("Illegal Output Format");
     }
-    else if(form == CORP_FORMAT_TOK)      { return new TokenizedCorpusIO(util,file,output,conf.getWordBound()); }
-    else if(form == CORP_FORMAT_PART) { return new PartCorpusIO(util,file,output,conf.getUnkBound(),conf.getSkipBound(),conf.getNoBound(),conf.getHasBound(),conf.getTagBound(),conf.getElemBound(),conf.getEscape()); }
-    else if(form == CORP_FORMAT_PROB) { return new ProbCorpusIO(util,file,output,conf.getWordBound(),conf.getTagBound(),conf.getElemBound(),conf.getEscape()); }
-    else if(form == CORP_FORMAT_RAW)  { return new RawCorpusIO(util,file,output);  }
-    else if(form == CORP_FORMAT_EDA)  { return new EdaCorpusIO(util,file,output);  }
-    else 
-        THROW_ERROR("Illegal Output Format");
 }

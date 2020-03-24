@@ -1,5 +1,5 @@
 /*
-* Copyright 2009, KyTea Development Team
+* Copyright 2009-2020, KyTea Development Team
 * 
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ class KyteaConfig;
 
 #include <string>
 #include <vector>
+#include <kytea/corpus-io-format.h>
 
 namespace kytea {
 
@@ -31,9 +32,6 @@ class StringUtil;
 class KyteaConfig {
 
 private:
-
-    // must be the same as CorpusIO::Format, not used directly because of cross-dependencies
-    typedef char CorpForm;
     bool onTraining_;
 
     unsigned debug_;            // the debugging level
@@ -45,7 +43,7 @@ private:
     StringUtil * util_;         // a std::string utility to hold the encoding, etc
 
     std::vector<std::string> corpora_;    // corpora to read for training
-    std::vector<CorpForm> corpusFormats_; // the annotation of each corpus
+    std::vector<CorpusFormat> corpusFormats_; // the annotation of each corpus
     
     std::vector<std::string> dicts_;      // dictionaries to read
 
@@ -55,7 +53,7 @@ private:
     char modelForm_;             // model format (ModelIO::Format)
 
     std::string input_, output_;     // the file to input/output
-    CorpForm inputForm_, outputForm_; // the format/file to input/output to (default: stdout, full)
+    CorpusFormat inputForm_, outputForm_; // the format/file to input/output to (default: stdout, full)
 
     std::string featIn_, featOut_;
     std::ostream* featStr_;
@@ -94,7 +92,7 @@ private:
     std::vector<std::string> args_;
 
     // set the type of the input corpus
-    void setIOFormat(const char* str, CorpForm & cf);
+    void setIOFormat(const char* str, CorpusFormat & cf);
     
     // formatting tags
     std::string wordBound_, tagBound_, elemBound_, unkBound_, noBound_, hasBound_, skipBound_, escape_;
@@ -116,7 +114,7 @@ public:
     KyteaConfig();
     KyteaConfig(const KyteaConfig & rhs);
     ~KyteaConfig();
-    void addCorpus(const std::string & corp, CorpForm format);
+    void addCorpus(const std::string & corp, CorpusFormat format);
     void addDictionary(const std::string & corp);
     void addSubwordDict(const std::string & corp);
 
@@ -137,7 +135,7 @@ public:
 
     // getters
     const std::vector<std::string> & getCorpusFiles() const { return corpora_; }
-    const std::vector<CorpForm> & getCorpusFormats() const { return corpusFormats_; }
+    const std::vector<CorpusFormat> & getCorpusFormats() const { return corpusFormats_; }
     const std::vector<std::string> & getDictionaryFiles() const { return dicts_; }
     const std::vector<std::string> & getSubwordDictFiles() const { return subwordDicts_; }
     const std::string & getModelFile();
@@ -145,8 +143,8 @@ public:
     const unsigned getDebug() const { return debug_; }
     StringUtil * getStringUtil() { return util_; }
     const StringUtil * getStringUtil() const { return util_; }
-    const CorpForm getInputFormat() const { return inputForm_; }
-    const CorpForm getOutputFormat() const { return outputForm_; }
+    const CorpusFormat getInputFormat() const { return inputForm_; }
+    const CorpusFormat getOutputFormat() const { return outputForm_; }
     const std::string & getFeatureIn() const { return featIn_; }
     const std::string & getFeatureOut() const { return featOut_; }
     const bool getWriteFeatures() const { return featOut_.length() > 0; }
@@ -216,7 +214,7 @@ public:
         if(i >= (int)doTag_.size()) doTag_.resize(i+1,true); 
         doTag_[i] = v;
     } 
-    void setInputFormat(CorpForm v) { inputForm_ = v; }
+    void setInputFormat(CorpusFormat v) { inputForm_ = v; }
     void setWordBound(const char* v) { wordBound_ = v; } 
     void setTagBound(const char* v) { tagBound_ = v; } 
     void setElemBound(const char* v) { elemBound_ = v; } 

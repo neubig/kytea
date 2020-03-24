@@ -1,5 +1,6 @@
 nobase_include_HEADERS = kytea/config.h \
 	kytea/corpus-io.h \
+	kytea/corpus-io-format.h \
 	kytea/corpus-io-eda.h \
 	kytea/corpus-io-full.h \
 	kytea/corpus-io-part.h \
