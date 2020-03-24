@@ -25,52 +25,14 @@
 #include <kytea/config.h>
 #include <kytea/kytea-string.h>
 #include <string>
-#include <map>
+#include <unordered_map>
 
-// maps for use with various classes
-#ifdef HAVE_BOOST_TR1_UNORDERED_MAP_HPP
-#   include <boost/tr1/unordered_map.hpp>
-    template <class Key, class T>
-    class GenericMap : public std::tr1::unordered_map<Key,T> { };
-    template <class T>
-    class StringMap : public std::tr1::unordered_map<std::string,T> { };
-    template <class T>
-    class KyteaStringMap : public std::tr1::unordered_map<kytea::KyteaString,T,kytea::KyteaStringHash> { };
-#elif HAVE_TR1_UNORDERED_MAP
-#if _MSC_VER >=1600
-#   include <unordered_map>
-#else
-#   include <tr1/unordered_map>
-#endif
-    template <class Key, class T>
-    class GenericMap : public std::tr1::unordered_map<Key,T> { };
-    template <class T>
-    class StringMap : public std::tr1::unordered_map<std::string,T> { };
-    template <class T>
-    class KyteaStringMap : public std::tr1::unordered_map<kytea::KyteaString,T,kytea::KyteaStringHash> { };
-#elif HAVE_EXT_HASH_MAP
-#   include <ext/hash_map>
-    namespace __gnu_cxx {
-    template <>
-    struct hash<std::string> {
-        size_t operator() (const std::string& x) const { return hash<const char*>()(x.c_str()); }
-    };
-    }
-    template <class Key, class T>
-    class GenericMap : public __gnu_cxx::hash_map<Key,T> { };
-    template <class T>
-    class StringMap : public __gnu_cxx::hash_map<std::string,T> { };
-    template <class T>
-    class KyteaStringMap : public __gnu_cxx::hash_map<kytea::KyteaString,T,kytea::KyteaStringHash> { };
-#else
-#   include <map>
-    template <class Key, class T>
-    class GenericMap : public std::map<Key,T> { };
-    template <class T>
-    class StringMap : public std::map<std::string,T> { };
-    template <class T>
-    class KyteaStringMap : public std::map<kytea::KyteaString,T> { };
-#endif
+template <class Key, class T>
+class GenericMap : public std::unordered_map<Key,T> { };
+template <class T>
+class StringMap : public std::unordered_map<std::string,T> { };
+template <class T>
+class KyteaStringMap : public std::unordered_map<kytea::KyteaString,T,kytea::KyteaStringHash> { };
 
 namespace kytea  {
 

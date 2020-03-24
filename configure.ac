@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.59])
-AC_INIT([kytea], [0.4.7], [kytea@phontron.com])
+AC_INIT([kytea], [0.4.8], [kytea@phontron.com])
 
 # Intialize automake
 AM_INIT_AUTOMAKE([-Wall] [foreign])
@@ -33,7 +33,7 @@ if test -n "${CXXFLAGS}"; then
 fi
 AC_PROG_CXX
 if test X$user_set_cxxflags != Xyes; then
-  CXXFLAGS="-g -Wall -O3"
+  CXXFLAGS="-std=c++14 -g -Wall -O3"
 fi
 if test -n "${CFLAGS}"; then
   user_set_cflags=yes
@@ -60,8 +60,6 @@ AC_HEADER_STDBOOL
 AC_C_INLINE
 AC_TYPE_SIZE_T
 
-# Check to make sure that we have unordered_map
 AC_LANG([C++])
-AC_CHECK_HEADERS([boost/tr1/unordered_map.hpp tr1/unordered_map ext/hash_map], break)
 
 AC_OUTPUT

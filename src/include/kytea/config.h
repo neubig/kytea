@@ -4,14 +4,8 @@
 /* Enable quantizing */
 #define DISABLE_QUANTIZE 0
 
-/* Define to 1 if you have the <boost/tr1/unordered_map.hpp> header file. */
-/* #undef HAVE_BOOST_TR1_UNORDERED_MAP_HPP */
-
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #define HAVE_DLFCN_H 1
-
-/* Define to 1 if you have the <ext/hash_map> header file. */
-/* #undef HAVE_EXT_HASH_MAP */
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #define HAVE_INTTYPES_H 1
@@ -40,17 +34,13 @@
 /* Define to 1 if you have the <sys/types.h> header file. */
 #define HAVE_SYS_TYPES_H 1
 
-/* Define to 1 if you have the <tr1/unordered_map> header file. */
-/* #undef HAVE_TR1_UNORDERED_MAP */
-
 /* Define to 1 if you have the <unistd.h> header file. */
 #define HAVE_UNISTD_H 1
 
 /* Define to 1 if the system has the type `_Bool'. */
 #define HAVE__BOOL 1
 
-/* Define to the sub-directory in which libtool stores uninstalled libraries.
-   */
+/* Define to the sub-directory where libtool stores uninstalled libraries. */
 #define LT_OBJDIR ".libs/"
 
 /* Name of package */
@@ -63,7 +53,7 @@
 #define PACKAGE_NAME "kytea"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "kytea 0.4.6"
+#define PACKAGE_STRING "kytea 0.4.8"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "kytea"
@@ -72,13 +62,13 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "0.4.6"
+#define PACKAGE_VERSION "0.4.8"
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
 
 /* Version number of package */
-#define VERSION "0.4.6"
+#define VERSION "0.4.8"
 
 /* Define to `__inline__' or `__inline' if that's what the C compiler
    calls it, or to nothing if 'inline' is not supported under any name.  */
