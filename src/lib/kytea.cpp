@@ -1,5 +1,5 @@
 /*
-* Copyright 2009, KyTea Development Team
+* Copyright 2009-2020, KyTea Development Team
 * 
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -136,7 +136,7 @@ void Kytea::buildVocabulary() {
     
     // scan the corpora
     vector<string> corpora = config_->getCorpusFiles();
-    vector<CorpusIO::Format> corpForm = config_->getCorpusFormats();
+    vector<CorpusFormat> corpForm = config_->getCorpusFormats();
     int maxTag = config_->getNumTags();
     for(unsigned i = 0; i < corpora.size(); i++) {
         if(config_->getDebug() > 0)

@@ -1,5 +1,5 @@
 /*
-* Copyright 2009, KyTea Development Team
+* Copyright 2009-2020, KyTea Development Team
 * 
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ using namespace kytea;
 using namespace std;
 
 // set the type of the input corpus
-void KyteaConfig::setIOFormat(const char* str, CorpForm & cf) {
+void KyteaConfig::setIOFormat(const char* str, CorpusFormat & cf) {
     if(!strcmp(str, "full"))      { cf = CORP_FORMAT_FULL; }
     else if(!strcmp(str, "tags"))  { cf = CORP_FORMAT_TAGS; }
     else if(!strcmp(str, "tok"))  { cf = CORP_FORMAT_TOK; }
@@ -333,7 +333,7 @@ KyteaConfig::~KyteaConfig() {
         delete util_;
 }
 
-void KyteaConfig::addCorpus(const std::string & corp, CorpForm format) {
+void KyteaConfig::addCorpus(const std::string & corp, CorpusFormat format) {
     corpora_.push_back(corp);
     corpusFormats_.push_back(format);
 }

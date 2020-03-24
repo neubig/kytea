@@ -1,5 +1,5 @@
 /*
-* Copyright 2009, KyTea Development Team
+* Copyright 2009-2020, KyTea Development Team
 * 
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,24 +15,11 @@
 */
 
 #ifndef CORPUS_IO_H__ 
-#define CORPUS_IO_H__ 
+#define CORPUS_IO_H__
 
-namespace kytea {
-class CorpusIO;
-const static char CORP_FORMAT_RAW  = 0;
-const static char CORP_FORMAT_FULL = 1;
-const static char CORP_FORMAT_PART = 2;
-const static char CORP_FORMAT_PROB = 3;
-const static char CORP_FORMAT_TOK = 4;
-const static char CORP_FORMAT_DEFAULT = 5;
-const static char CORP_FORMAT_EDA = 6;
-const static char CORP_FORMAT_TAGS = 7;
-}
-
+#include <kytea/corpus-io-format.h>
 #include <kytea/general-io.h>
 #include <vector>
-// #include <kytea/kytea-struct.h>
-// #include <kytea/kytea-config.h>
 
 namespace kytea {
 
@@ -51,8 +38,6 @@ protected:
 
 public:
 
-    typedef char Format;
-
     CorpusIO(StringUtil * util) : GeneralIO(util), unkTag_(), numTags_(0), doTag_() { }
     CorpusIO(StringUtil * util, const char* file, bool out) : GeneralIO(util,file,out,false), numTags_(0), doTag_() { } 
     CorpusIO(StringUtil * util, std::iostream & str, bool out) : GeneralIO(util,str,out,false), numTags_(0), doTag_() { }
@@ -68,8 +53,8 @@ public:
     virtual ~CorpusIO() { }
 
     // create an appropriate parser based on the type
-    static CorpusIO* createIO(const char* file, Format form, const KyteaConfig & conf, bool output, StringUtil* util);
-    static CorpusIO* createIO(std::iostream & str, Format form, const KyteaConfig & conf, bool output, StringUtil* util);
+    static CorpusIO* createIO(const char* file, CorpusFormat form, const KyteaConfig & conf, bool output, StringUtil* util);
+    static CorpusIO* createIO(std::iostream & str, CorpusFormat form, const KyteaConfig & conf, bool output, StringUtil* util);
 
     virtual KyteaSentence * readSentence() = 0;
     virtual void writeSentence(const KyteaSentence * sent, double conf = 0.0) = 0;
