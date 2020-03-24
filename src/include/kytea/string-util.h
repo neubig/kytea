@@ -124,10 +124,17 @@ public:
 class StringUtilUtf8 : public StringUtil {
 
 private:
-    
-    const static char maskr6 = 63, maskr5 = 31, maskr4 = 15, maskr3 = 7,
-                      maskl1 = 1 << 7, maskl2 = 3 << 6, maskl3 = 7 << 5, 
-                      maskl4 = 15 << 4, maskl5 = 31 << 3;
+    enum {
+        maskr3 = 0x7,
+        maskr4 = 0xf,
+        maskr5 = 0x1f,
+        maskr6 = 0x3f,
+        maskl1 = 0x80,
+        maskl2 = 0xc0,
+        maskl3 = 0xe0,
+        maskl4 = 0xf0,
+        maskl5 = 0xf8,
+    };
 
     // variables
     StringCharMap charIds_;
@@ -166,10 +173,10 @@ public:
 };
 
 class StringUtilEuc : public StringUtil {
-
-const static char maskl1 = 1 << 7;
-const static KyteaChar mask3len = 1 << 14;
-    
+    enum {
+        maskl1 = 0x80,
+        mask3len = 0x4000,
+    };
 
 public:
     StringUtilEuc() { };
@@ -198,10 +205,10 @@ public:
 };
 
 class StringUtilSjis : public StringUtil {
-
-const static char maskl1 = 1 << 7;
-const static KyteaChar mask3len = 1 << 14;
-    
+    enum {
+        maskl1 = 0x80,
+        mask3len = 0x4000,
+    };
 
 public:
     StringUtilSjis() { };

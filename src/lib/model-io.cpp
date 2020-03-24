@@ -577,7 +577,7 @@ void BinaryModelIO::readConfig(KyteaConfig & config) {
     config.setTypeWindow(readBinary<char>());
     config.setTypeN(readBinary<char>());
     config.setDictionaryN(readBinary<char>());
-    config.setBias(readBinary<bool>()?1.0:-1.0);
+    config.setBias(readBinary<bool>());
     config.setEpsilon(readBinary<double>());
     config.setSolverType(readBinary<char>());
      
