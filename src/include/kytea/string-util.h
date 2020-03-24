@@ -141,27 +141,27 @@ public:
     ~StringUtilUtf8() { }
     
     // map a std::string to a character
-    KyteaChar mapChar(const std::string & str, bool add = true);
-    std::string showChar(KyteaChar c) const;
+    KyteaChar mapChar(const std::string & str, bool add = true) override;
+    std::string showChar(KyteaChar c) const override;
 
-    CharType findType(KyteaChar c) const;
+    CharType findType(KyteaChar c) const override;
 
-    GenericMap<KyteaChar,KyteaChar> * getNormMap();
+    GenericMap<KyteaChar,KyteaChar> * getNormMap() override;
 
     bool badu(char val) const { return ((val ^ maskl1) & maskl2); }
-    KyteaString mapString(const std::string & str);
+    KyteaString mapString(const std::string & str) override;
 
     // find the type of a unicode character
-    CharType findType(const std::string & str);
+    CharType findType(const std::string & str) override;
 
-    Encoding getEncoding() const { return ENCODING_UTF8; }
-    const char* getEncodingString() const { return "utf8"; }
+    Encoding getEncoding() const override { return ENCODING_UTF8; }
+    const char* getEncodingString() const override { return "utf8"; }
 
     const std::vector<std::string> & getCharNames() const { return charNames_; }
 
     // transform to or from a character std::string
-    void unserialize(const std::string & str);
-    std::string serialize() const;
+    void unserialize(const std::string & str) override;
+    std::string serialize() const override;
 
 };
 
@@ -175,25 +175,25 @@ public:
     StringUtilEuc() { };
     ~StringUtilEuc() { }
 
-    KyteaChar mapChar(const std::string & str, bool add = true);
-    std::string showChar(KyteaChar c) const;
+    KyteaChar mapChar(const std::string & str, bool add = true) override;
+    std::string showChar(KyteaChar c) const override;
     
-    GenericMap<KyteaChar,KyteaChar> * getNormMap();
+    GenericMap<KyteaChar,KyteaChar> * getNormMap() override;
 
     // map an unparsed std::string to a KyteaString
-    KyteaString mapString(const std::string & str);
+    KyteaString mapString(const std::string & str) override;
 
     // get the type of a character
-    CharType findType(const std::string & str);
-    CharType findType(KyteaChar c) const;
+    CharType findType(const std::string & str) override;
+    CharType findType(KyteaChar c) const override;
 
     // return the encoding provided by this util
-    Encoding getEncoding() const;
-    const char* getEncodingString() const;
+    Encoding getEncoding() const override;
+    const char* getEncodingString() const override;
     
     // transform to or from a character std::string
-    void unserialize(const std::string & str);
-    std::string serialize() const;
+    void unserialize(const std::string & str) override;
+    std::string serialize() const override;
 
 };
 
@@ -207,25 +207,25 @@ public:
     StringUtilSjis() { };
     ~StringUtilSjis() { }
 
-    KyteaChar mapChar(const std::string & str, bool add = true);
-    GenericMap<KyteaChar,KyteaChar> * getNormMap();
+    KyteaChar mapChar(const std::string & str, bool add = true) override;
+    GenericMap<KyteaChar,KyteaChar> * getNormMap() override;
 
-    std::string showChar(KyteaChar c) const;
+    std::string showChar(KyteaChar c) const override;
     
     // map an unparsed std::string to a KyteaString
-    KyteaString mapString(const std::string & str);
+    KyteaString mapString(const std::string & str) override;
 
     // get the type of a character
-    CharType findType(const std::string & str);
-    CharType findType(KyteaChar c) const;
+    CharType findType(const std::string & str) override;
+    CharType findType(KyteaChar c) const override;
 
     // return the encoding provided by this util
-    Encoding getEncoding() const;
-    const char* getEncodingString() const;
+    Encoding getEncoding() const override;
+    const char* getEncodingString() const override;
     
     // transform to or from a character std::string
-    void unserialize(const std::string & str);
-    std::string serialize() const;
+    void unserialize(const std::string & str) override;
+    std::string serialize() const override;
 
 };
 

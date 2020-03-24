@@ -65,7 +65,7 @@ public:
     ModelTagEntry(const KyteaString & str) : TagEntry(str) { }
     ~ModelTagEntry();
 
-    void setNumTags(int i) {
+    void setNumTags(int i) override {
         TagEntry::setNumTags(i);
         tagMods.resize(i,0);
     }
@@ -81,7 +81,7 @@ public:
     
     double incrementProb(const KyteaString & str, int lev);
 
-    void setNumTags(int i) {
+    void setNumTags(int i) override {
         TagEntry::setNumTags(i);
         probs.resize(i);
     }
