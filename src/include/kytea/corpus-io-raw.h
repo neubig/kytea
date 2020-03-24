@@ -13,8 +13,8 @@ public:
     RawCorpusIO(StringUtil * util, const char* file, bool out) : CorpusIO(util,file,out) { } 
     RawCorpusIO(StringUtil * util, std::iostream & str, bool out) : CorpusIO(util,str,out) { }
 
-    KyteaSentence * readSentence();
-    void writeSentence(const KyteaSentence * sent, double conf = 0.0);
+    KyteaSentence * readSentence() override;
+    void writeSentence(const KyteaSentence * sent, double conf = 0.0) override;
 
 };
 

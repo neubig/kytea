@@ -18,15 +18,15 @@ public:
 
     // writing functions
 
-    void writeConfig(const KyteaConfig & conf);
-    void writeModel(const KyteaModel * mod);
-    void writeWordList(const std::vector<KyteaString> & list);
-    void writeModelDictionary(const Dictionary<ModelTagEntry> * dict) { writeDictionary(dict); }
-    void writeProbDictionary(const Dictionary<ProbTagEntry> * dict) { writeDictionary(dict); }
-    void writeVectorDictionary(const Dictionary<FeatVec > * dict) { writeDictionary(dict); }
-    void writeLM(const KyteaLM * mod);
-    void writeFeatVec(const FeatVec * vec);
-    void writeFeatureLookup(const FeatureLookup * featLookup);
+    void writeConfig(const KyteaConfig & conf) override;
+    void writeModel(const KyteaModel * mod) override;
+    void writeWordList(const std::vector<KyteaString> & list) override;
+    void writeModelDictionary(const Dictionary<ModelTagEntry> * dict) override { writeDictionary(dict); }
+    void writeProbDictionary(const Dictionary<ProbTagEntry> * dict) override { writeDictionary(dict); }
+    void writeVectorDictionary(const Dictionary<FeatVec > * dict) override { writeDictionary(dict); }
+    void writeLM(const KyteaLM * mod) override;
+    void writeFeatVec(const FeatVec * vec) override;
+    void writeFeatureLookup(const FeatureLookup * featLookup) override;
 
     template <class Entry>
     void writeEntry(const Entry * entry);
@@ -66,15 +66,15 @@ public:
     static CorpusIO* createIO(const char* file, Format form, bool output, StringUtil* util);
     static CorpusIO* createIO(std::iostream & str, Format form, bool output, StringUtil* util);
 
-    void readConfig(KyteaConfig & conf);
-    KyteaModel * readModel();
-    std::vector<KyteaString> readWordList();
-    Dictionary<ModelTagEntry> * readModelDictionary() { return readDictionary<ModelTagEntry>(); }
-    Dictionary<ProbTagEntry> * readProbDictionary()  { return readDictionary<ProbTagEntry>(); }
-    Dictionary<FeatVec > * readVectorDictionary()  { return readDictionary<FeatVec >(); }
-    KyteaLM * readLM();
-    FeatVec * readFeatVec();
-    FeatureLookup * readFeatureLookup();
+    void readConfig(KyteaConfig & conf) override;
+    KyteaModel * readModel() override;
+    std::vector<KyteaString> readWordList() override;
+    Dictionary<ModelTagEntry> * readModelDictionary() override { return readDictionary<ModelTagEntry>(); }
+    Dictionary<ProbTagEntry> * readProbDictionary() override { return readDictionary<ProbTagEntry>(); }
+    Dictionary<FeatVec > * readVectorDictionary() override { return readDictionary<FeatVec >(); }
+    KyteaLM * readLM() override;
+    FeatVec * readFeatVec() override;
+    FeatureLookup * readFeatureLookup() override;
 
     template <class Entry>
     Entry * readEntry();
