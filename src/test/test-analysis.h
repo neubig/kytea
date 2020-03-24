@@ -316,12 +316,11 @@ public:
         stringstream instr;
         instr << "こ|れ-は デ ー タ で-す 。" << endl;
         PartCorpusIO io(util, instr, false);
-        KyteaSentence * sent = io.readSentence();
+        std::unique_ptr<KyteaSentence> sent = io.readSentence();
         kytea->calculateWS(*sent);
         // Make the correct words
         KyteaString::Tokens toks = util->mapString("こ れは データ です 。").tokenize(util->mapString(" "));
         int ok = checkWordSeg(*sent,toks,util);
-        delete sent;
         return ok;
     }
 
@@ -331,13 +330,13 @@ public:
         stringstream instr;
         instr << confident_text;
         FullCorpusIO infcio(util, instr, false);
-        KyteaSentence * sent = infcio.readSentence();
+        std::unique_ptr<KyteaSentence> sent = infcio.readSentence();
         // Calculate the WS
         kytea->calculateWS(*sent);
         // Write out the sentence
         stringstream outstr1;
         FullCorpusIO outfcio1(util, outstr1, true);
-        outfcio1.writeSentence(sent);
+        outfcio1.writeSentence(sent.get());
         string actual_text = outstr1.str();
         if(actual_text != confident_text) {
             cout << "WS: actual_text != confident_text"<<endl<<" "<<actual_text<<endl<<" "<<confident_text<<endl;
@@ -349,9 +348,8 @@ public:
         // Write out the sentence
         stringstream outstr2;
         FullCorpusIO outfcio2(util, outstr2, true);
-        outfcio2.writeSentence(sent);
+        outfcio2.writeSentence(sent.get());
         actual_text = outstr2.str();
-        delete sent;
         if(actual_text != confident_text) {
             cout << "Tag: actual_text != confident_text"<<endl<<" "<<actual_text<<endl<<" "<<confident_text<<endl;
             return 0;

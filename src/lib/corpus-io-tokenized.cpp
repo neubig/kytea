@@ -12,7 +12,7 @@
 using namespace kytea;
 using namespace std;
 
-KyteaSentence * TokenizedCorpusIO::readSentence() {
+std::unique_ptr<KyteaSentence> TokenizedCorpusIO::readSentence() {
 #ifdef KYTEA_SAFE
     if(out_ || !str_) 
         THROW_ERROR("Attempted to read a sentence from an closed or output object");
@@ -20,12 +20,12 @@ KyteaSentence * TokenizedCorpusIO::readSentence() {
     string s;
     getline(*str_, s);
     if(str_->eof())
-        return 0;
+        return nullptr;
 
     KyteaChar spaceChar = bounds_[0];
     KyteaString ks = util_->mapString(s), buff(ks.length());
     int len = ks.length();
-    KyteaSentence * ret = new KyteaSentence();
+    auto ret = std::make_unique<KyteaSentence>();
     int charLen = 0;
 
     // go through the whole string

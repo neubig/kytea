@@ -20,7 +20,7 @@ public:
     TokenizedCorpusIO(StringUtil * util, const char* file, bool out, const char* wordBound = " ");
     TokenizedCorpusIO(StringUtil * util, std::iostream & str, bool out, const char* wordBound = " ");
     
-    KyteaSentence * readSentence() override;
+    std::unique_ptr<KyteaSentence> readSentence() override;
     void writeSentence(const KyteaSentence * sent, double conf = 0.0) override;
 
 };

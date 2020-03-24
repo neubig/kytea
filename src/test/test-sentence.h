@@ -26,7 +26,7 @@ public:
         stringstream instr;
         instr << "これ は データ/名詞 で/助動詞 す/語尾 。" << endl;
         FullCorpusIO io(util, instr, false);
-        KyteaSentence * sent = io.readSentence();
+        std::unique_ptr<KyteaSentence> sent = io.readSentence();
         // Refresh the word segmentation
         sent->wsConfs[6] = -100;
         sent->refreshWS(1);
@@ -35,7 +35,6 @@ public:
         KyteaString::Tokens tags = util->mapString("NONE NONE 名詞 NONE NONE").tokenize(util->mapString(" "));
         bool wordsOK = checkWordSeg(*sent,words,util); 
         bool tagsOK = checkTags(*sent,tags,0,util); 
-        delete sent;
         return wordsOK && tagsOK;
     }
 

@@ -94,7 +94,7 @@ void Kytea::scanDictionaries(const vector<string> & dict, typename Dictionary<En
             cerr << "Reading dictionary from " << *it << " ";
         CorpusIO * io = CorpusIO::createIO(it->c_str(), CORP_FORMAT_FULL, *config, false, util);
         io->setNumTags(config_->getNumTags());
-        KyteaSentence* next;
+        std::unique_ptr<KyteaSentence> next;
         int lines = 0;
         while((next = io->readSentence())) {
             lines++;
@@ -114,7 +114,6 @@ void Kytea::scanDictionaries(const vector<string> & dict, typename Dictionary<En
                     addTag<Entry>(wordMap, word, i, &next->words[0].getTagSurf(i), (saveIds?numDicts:-1));
             if(next->words[0].getNumTags() == 0)
                 addTag<Entry>(wordMap, word, 0, 0, (saveIds?numDicts:-1));
-            delete next;
         }
         delete io;
         numDicts++;
@@ -143,7 +142,7 @@ void Kytea::buildVocabulary() {
             cerr << "Reading corpus from " << corpora[i] << " ";
         CorpusIO * io = CorpusIO::createIO(corpora[i].c_str(), corpForm[i], *config_, false, util_);
         io->setNumTags(config_->getNumTags());
-        KyteaSentence* next;
+        std::unique_ptr<KyteaSentence> next;
         int lines = 0;
         while((next = io->readSentence())) {
             lines++;
@@ -164,9 +163,7 @@ void Kytea::buildVocabulary() {
             for(unsigned i = 0; !toAdd && i < wsSize; i++)
                 toAdd = (next->wsConfs[i] != 0);
             if(toAdd)
-                sentences_.push_back(next);
-            else
-                delete next;
+                sentences_.push_back(std::move(next));
         }
         if(config_->getDebug() > 0) {
             if(lines)
@@ -323,10 +320,9 @@ void Kytea::trainWS() {
     unsigned scount = 0;
     vector< vector<unsigned> > & xs = trip->first;
     vector<int> & ys = trip->second;
-    for(Sentences::const_iterator it = sentences_.begin(); it != sentences_.end(); it++) {
+    for(const auto& sent : sentences_) {
         if(++scount % 1000 == 0)
             cerr << ".";
-        KyteaSentence * sent = *it;
         SentenceFeatures feats(sent->wsConfs.size());
         unsigned fts = 0;
         if(hasDictionary)
@@ -422,13 +418,13 @@ void Kytea::trainGlobalTags(int lev) {
     KyteaString kssx = util_->mapString("SX"), ksst = util_->mapString("ST");
     
     // build features
-    for(Sentences::const_iterator it = sentences_.begin(); it != sentences_.end(); it++) {
+    for(const auto& sent : sentences_) {
         int startPos = 0, finPos=0;
-        KyteaString charStr = (*it)->norm;
+        KyteaString charStr = sent->norm;
         KyteaString typeStr = util_->mapString(util_->getTypeString(charStr));
-        for(unsigned j = 0; j < (*it)->words.size(); j++) {
+        for(unsigned j = 0; j < sent->words.size(); j++) {
             startPos = finPos;
-            KyteaWord & word = (*it)->words[j];
+            KyteaWord & word = sent->words[j];
             finPos = startPos+word.norm.length();
             if(!word.getTag(lev) || word.getTagConf(lev) <= config_->getConfidence())
                 continue;
@@ -502,13 +498,13 @@ void Kytea::trainLocalTags(int lev) {
         }
     }
     // build features
-    for(Sentences::const_iterator it = sentences_.begin(); it != sentences_.end(); it++) {
+    for(const auto& sent : sentences_) {
         int startPos = 0, finPos=0;
-        KyteaString charStr = (*it)->norm;
+        KyteaString charStr = sent->norm;
         KyteaString typeStr = util_->mapString(util_->getTypeString(charStr));
-        for(unsigned j = 0; j < (*it)->words.size(); j++) {
+        for(unsigned j = 0; j < sent->words.size(); j++) {
             startPos = finPos;
-            KyteaWord & word = (*it)->words[j];
+            KyteaWord & word = sent->words[j];
             finPos = startPos+word.norm.length();
             if(!word.getTag(lev) || word.getTagConf(lev) <= config_->getConfidence())
                 continue;
@@ -1206,16 +1202,15 @@ void Kytea::analyze() {
     for(int i = 0; i < config_->getNumTags(); i++)
         out->setDoTag(i,config_->getDoTag(i));
 
-    KyteaSentence* next;
-    while((next = in->readSentence()) != 0) {
+    std::unique_ptr<KyteaSentence> next;
+    while((next = in->readSentence())) {
         if(config_->getDoWS())
             calculateWS(*next);
         if(config_->getDoTags())
             for(int i = 0; i < config_->getNumTags(); i++)
                 if(config_->getDoTag(i))
                     calculateTags(*next, i);
-        out->writeSentence(next);
-        delete next;
+        out->writeSentence(next.get());
     }
 
     delete in;
@@ -1252,9 +1247,6 @@ Kytea::~Kytea() {
     }
     for(int i = 0; i < (int)globalMods_.size(); i++)
         if(globalMods_[i] != 0) delete globalMods_[i];
-    for(Sentences::iterator it = sentences_.begin(); it != sentences_.end(); it++)
-        delete *it;
-    
 }
 void Kytea::init() { 
     util_ = config_->getStringUtil();

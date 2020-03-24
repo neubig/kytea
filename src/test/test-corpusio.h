@@ -27,13 +27,11 @@ public:
         stringstream instr;
         instr << "こ|れ-は デ ー タ で-す 。" << endl;
         PartCorpusIO io(util, instr, false);
-        KyteaSentence * sent = io.readSentence();
+        std::unique_ptr<KyteaSentence> sent = io.readSentence();
         // Build the expectations
         vector<double> exp(8,0.0);
         exp[0] = 100; exp[1] = -100; exp[6] = -100;
-        bool ret = checkVector(exp, sent->wsConfs); 
-        delete sent;
-        return ret;
+        return checkVector(exp, sent->wsConfs);
     }
 
     int testPartEmptyLines() {
@@ -41,36 +39,30 @@ public:
         stringstream instr;
         instr << "" << endl;
         PartCorpusIO io(util, instr, false);
-        KyteaSentence * sent = io.readSentence();
+        std::unique_ptr<KyteaSentence> sent = io.readSentence();
         // Build the expectations
         vector<double> exp(0,0.0);
-        bool ret = checkVector(exp, sent->wsConfs); 
-        delete sent;
-        return ret;
+        return checkVector(exp, sent->wsConfs);
     }
 
     int testTokReadSentence() {
         stringstream instr;
         instr << "これ は 学習 データ で す 。" << endl;
         TokenizedCorpusIO io(util, instr, false);
-        KyteaSentence * sent = io.readSentence();
+        std::unique_ptr<KyteaSentence> sent = io.readSentence();
         // Make the correct words
         KyteaString::Tokens toks = util->mapString("これ は 学習 データ で す 。").tokenize(util->mapString(" "));
-        const int ret = checkWordSeg(*sent,toks,util);
-        delete sent;
-        return ret;
+        return checkWordSeg(*sent,toks,util);
     }
 
     int testRawReadSlash() {
         stringstream instr;
         instr << "右/左" << endl;
         RawCorpusIO io(util, instr, false);
-        KyteaSentence * sent = io.readSentence();
+        std::unique_ptr<KyteaSentence> sent = io.readSentence();
         // Make the correct words
         KyteaString exp = util->mapString("右/左");
-        const int ret = exp == sent->surface;
-        delete sent;
-        return ret;
+        return exp == sent->surface;
     }
 
     int testPartEmptyTag() {
@@ -78,7 +70,7 @@ public:
         stringstream instr;
         instr << "リ-リ-カ-ル//りりかる|な-の-は//なのは|を 中 心 に 、" << endl;
         PartCorpusIO io(util, instr, false);
-        KyteaSentence * sent = io.readSentence();
+        std::unique_ptr<KyteaSentence> sent = io.readSentence();
         int ret = 1;
         if(sent->words.size() != 3) {
             cerr << "Sentence size " << sent->words.size() << " != 3" << endl;
@@ -92,7 +84,6 @@ public:
             cerr << "Words[1] tags " << sent->words[1].tags.size() << " != 2" << endl;
             ret = 0;
         }
-        delete sent;
         return ret;
     }
 
@@ -101,13 +92,12 @@ public:
         stringstream instr, outstr;
         instr << "こ-れ/名詞 は/助詞 データ/名詞 で/助動詞 す/語尾 。/補助記号" << endl;
         FullCorpusIO ioin(util, instr, false);
-        KyteaSentence * sent = ioin.readSentence();
+        std::unique_ptr<KyteaSentence> sent = ioin.readSentence();
         FullCorpusIO ioout(util, outstr, true);
         ioout.setPrintWords(false);
-        ioout.writeSentence(sent);
+        ioout.writeSentence(sent.get());
         string exp = "名詞 助詞 名詞 助動詞 語尾 補助記号\n";
         string act = outstr.str();
-        delete sent;
         if(exp != act) {
             cerr << exp << endl << act << endl;
             return 0;
@@ -121,7 +111,7 @@ public:
         stringstream instr;
         instr << "こ-れ/名詞 は/助詞 データ/名詞 で/助動詞 す/語尾 。/補助記号" << endl;
         FullCorpusIO io(util, instr, false);
-        KyteaSentence * sent = io.readSentence();
+        std::unique_ptr<KyteaSentence> sent = io.readSentence();
         // Build the expectations
         if(sent->words.size() != 6)
             THROW_ERROR("sent->words size doesn't match 5 " << sent->words.size());
@@ -132,7 +122,6 @@ public:
                 ret = false;
             }
         }
-        delete sent;
         return ret;
     }
 
@@ -142,7 +131,7 @@ public:
         stringstream instr;
         instr << confident_text;
         FullCorpusIO infcio(util, instr, false);
-        KyteaSentence * sent = infcio.readSentence();
+        std::unique_ptr<KyteaSentence> sent = infcio.readSentence();
         int ret = 1;
         if(sent->words.size() != 11) {
             cerr << "Did not get expected sentence size of 11: " << sent->words.size() << endl;
@@ -151,7 +140,6 @@ public:
             cerr << "Did not get two levels of tags for final word: " << sent->words[10].tags.size() << endl;
             ret = 0;
         }
-        delete sent;
         return ret;
     }
     
@@ -161,15 +149,14 @@ public:
         stringstream instr;
         instr << input;
         FullCorpusIO infcio(util, instr, false);
-        KyteaSentence * sent = infcio.readSentence();
+        std::unique_ptr<KyteaSentence> sent = infcio.readSentence();
         sent->words[2].setUnknown(true);
         string exp = "これ/代名詞/これ は/助詞/は 未知/名詞/みち/UNK\n";
         stringstream outstr;
         FullCorpusIO outfcio(util, outstr, true);
         outfcio.setUnkTag("/UNK");
-        outfcio.writeSentence(sent);
+        outfcio.writeSentence(sent.get());
         string act = outstr.str();
-        delete sent;
         if(exp != act) {
             cerr << "exp: "<<exp<<endl<<"act: "<<act<<endl;
             return 0;

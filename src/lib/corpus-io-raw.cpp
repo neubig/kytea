@@ -11,7 +11,7 @@
 using namespace kytea;
 using namespace std;
 
-KyteaSentence * RawCorpusIO::readSentence() {
+std::unique_ptr<KyteaSentence> RawCorpusIO::readSentence() {
 #ifdef KYTEA_SAFE
     if(out_ || !str_) 
         THROW_ERROR("Attempted to read a sentence from an closed or output object");
@@ -19,8 +19,8 @@ KyteaSentence * RawCorpusIO::readSentence() {
     string s;
     getline(*str_, s);
     if(str_->eof())
-        return 0;
-    KyteaSentence * ret = new KyteaSentence();
+        return nullptr;
+    auto ret = std::make_unique<KyteaSentence>();
     ret->surface = util_->mapString(s);
     ret->norm = util_->normalize(ret->surface);
     if(ret->surface.length() != 0)

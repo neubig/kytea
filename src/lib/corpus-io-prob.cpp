@@ -13,14 +13,14 @@
 using namespace kytea;
 using namespace std;
 
-KyteaSentence * ProbCorpusIO::readSentence() {
+std::unique_ptr<KyteaSentence> ProbCorpusIO::readSentence() {
 #ifdef KYTEA_SAFE
     if(out_ || !str_) 
         THROW_ERROR("Attempted to read a sentence from an closed or output object");
 #endif
-    KyteaSentence* ret = FullCorpusIO::readSentence();
-    if(ret == 0)
-        return 0;
+    std::unique_ptr<KyteaSentence> ret = FullCorpusIO::readSentence();
+    if (!ret)
+        return nullptr;
     // get the ws confidences
     string s;
     getline(*str_, s);

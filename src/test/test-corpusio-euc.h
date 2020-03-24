@@ -28,13 +28,11 @@ public:
         // instr << "こ|れ-は デ ー タ で-す 。" << endl;
         instr << "\xa4\xb3\x7c\xa4\xec\x2d\xa4\xcf\x20\xa5\xc7\x20\xa1\xbc\x20\xa5\xbf\x20\xa4\xc7\x2d\xa4\xb9\x20\xa1\xa3" << endl;
         PartCorpusIO io(util, instr, false);
-        KyteaSentence * sent = io.readSentence();
+        std::unique_ptr<KyteaSentence> sent = io.readSentence();
         // Build the expectations
         vector<double> exp(8,0.0);
         exp[0] = 100; exp[1] = -100; exp[6] = -100;
-        bool ret = checkVector(exp, sent->wsConfs); 
-        delete sent;
-        return ret;
+        return checkVector(exp, sent->wsConfs);
     }
 
     int testPartEmptyLines() {
@@ -42,12 +40,10 @@ public:
         stringstream instr;
         instr << "" << endl;
         PartCorpusIO io(util, instr, false);
-        KyteaSentence * sent = io.readSentence();
+        std::unique_ptr<KyteaSentence> sent = io.readSentence();
         // Build the expectations
         vector<double> exp(0,0.0);
-        bool ret = checkVector(exp, sent->wsConfs); 
-        delete sent;
-        return ret;
+        return checkVector(exp, sent->wsConfs);
     }
 
     int testPartEmptyTag() {
@@ -56,13 +52,12 @@ public:
         // instr << "こ-れ//これ" << endl;
         instr << "\xa4\xb3\x2d\xa4\xec\x2f\x2f\xa4\xb3\xa4\xec" << endl;
         PartCorpusIO io(util, instr, false);
-        KyteaSentence * sent = io.readSentence();
+        std::unique_ptr<KyteaSentence> sent = io.readSentence();
         int ret = 1;
         if(sent->words.size() != 1) {
             cerr << "Sentence size " << sent->words.size() << " != 1" << endl;
             ret = 0;
         }
-        delete sent;
         return ret;
     }
 
@@ -72,7 +67,7 @@ public:
         // instr << "こ-れ/名詞 は/助詞 データ/名詞 で/助動詞 す/語尾 。/補助記号" << endl;
         instr << "\xa4\xb3\x2d\xa4\xec\x2f\xcc\xbe\xbb\xec\x20\xa4\xcf\x2f\xbd\xf5\xbb\xec\x20\xa5\xc7\xa1\xbc\xa5\xbf\x2f\xcc\xbe\xbb\xec\x20\xa4\xc7\x2f\xbd\xf5\xc6\xb0\xbb\xec\x20\xa4\xb9\x2f\xb8\xec\xc8\xf8\x20\xa1\xa3\x2f\xca\xe4\xbd\xf5\xb5\xad\xb9\xe6" << endl;
         FullCorpusIO io(util, instr, false);
-        KyteaSentence * sent = io.readSentence();
+        std::unique_ptr<KyteaSentence> sent = io.readSentence();
         // Build the expectations
         if(sent->words.size() != 6)
             THROW_ERROR("sent->words size doesn't match 5 " << sent->words.size());
@@ -83,7 +78,6 @@ public:
                 ret = false;
             }
         }
-        delete sent;
         return ret;
     }
 
@@ -94,7 +88,7 @@ public:
         stringstream instr;
         instr << confident_text;
         FullCorpusIO infcio(util, instr, false);
-        KyteaSentence * sent = infcio.readSentence();
+        std::unique_ptr<KyteaSentence> sent = infcio.readSentence();
         int ret = 1;
         if(sent->words.size() != 11) {
             cerr << "Did not get expected sentence size of 11: " << sent->words.size() << endl;
@@ -103,7 +97,6 @@ public:
             cerr << "Did not get two levels of tags for final word: " << sent->words[10].tags.size() << endl;
             ret = 0;
         }
-        delete sent;
         return ret;
     }
     
@@ -114,16 +107,15 @@ public:
         stringstream instr;
         instr << input;
         FullCorpusIO infcio(util, instr, false);
-        KyteaSentence * sent = infcio.readSentence();
+        std::unique_ptr<KyteaSentence> sent = infcio.readSentence();
         sent->words[2].setUnknown(true);
         // string exp = "これ/代名詞/これ は/助詞/は 未知/名詞/みち/UNK\n";
         string exp = "\xa4\xb3\xa4\xec\x2f\xc2\xe5\xcc\xbe\xbb\xec\x2f\xa4\xb3\xa4\xec\x20\xa4\xcf\x2f\xbd\xf5\xbb\xec\x2f\xa4\xcf\x20\xcc\xa4\xc3\xce\x2f\xcc\xbe\xbb\xec\x2f\xa4\xdf\xa4\xc1\x2f\x55\x4e\x4b\n";
         stringstream outstr;
         FullCorpusIO outfcio(util, outstr, true);
         outfcio.setUnkTag("/UNK");
-        outfcio.writeSentence(sent);
+        outfcio.writeSentence(sent.get());
         string act = outstr.str();
-        delete sent;
         if(exp != act) {
             cerr << "exp: "<<exp<<endl<<"act: "<<act<<endl;
             return 0;

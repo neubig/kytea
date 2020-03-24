@@ -13,7 +13,7 @@ public:
     EdaCorpusIO(StringUtil * util, const char* file, bool out);
     EdaCorpusIO(StringUtil * util, std::iostream & str, bool out);
     
-    KyteaSentence * readSentence() override;
+    std::unique_ptr<KyteaSentence> readSentence() override;
     void writeSentence(const KyteaSentence * sent, double conf = 0.0) override;
 
 protected:

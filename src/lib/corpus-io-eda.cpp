@@ -12,9 +12,9 @@
 using namespace kytea;
 using namespace std;
 
-KyteaSentence * EdaCorpusIO::readSentence() {
+std::unique_ptr<KyteaSentence> EdaCorpusIO::readSentence() {
     THROW_ERROR("Using EDA format for input is not currently supported");
-    return NULL;
+    return nullptr;
 }
 
 void EdaCorpusIO::writeSentence(const KyteaSentence * sent, double conf) {

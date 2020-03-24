@@ -19,6 +19,7 @@
 
 #include <kytea/kytea-config.h>
 #include <kytea/kytea-struct.h>
+#include <memory>
 #include <vector>
 
 namespace kytea  {
@@ -39,13 +40,12 @@ class Kytea {
 private:
     friend class KyteaTest;
     typedef unsigned FeatureId;
-    typedef std::vector<KyteaSentence*> Sentences;
     typedef std::vector< std::vector< FeatureId > > SentenceFeatures;
 
     StringUtil* util_;
     KyteaConfig* config_;
     Dictionary<ModelTagEntry> * dict_;
-    Sentences sentences_;
+    std::vector<std::unique_ptr<KyteaSentence>> sentences_;
 
     // Values for the word segmentation models
     KyteaModel* wsModel_;

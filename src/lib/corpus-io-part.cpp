@@ -12,7 +12,7 @@
 using namespace kytea;
 using namespace std;
 
-KyteaSentence * PartCorpusIO::readSentence() {
+std::unique_ptr<KyteaSentence> PartCorpusIO::readSentence() {
 #ifdef KYTEA_SAFE
     if(out_ || !str_) 
         THROW_ERROR("Attempted to read a sentence from an closed or output object");
@@ -20,12 +20,12 @@ KyteaSentence * PartCorpusIO::readSentence() {
     string s;
     getline(*str_, s);
     if(str_->eof())
-        return 0;
+        return nullptr;
     KyteaString ks = util_->mapString(s), buff(ks.length());
     KyteaChar ukBound = bounds_[0], skipBound = bounds_[1], noBound = bounds_[2], 
         hasBound = bounds_[3], slashChar = bounds_[4], elemChar = bounds_[5], 
         escapeChar = bounds_[6];
-    KyteaSentence * ret = new KyteaSentence();
+    auto ret = std::make_unique<KyteaSentence>();
 
     int len = ks.length(), charLen = 0;
     for(int j = 0; j < len; j++) {
