@@ -56,7 +56,9 @@ public:
         KyteaSentence * sent = io.readSentence();
         // Make the correct words
         KyteaString::Tokens toks = util->mapString("これ は 学習 データ で す 。").tokenize(util->mapString(" "));
-        return checkWordSeg(*sent,toks,util);
+        const int ret = checkWordSeg(*sent,toks,util);
+        delete sent;
+        return ret;
     }
 
     int testRawReadSlash() {
@@ -66,7 +68,9 @@ public:
         KyteaSentence * sent = io.readSentence();
         // Make the correct words
         KyteaString exp = util->mapString("右/左");
-        return exp == sent->surface;
+        const int ret = exp == sent->surface;
+        delete sent;
+        return ret;
     }
 
     int testPartEmptyTag() {
@@ -165,6 +169,7 @@ public:
         outfcio.setUnkTag("/UNK");
         outfcio.writeSentence(sent);
         string act = outstr.str();
+        delete sent;
         if(exp != act) {
             cerr << "exp: "<<exp<<endl<<"act: "<<act<<endl;
             return 0;

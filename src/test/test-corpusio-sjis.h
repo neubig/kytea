@@ -123,6 +123,7 @@ public:
         outfcio.setUnkTag("/UNK");
         outfcio.writeSentence(sent);
         string act = outstr.str();
+        delete sent;
         if(exp != act) {
             cerr << "exp: "<<exp<<endl<<"act: "<<act<<endl;
             return 0;
