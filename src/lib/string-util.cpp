@@ -270,12 +270,12 @@ KyteaChar StringUtilEuc::mapChar(const string & str, bool add) {
 
 string StringUtilEuc::showChar(KyteaChar c) const {
     if(c < 0x8E) {
-        char arr[2] = { c, 0 };
+        char arr[2] = { static_cast<char>(c), 0 };
         string ret(arr);
         return ret;
     }
     else {
-        char arr[3] = { euc1(c), euc2(c), 0 }; 
+        char arr[3] = { static_cast<char>(euc1(c)), static_cast<char>(euc2(c)), 0 };
         string ret(arr);
         return ret;
     }
@@ -380,12 +380,12 @@ KyteaChar StringUtilSjis::mapChar(const string & str, bool add) {
 
 string StringUtilSjis::showChar(KyteaChar c) const {
     if(c < 0xFF) {
-        char arr[2] = { c, 0 };
+        char arr[2] = { static_cast<char>(c), 0 };
         string ret(arr);
         return ret;
     }
     else {
-        char arr[3] = { sjis1(c), sjis2(c), 0 }; 
+        char arr[3] = { static_cast<char>(sjis1(c)), static_cast<char>(sjis2(c)), 0 };
         string ret(arr);
         return ret;
     }
