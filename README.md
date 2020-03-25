@@ -1,5 +1,7 @@
-KyTea [![Build Status](https://travis-ci.org/neubig/kytea.svg?branch=master)](https://travis-ci.org/neubig/kytea)
-=====
+# KyTea
+
+[![Build Status](https://travis-ci.org/neubig/kytea.svg?branch=master)](https://travis-ci.org/neubig/kytea)
+[![License](https://img.shields.io/badge/License-Apache%202.0-brightgreen.svg)](https://opensource.org/licenses/Apache-2.0)
 
 KyTea is a general text analysis toolkit, with a focus on Japanese and other languages requiring word or morpheme segmentation.
 
