@@ -20,6 +20,7 @@
 #include <kytea/dictionary.h>
 #include <kytea/general-io.h>
 #include <kytea/feature-vector.h>
+#include <kytea/model-io-format.h>
 #include <vector>
 
 #if DISABLE_QUANTIZE
@@ -40,11 +41,6 @@ class ModelIO : public GeneralIO {
 
 public:
 
-    typedef char Format;
-    const static Format FORMAT_BINARY = 'B';
-    const static Format FORMAT_TEXT = 'T';
-    const static Format FORMAT_UNKNOWN = 'U';
-
     int numTags_;
 
 public:
@@ -55,8 +51,8 @@ public:
 
     virtual ~ModelIO() { }
 
-    static ModelIO* createIO(const char* file, Format form, bool output, KyteaConfig & config);
-    static ModelIO* createIO(std::iostream & str, Format form, bool output, KyteaConfig & config);
+    static ModelIO* createIO(const char* file, ModelFormat form, bool output, KyteaConfig & config);
+    static ModelIO* createIO(std::iostream & str, ModelFormat form, bool output, KyteaConfig & config);
 
     virtual void writeConfig(const KyteaConfig & conf) = 0;
     virtual void writeModel(const KyteaModel * mod) = 0;

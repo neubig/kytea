@@ -362,7 +362,7 @@ public:
 
     int testTextIO() {
         // Write the model
-        kytea->getConfig()->setModelFormat(ModelIO::FORMAT_TEXT);
+        kytea->getConfig()->setModelFormat(MODEL_FORMAT_TEXT);
         kytea->writeModel("/tmp/kytea-model.txt");
         // Read the model
         Kytea actKytea;
@@ -374,7 +374,7 @@ public:
 
     int testBinaryIO() {
         // Write the model
-        kytea->getConfig()->setModelFormat(ModelIO::FORMAT_BINARY);
+        kytea->getConfig()->setModelFormat(MODEL_FORMAT_BINARY);
         kytea->writeModel("/tmp/kytea-model.bin");
         // Read the model
         Kytea actKytea;

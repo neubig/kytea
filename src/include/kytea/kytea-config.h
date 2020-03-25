@@ -24,6 +24,7 @@ class KyteaConfig;
 #include <string>
 #include <vector>
 #include <kytea/corpus-io-format.h>
+#include <kytea/model-io-format.h>
 
 namespace kytea {
 
@@ -50,7 +51,7 @@ private:
     std::vector<std::string> subwordDicts_; // subword dictionaries to use for unknown estimation
 
     std::string model_;              // model file to write/read
-    char modelForm_;             // model format (ModelIO::Format)
+    ModelFormat modelForm_;          // model format
 
     std::string input_, output_;     // the file to input/output
     CorpusFormat inputForm_, outputForm_; // the format/file to input/output to (default: stdout, full)
@@ -139,7 +140,7 @@ public:
     const std::vector<std::string> & getDictionaryFiles() const { return dicts_; }
     const std::vector<std::string> & getSubwordDictFiles() const { return subwordDicts_; }
     const std::string & getModelFile();
-    const char getModelFormat() const { return modelForm_; }
+    ModelFormat getModelFormat() const { return modelForm_; }
     const unsigned getDebug() const { return debug_; }
     StringUtil * getStringUtil() { return util_; }
     const StringUtil * getStringUtil() const { return util_; }
@@ -189,7 +190,7 @@ public:
     // setters
     void setDebug(unsigned debug) { debug_ = debug; }
     void setModelFile(const char* file) { model_ = file; }
-    void setModelFormat(char mf) { modelForm_ = mf; }
+    void setModelFormat(ModelFormat mf) { modelForm_ = mf; }
     void setEpsilon(double v) { eps_ = v; }
     void setCost(double v) { cost_ = v; }
     void setBias(bool v) { bias_ = (v?1.0f:-1.0f); }

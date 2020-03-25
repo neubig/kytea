@@ -846,8 +846,8 @@ void Kytea::readModel(const char* fileName) {
     if(config_->getDebug() > 0)
         cerr << "Reading model from " << fileName;
 
-    
-    ModelIO * modin = ModelIO::createIO(fileName,ModelIO::FORMAT_UNKNOWN, false, *config_);
+    ModelIO* modin =
+        ModelIO::createIO(fileName, MODEL_FORMAT_UNKNOWN, false, *config_);
     util_ = config_->getStringUtil();
 
     modin->readConfig(*config_);

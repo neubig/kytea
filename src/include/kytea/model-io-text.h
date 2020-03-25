@@ -63,8 +63,8 @@ public:
     }
 
     // create an appropriate parser based on the type
-    static CorpusIO* createIO(const char* file, Format form, bool output, StringUtil* util);
-    static CorpusIO* createIO(std::iostream & str, Format form, bool output, StringUtil* util);
+    static CorpusIO* createIO(const char* file, ModelFormat form, bool output, StringUtil* util);
+    static CorpusIO* createIO(std::iostream & str, ModelFormat form, bool output, StringUtil* util);
 
     void readConfig(KyteaConfig & conf) override;
     KyteaModel * readModel() override;

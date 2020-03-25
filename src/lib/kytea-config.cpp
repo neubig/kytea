@@ -183,7 +183,7 @@ unsigned KyteaConfig::parseTrainArg(const char * n, const char * v) {
 
     // output option for training
     else if(!strcmp(n, "-model"))    { ch(n,v); setModelFile(v); }
-    else if(!strcmp(n, "-modtext"))  { setModelFormat('T'); r=0; }
+    else if(!strcmp(n, "-modtext"))  { setModelFormat(MODEL_FORMAT_TEXT); r=0; }
     else if(!strcmp(n, "-featout"))  { ch(n,v); setFeatureOut(v); }
     else if(!strcmp(n, "-feat"))     { ch(n,v); setFeatureIn(v); }
     else if(!strcmp(n, "-numtags"))  { ch(n,v); setNumTags(util_->parseInt(v)); }
@@ -292,7 +292,7 @@ void KyteaConfig::setEncoding(const char* str) {
 
 
 KyteaConfig::KyteaConfig() : onTraining_(true), debug_(0), util_(0), dicts_(), 
-                modelForm_('B'), inputForm_(CORP_FORMAT_DEFAULT),
+                modelForm_(MODEL_FORMAT_BINARY), inputForm_(CORP_FORMAT_DEFAULT),
                 outputForm_(CORP_FORMAT_FULL), featStr_(0),
                 doWS_(true), doTags_(true), doUnk_(true),
                 addFeat_(false), confidence_(0.0), charW_(3), charN_(3), 

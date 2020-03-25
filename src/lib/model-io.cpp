@@ -43,8 +43,8 @@ static const char *solver_type_table[]=
 	"L2R_LR", "L2R_L2LOSS_SVC_DUAL", "L2R_L2LOSS_SVC","L2R_L1LOSS_SVC_DUAL","MCSVM_CS","L1R_L2LOSS_SVC","L1R_LR","L2R_LR_DUAL", NULL
 };
 
-ModelIO * ModelIO::createIO(const char* file, Format form, bool output, KyteaConfig & config) {
-    if(output && form == ModelIO::FORMAT_UNKNOWN) {
+ModelIO * ModelIO::createIO(const char* file, ModelFormat form, bool output, KyteaConfig & config) {
+    if(output && form == MODEL_FORMAT_UNKNOWN) {
         THROW_ERROR("A format must be specified for model output");
     } else if(!output) {
         ifstream ifs(file);
@@ -58,24 +58,31 @@ ModelIO * ModelIO::createIO(const char* file, Format form, bool output, KyteaCon
             THROW_ERROR("Badly formed model (header incorrect)");
         if(buff2 != MODEL_IO_VERSION)
             THROW_ERROR("Incompatible model version. Expected " << MODEL_IO_VERSION << ", but found " << buff2 << ".");
-        form = buff3[0];
+        form = static_cast<ModelFormat>(buff3[0]);
         config.setEncoding(buff4.c_str());
         ifs.close();
     }
     StringUtil * util = config.getStringUtil();
-    if(form == ModelIO::FORMAT_TEXT)      { return new TextModelIO(util,file,output); }
-    else if(form == ModelIO::FORMAT_BINARY) { return new BinaryModelIO(util,file,output); }
-    else {
-        THROW_ERROR("Illegal model format");
+    switch (form) {
+        case MODEL_FORMAT_TEXT:
+            return new TextModelIO(util, file, output);
+        case MODEL_FORMAT_BINARY:
+            return new BinaryModelIO(util, file, output);
+        default:
+            THROW_ERROR("Illegal model format");
     }
 }
 
-ModelIO * ModelIO::createIO(iostream & file, Format form, bool output, KyteaConfig & config) {
-    StringUtil * util = config.getStringUtil();
-    if(form == ModelIO::FORMAT_TEXT)      { return new TextModelIO(util,file,output); }
-    else if(form == ModelIO::FORMAT_BINARY) { return new BinaryModelIO(util,file,output); }
-    else {
-        THROW_ERROR("Illegal model format");
+ModelIO* ModelIO::createIO(iostream& file, ModelFormat form, bool output,
+                           KyteaConfig& config) {
+    StringUtil* util = config.getStringUtil();
+    switch (form) {
+        case MODEL_FORMAT_TEXT:
+            return new TextModelIO(util, file, output);
+        case MODEL_FORMAT_BINARY:
+            return new BinaryModelIO(util, file, output);
+        default:
+            THROW_ERROR("Illegal model format");
     }
 }
 
