@@ -70,9 +70,9 @@ CorpusIO * CorpusIO::createIO(const char* file, CorpusFormat form, const KyteaCo
 CorpusIO * CorpusIO::createIO(iostream & file, CorpusFormat form, const KyteaConfig & conf, bool output, StringUtil* util) {
     switch (form) {
         case CORP_FORMAT_FULL:
-            new FullCorpusIO(util, file, output, conf.getWordBound(),
-                             conf.getTagBound(), conf.getElemBound(),
-                             conf.getEscape());
+            return new FullCorpusIO(util, file, output, conf.getWordBound(),
+                                    conf.getTagBound(), conf.getElemBound(),
+                                    conf.getEscape());
         case CORP_FORMAT_TAGS: {
             FullCorpusIO* io = new FullCorpusIO(
                 util, file, output, conf.getWordBound(), conf.getTagBound(),
