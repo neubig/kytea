@@ -17,11 +17,6 @@
 #ifndef KYTEA_STRUCT_H__
 #define KYTEA_STRUCT_H__
 
-// #include <stdexcept>
-// #include <iostream>
-// #include <vector>
-// #include <algorithm>
-// #include <kytea/kytea-util.h>
 #include <kytea/config.h>
 #include <kytea/kytea-string.h>
 #include <string>

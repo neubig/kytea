@@ -18,11 +18,7 @@
 #define STRING_UTIL_H__
 
 #include <kytea/kytea-struct.h>
-// #include <kytea/kytea-string.h>
-// #include <iostream>
 #include <sstream>
-// #include <vector>
-// #include <cstdlib>
 
 namespace kytea {
 

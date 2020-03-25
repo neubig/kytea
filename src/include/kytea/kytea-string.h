@@ -23,10 +23,6 @@
 #include <vector>
 #include <cstddef>
 #include <algorithm>
-// #include <stdexcept>
-// #include <cstring>
-// #include <sstream>
-// #include <iostream>
 
 namespace kytea {
 

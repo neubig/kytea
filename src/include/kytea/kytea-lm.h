@@ -18,7 +18,6 @@
 #define KYTEA_LM_H__
 
 #include <kytea/kytea-struct.h>
-// #include <vector>
 
 namespace kytea {
 

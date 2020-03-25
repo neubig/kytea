@@ -17,14 +17,8 @@
 #ifndef GENERAL_IO_H__ 
 #define GENERAL_IO_H__ 
 
-// #include <kytea/kytea-string.h>
-// #include <kytea/string-util.h>
-// #include <kytea/config.h>
 #include <iostream>
 #include <cstddef>
-// #include <fstream>
-// #include <sstream>
-// #include <stdint.h>
 
 #if DISABLE_QUANTIZE
 #   define DECIMAL_PRECISION 8

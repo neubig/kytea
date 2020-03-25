@@ -19,7 +19,6 @@
 
 #include <kytea/kytea-string.h>
 #include <kytea/string-util.h>
-// #include <kytea/kytea-model.h>
 #include <map>
 #include <deque>
 

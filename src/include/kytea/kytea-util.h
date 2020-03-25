@@ -1,7 +1,6 @@
 #ifndef KYTEA_UTIL__
 #define KYTEA_UTIL__
 
-// #include <iostream>
 #include <vector>
 #include <stdexcept>
 #include <sstream>
