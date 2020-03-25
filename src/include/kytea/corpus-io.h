@@ -19,6 +19,7 @@
 
 #include <kytea/corpus-io-format.h>
 #include <kytea/general-io.h>
+#include <memory>
 #include <vector>
 
 namespace kytea {
@@ -53,8 +54,14 @@ public:
     virtual ~CorpusIO() { }
 
     // create an appropriate parser based on the type
-    static CorpusIO* createIO(const char* file, CorpusFormat form, const KyteaConfig & conf, bool output, StringUtil* util);
-    static CorpusIO* createIO(std::iostream & str, CorpusFormat form, const KyteaConfig & conf, bool output, StringUtil* util);
+    static std::unique_ptr<CorpusIO> createIO(const char* file,
+                                              CorpusFormat form,
+                                              const KyteaConfig& conf,
+                                              bool output, StringUtil* util);
+    static std::unique_ptr<CorpusIO> createIO(std::iostream& str,
+                                              CorpusFormat form,
+                                              const KyteaConfig& conf,
+                                              bool output, StringUtil* util);
 
     virtual KyteaSentence * readSentence() = 0;
     virtual void writeSentence(const KyteaSentence * sent, double conf = 0.0) = 0;

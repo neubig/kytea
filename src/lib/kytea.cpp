@@ -92,7 +92,8 @@ void Kytea::scanDictionaries(const vector<string> & dict, typename Dictionary<En
     for(vector<string>::const_iterator it = dict.begin(); it != dict.end(); it++) {
         if(config_->getDebug())
             cerr << "Reading dictionary from " << *it << " ";
-        CorpusIO * io = CorpusIO::createIO(it->c_str(), CORP_FORMAT_FULL, *config, false, util);
+        std::unique_ptr<CorpusIO> io = CorpusIO::createIO(
+            it->c_str(), CORP_FORMAT_FULL, *config, false, util);
         io->setNumTags(config_->getNumTags());
         KyteaSentence* next;
         int lines = 0;
@@ -116,7 +117,6 @@ void Kytea::scanDictionaries(const vector<string> & dict, typename Dictionary<En
                 addTag<Entry>(wordMap, word, 0, 0, (saveIds?numDicts:-1));
             delete next;
         }
-        delete io;
         numDicts++;
         if(config_->getDebug() > 0) {
             if(lines)
@@ -141,7 +141,8 @@ void Kytea::buildVocabulary() {
     for(unsigned i = 0; i < corpora.size(); i++) {
         if(config_->getDebug() > 0)
             cerr << "Reading corpus from " << corpora[i] << " ";
-        CorpusIO * io = CorpusIO::createIO(corpora[i].c_str(), corpForm[i], *config_, false, util_);
+        std::unique_ptr<CorpusIO> io = CorpusIO::createIO(
+            corpora[i].c_str(), corpForm[i], *config_, false, util_);
         io->setNumTags(config_->getNumTags());
         KyteaSentence* next;
         int lines = 0;
@@ -174,7 +175,6 @@ void Kytea::buildVocabulary() {
             else
                 cerr << " WARNING - empty training data specified."  << endl;
         }
-        delete io;
     }
     config_->setNumTags(maxTag);
 
@@ -1186,7 +1186,8 @@ void Kytea::analyze() {
     if(config_->getDebug() > 0)    
         cerr << "Analyzing input ";
 
-    CorpusIO *in, *out;
+    std::unique_ptr<CorpusIO> in;
+    std::unique_ptr<CorpusIO> out;
     iostream *inStr = 0, *outStr = 0;
     const vector<string> & args = config_->getArguments();
     if(args.size() > 0) {
@@ -1218,8 +1219,6 @@ void Kytea::analyze() {
         delete next;
     }
 
-    delete in;
-    delete out;
     if(inStr) delete inStr;
     if(outStr) delete outStr;
 
